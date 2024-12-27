@@ -1,5 +1,3 @@
-
-
 export default class RoomExtension extends Room {
     PRIVATEKEY_PERFIX = '_'
     MEMORYKEY_PERFIX = 'IDOF_'
@@ -52,6 +50,18 @@ export default class RoomExtension extends Room {
 
     public levelGetter(): number {
         return this.controller?.level || this.invaderCore?.level || 0
+    }
+
+    public creepConfigGetter(): { [creepName: string]: CreepMemory } {
+        if (this.memory.creepConfig == undefined || Object.keys(this.memory.creepConfig).length == 0) {
+            this.memory.creepConfig = {}
+        }
+        return this.memory.creepConfig
+    }
+
+    public creepConfigSetter(creepConfig: { [creepName: string]: CreepMemory }): void {
+        console.log('creepConfigSetter')
+        this.memory.creepConfig = creepConfig
     }
 
 
