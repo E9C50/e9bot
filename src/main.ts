@@ -7,9 +7,4 @@ export const loop = ErrorMapper.wrapLoop(() => {
   // 挂载原型
   mountWork()
 
-  for (const name in Game.creeps) {
-    const creep = Game.creeps[name]
-    creep.getEnergyFrom(creep.room.sources[0])
-    creep.buildStructure()
-  }
 })

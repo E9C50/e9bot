@@ -7,6 +7,11 @@ interface Creep {
 }
 
 interface Room {
+    my: boolean
+    level: number
+
+    creepConfig: { [creepName: string]: CreepMemory }
+
     // 建筑缓存一键访问
     mineral: Mineral
     sources: Source[]
@@ -18,7 +23,7 @@ interface Room {
     spawns: StructureSpawn[]
     ramparts: StructureRampart[]
     extensions: StructureExtension[]
-    constructedWalls: StructureWall[]
+    walls: StructureWall[]
 
     labs: StructureLab[]
     links: StructureLink[]
@@ -29,26 +34,38 @@ interface Room {
     powerBanks: StructurePowerBank[]
     portals: StructurePortal[]
 
-    nuker: StructureNuker
-    factory: StructureFactory
-    observer: StructureObserver
-    extractor: StructureExtractor
-    powerSpawn: StructurePowerSpawn
-    invaderCore: StructureInvaderCore
+    nuker?: StructureNuker
+    factory?: StructureFactory
+    observer?: StructureObserver
+    extractor?: StructureExtractor
+    powerSpawn?: StructurePowerSpawn
+    invaderCore?: StructureInvaderCore
     // storage: StructureStorage
     // terminal: StructureTerminal
     // controller: StructureController
 
-    centerLink: StructureLink
-    controllerLink: StructureLink
+    centerLink?: StructureLink
+    controllerLink?: StructureLink
+}
+
+interface Source {
+    freeSpaceCount: number
+}
+
+interface Mineral {
+    freeSpaceCount: number
 }
 
 interface RoomMemory {
-    infoPos: RoomPosition
-    managerPos: RoomPosition
-    centerPos: RoomPosition
+    infoPos?: RoomPosition
+    managerPos?: RoomPosition
+    centerPos?: RoomPosition
 
-    autoLaylout: boolean
+    autoLaylout?: boolean
+}
+
+interface CreepMemory {
+
 }
 
 interface BodySet {
