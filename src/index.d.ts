@@ -32,8 +32,8 @@ declare enum colorEnum {
     BLUE = '#8dc5e3'
 }
 
-
 interface Creep {
+    doWork(): void
     buildStructure(): ScreepsReturnCode
     upgradeController(): ScreepsReturnCode
 
@@ -81,6 +81,9 @@ interface Room {
 
     centerLink?: StructureLink
     controllerLink?: StructureLink
+
+
+    spawnCreep(): void
 }
 
 interface Source {
@@ -100,6 +103,7 @@ interface RoomMemory {
 
     freeSpaceCount: { [sourceId: string]: number }
     creepConfig: { [creepName: string]: CreepMemory }
+    creepSpawnQueue: string[]
 }
 
 interface CreepMemory {
@@ -113,30 +117,19 @@ interface CreepMemory {
 /**
  * 所有 creep 角色的 data
  */
-type CreepData = EmptyData | HarvesterData | WorkerData
+type CreepData = EmptyData | HarvesterData | FillerData | WorkerData
 
-/**
- * 有些角色不需要 data
- */
 interface EmptyData { }
 
-/**
- * 采集单位的 data
- * 执行从 sourceId 处采集东西，并转移至 targetId 处（不一定使用，每个角色都有自己固定的目标例如 storage 或者 terminal）
- */
 interface HarvesterData {
-    // 要采集的 source id
     sourceId: string
-    // 把采集到的资源存到哪里存在哪里
-    targetId: string
 }
 
-/**
- * 工作单位的 data
- * 由于由确定的工作目标所以不需要 targetId
- */
+interface FillerData {
+    sourceId: string
+}
+
 interface WorkerData {
-    // 要使用的资源存放建筑 id
     sourceId: string
 }
 

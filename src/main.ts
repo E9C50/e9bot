@@ -1,6 +1,7 @@
-import { ErrorMapper } from "module/ErrorMapper"
 import { mountWork } from "mount"
-import { creepNumberController } from "./module/creepController"
+import { ErrorMapper } from "./module/ErrorMapper"
+import { creepController } from "./module/CreepController"
+import { structureController } from "./module/StructureController"
 
 export const loop = ErrorMapper.wrapLoop(() => {
   // console.log(`Current game tick is ${Game.time}`)
@@ -9,6 +10,9 @@ export const loop = ErrorMapper.wrapLoop(() => {
   mountWork()
 
   // Creep数量控制
-  creepNumberController()
+  creepController()
+
+  // 建筑工作控制
+  structureController()
 
 })

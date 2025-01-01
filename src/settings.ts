@@ -1,3 +1,7 @@
+
+export const STRUCTURE_PRIVATEKEY_PERFIX = '_'
+export const STRUCTURE_MEMORYKEY_PERFIX = 'IDOF_'
+
 export const defaultConrtollerSign = 'I am a novice and a peaceful player. Please do not attack me!!!'
 
 export const bodyConfigs = {

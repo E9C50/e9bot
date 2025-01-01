@@ -1,6 +1,29 @@
 import jsSHA from "jssha";
 
 /**
+ * 按照优先级插入元素
+ * @param list
+ * @param element
+ * @param priority
+ */
+export const insertByPriority = function <T>(list: T[], element: T, priority: number) {
+    const newList: T[] = [];
+    let inserted = false;
+    for (const item of list) {
+        const currentPriority = 0;
+        if (!inserted && priority > currentPriority) {
+            newList.push(element);
+            inserted = true;
+        }
+        newList.push(item);
+    }
+    if (!inserted) {
+        newList.push(element);
+    }
+    return newList;
+}
+
+/**
  * 把 obj2 的原型合并到 obj1 的原型上
  * 如果原型的键以 Getter 结尾，则将会把其挂载为 getter 属性
  * @param obj1 要挂载到的对象
@@ -25,6 +48,34 @@ export const assignPrototype = function (obj1: { [key: string]: any }, obj2: { [
 }
 
 /**
+     * 构建BodyPart
+     * @param {*} bodySets
+     * @returns
+     */
+export const getBodyConfig = function (room: Room, bodyConfigs: { [key: string]: number }[], forceSpawn: boolean = false): BodyPartConstant[] {
+    const energy = forceSpawn ? room.energyAvailable : room.energyCapacityAvailable;
+
+    var bodyConfig: BodyPartConstant[] = [];
+    for (let i = 7; i >= 0; i--) {
+        var needEnergy = 0;
+        for (let config in bodyConfigs[i]) {
+            needEnergy += BODYPART_COST[config] * bodyConfigs[i][config];
+        }
+
+        if (needEnergy <= energy) {
+            for (let config in bodyConfigs[i]) {
+                bodyConfig = bodyConfig.concat(
+                    Array.from({ length: bodyConfigs[i][config] }, (k, v) => config as BodyPartConstant)
+                );
+            }
+            break;
+        }
+    }
+
+    return bodyConfig;
+}
+
+/**
  * 对输入的字符串进行拼接并且进行SHA1
  * @param strings 输入的n个字符串
  * @returns
@@ -35,8 +86,6 @@ export const sha1String = function (...strings: string[]): string {
     shaObj.update(concatenatedString)
     return shaObj.getHash("HEX").toUpperCase().substring(0, 16)
 }
-
-
 
 /**
  * 给指定文本添加颜色
