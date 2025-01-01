@@ -1,27 +1,5 @@
+import { colorEnum } from "constant";
 import jsSHA from "jssha";
-
-/**
- * 按照优先级插入元素
- * @param list
- * @param element
- * @param priority
- */
-export const insertByPriority = function <T>(list: T[], element: T, priority: number) {
-    const newList: T[] = [];
-    let inserted = false;
-    for (const item of list) {
-        const currentPriority = 0;
-        if (!inserted && priority > currentPriority) {
-            newList.push(element);
-            inserted = true;
-        }
-        newList.push(item);
-    }
-    if (!inserted) {
-        newList.push(element);
-    }
-    return newList;
-}
 
 /**
  * 把 obj2 的原型合并到 obj1 的原型上

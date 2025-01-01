@@ -53,18 +53,6 @@ export default class RoomExtension extends Room {
         return this.controller?.level || this.invaderCore?.level || 0
     }
 
-    public creepConfigGetter(): { [creepName: string]: CreepMemory } {
-        if (this.memory.creepConfig == undefined || Object.keys(this.memory.creepConfig).length == 0) {
-            this.memory.creepConfig = {}
-        }
-        return this.memory.creepConfig
-    }
-
-    public creepConfigSetter(creepConfig: { [creepName: string]: CreepMemory }): void {
-        this.memory.creepConfig = creepConfig
-    }
-
-
     // 矿物资源缓存
     public sourcesGetter(): Source[] {
         const privateKey = STRUCTURE_PRIVATEKEY_PERFIX + 'SOURCES'
@@ -232,17 +220,20 @@ export default class RoomExtension extends Room {
 
 
     public spawnCreep(): void {
-        const creepName = this.memory.creepSpawnQueue[0]
-        const creepMemory = this.memory.creepConfig[creepName]
-
-        const bodyConfig = bodyConfigs.worker;
-        const bodyPart: BodyPartConstant[] = getBodyConfig(this, bodyConfig, false);
+        // 循环creepConfig，筛选出未孵化的creep，并按照优先级排序
+        const creepConfigCache = this.memory.creepConfig
+        const creepSpawnQueue = Object.keys(this.memory.creepConfig)
+            .filter(creepName => !Game.creeps[creepName])
+            .sort((a, b) => creepConfigCache[b].spawnPriority - creepConfigCache[a].spawnPriority)
 
         this.spawns.forEach(spawn => {
-            const spawnCode = spawn.spawnCreep(bodyPart, creepName, { memory: creepMemory })
-            if (spawnCode == OK) {
-                this.memory.creepSpawnQueue = this.memory.creepSpawnQueue.filter(name => name != creepName);
-            }
+            const creepName = creepSpawnQueue[0]
+            const creepMemory = creepConfigCache[creepName]
+
+            const bodyConfig = bodyConfigs.worker;
+            const bodyPart: BodyPartConstant[] = getBodyConfig(this, bodyConfig, false);
+            const spawnResult = spawn.spawnCreep(bodyPart, creepName, { memory: creepMemory })
+            if (spawnResult == OK) creepSpawnQueue.shift()
         })
     }
 }

@@ -1,5 +1,6 @@
-import { creepClassMap, roleBaseEnum } from "constant";
-import { insertByPriority, sha1String } from "utils";
+import { roleAdvEnum, roleBaseEnum } from "constant";
+import { sha1String } from "utils";
+import roles from 'role'
 
 /**
  * 添加需求配置
@@ -11,20 +12,16 @@ import { insertByPriority, sha1String } from "utils";
  */
 function addCreepConfig(room: Room, creepRole: CreepRoleConstant, creepName: string, creepData: CreepData = {}, priority: number = 0): void {
     const creepNameHash = creepRole + '_' + sha1String(creepName)
-    if (creepNameHash in room.creepConfig) return
+    if (creepNameHash in room.memory.creepConfig) return
 
-    room.creepConfig[creepNameHash] = {
+    room.memory.creepConfig[creepNameHash] = {
         role: creepRole,
         working: false,
         ready: false,
         spawnRoom: room.name,
+        spawnPriority: priority,
         data: creepData
     }
-
-    if (!room.memory.creepSpawnQueue.includes(creepNameHash) && !Game.creeps[creepNameHash]) {
-        room.memory.creepSpawnQueue = insertByPriority(room.memory.creepSpawnQueue, creepNameHash, priority)
-    }
-
 }
 
 /**
@@ -34,12 +31,7 @@ function releaseCreepConfig(): void {
     for (const roomName in Game.rooms) {
         const room: Room = Game.rooms[roomName];
         if (!room.my) continue;
-
-        // 初始化内存
-        room.creepConfig = {}
-        if (!room.memory.creepSpawnQueue) {
-            room.memory.creepSpawnQueue = []
-        }
+        room.memory.creepConfig = {}
 
         // 根据矿产情况发布矿工
         room.sources.forEach(source => {
@@ -74,13 +66,17 @@ function releaseCreepConfig(): void {
                 addCreepConfig(room, roleBaseEnum.FILLER, creepFillerName1, creepFillerMemory, 7);
             }
 
-            // if (container.store[RESOURCE_ENERGY] > 1000 && !room.storage) {
-            //     for (let i = 1; i < (container.store[RESOURCE_ENERGY] / 300) + 1; i++) {
-            //         addCreepConfig(room, roleBaseEnum.UPGRADER, room.name + '_UPGRADER_CONTAINER_' + container.id + '_' + i, { sourceTarget: container.id }, 6);
-            //         addCreepConfig(room, roleBaseEnum.BUILDER, room.name + '_BUILDER_CONTAINER_' + container.id + '_' + i, { sourceTarget: container.id }, 6);
-            //         addCreepConfig(room, roleBaseEnum.REPAIRER, room.name + '_REPAIRER_CONTAINER_' + container.id + '_' + i, { sourceTarget: container.id }, 5);
-            //     }
-            // }
+            if (!room.storage) {
+                for (let i = 0; i < Math.floor(container.store[RESOURCE_ENERGY] / 500) + 1; i++) {
+                    const creepWorkerMemory: WorkerData = { sourceId: container.id }
+                    const creepUpgraderName = room.name + '_UPGRADER_CONTAINER_' + container.id + '_' + i
+                    // const creepBuilderName = room.name + '_BUILDER_CONTAINER_' + container.id + '_' + i
+                    // const creepRepairerName = room.name + '_REPAIRER_CONTAINER_' + container.id + '_' + i
+                    addCreepConfig(room, roleBaseEnum.UPGRADER, creepUpgraderName, creepWorkerMemory, 6);
+                    // addCreepConfig(room, roleBaseEnum.BUILDER, creepBuilderName, creepWorkerMemory, 6);
+                    // addCreepConfig(room, roleBaseEnum.REPAIRER, creepRepairerName, creepWorkerMemory, 5);
+                }
+            }
         })
     }
 }
@@ -104,7 +100,7 @@ export const creepController = function (): void {
 
     // 执行工作
     Object.values(Game.creeps).forEach(creep => {
-        new creepClassMap[creep.memory.role](creep.id).doWork()
+        roles[creep.memory.role](creep.memory.data).doWork(creep)
     });
 
 }

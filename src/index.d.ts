@@ -1,39 +1,27 @@
-declare type CreepRoleConstant = roleBaseEnum | roleAdvEnum | roleWarEnum
+// 所有的 creep 角色
+type CreepRoleConstant = BaseRoleHarvester | BaseRoleFiller | BaseRoleUpgrader | BaseRoleBuilder
+    | BaseRoleRepairer | BaseRoleMiner | AdvancedRoleManager
 
-declare enum roleBaseEnum {
-    HARVESTER = 'harvester',
-    FILLER = 'filler',
-    UPGRADER = 'upgrader',
-    BUILDER = 'builder',
-    REPAIRER = 'repairer',
-    MINER = 'miner',
-}
+// 房间基础运营
+type BaseRoleHarvester = 'harvester'
+type BaseRoleFiller = 'filler'
+type BaseRoleUpgrader = 'upgrader'
+type BaseRoleBuilder = 'builder'
+type BaseRoleRepairer = 'repairer'
+type BaseRoleMiner = 'miner'
 
-declare enum roleAdvEnum {
-    MANAGER = "manager",
-    CLAIMER = "claimer",
-    RESERVER = "reserver",
-    RHARVESTER = "remoteHarvester",
-    RFILLER = "remoteFiller",
-}
+// 房间高级运营
+type AdvancedRoleManager = 'manager'
 
-declare enum roleWarEnum {
-    SOLDIER = "soldier",
-    DOCTOR = "doctor",
-    DISMANTLER = "dismantler",
-    DEFENDER = "defender",
-    ALLINONE = "allinone",
-}
 
-declare enum colorEnum {
-    RED = '#ef9a9a',
-    GREEN = '#6b9955',
-    YELLOW = '#c5c599',
-    BLUE = '#8dc5e3'
+interface ICreepConfig {
+    // 每次死后都会进行判断，只有返回 true 时才会重新发布孵化任务
+    isNeed: (room: Room, creepName: string) => boolean
+    // 准备阶段执行的方法, 返回 true 时代表准备完成
+    doWork: (creep: Creep) => void
 }
 
 interface Creep {
-    doWork(): void
     buildStructure(): ScreepsReturnCode
     upgradeController(): ScreepsReturnCode
 
@@ -44,8 +32,6 @@ interface Creep {
 interface Room {
     my: boolean
     level: number
-
-    creepConfig: { [creepName: string]: CreepMemory }
 
     // 建筑缓存一键访问
     mineral: Mineral
@@ -103,7 +89,6 @@ interface RoomMemory {
 
     freeSpaceCount: { [sourceId: string]: number }
     creepConfig: { [creepName: string]: CreepMemory }
-    creepSpawnQueue: string[]
 }
 
 interface CreepMemory {
@@ -111,12 +96,15 @@ interface CreepMemory {
     ready: boolean
     working: boolean
     spawnRoom: string
+    spawnPriority: number
     data: CreepData
 }
 
-/**
- * 所有 creep 角色的 data
- */
+// Creep 工作逻辑集合 包含了每个角色应该做的工作
+type CreepWork = { [role in CreepRoleConstant]: (data: CreepData) => ICreepConfig }
+
+
+// 所有 Creep 角色的 Data 数据
 type CreepData = EmptyData | HarvesterData | FillerData | WorkerData
 
 interface EmptyData { }

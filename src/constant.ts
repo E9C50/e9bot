@@ -1,6 +1,3 @@
-import CreepFiller from "role/RoleFiller";
-import CreepHarvester from "role/RoleHarvester";
-
 export enum roleBaseEnum {
     HARVESTER = 'harvester',
     FILLER = 'filler',
@@ -26,24 +23,9 @@ export enum roleWarEnum {
     ALLINONE = "allinone",
 }
 
-type CreepClassMapType = {
-    [values in CreepRoleConstant]: typeof CreepHarvester | typeof CreepFiller;
-};
-export const creepClassMap: CreepClassMapType = {
-    [roleBaseEnum.HARVESTER]: CreepHarvester,
-    [roleBaseEnum.FILLER]: CreepFiller,
-    [roleBaseEnum.UPGRADER]: CreepHarvester,
-    [roleBaseEnum.BUILDER]: CreepHarvester,
-    [roleBaseEnum.REPAIRER]: CreepHarvester,
-    [roleBaseEnum.MINER]: CreepHarvester,
-    [roleAdvEnum.MANAGER]: CreepHarvester,
-    [roleAdvEnum.CLAIMER]: CreepHarvester,
-    [roleAdvEnum.RESERVER]: CreepHarvester,
-    [roleAdvEnum.RHARVESTER]: CreepHarvester,
-    [roleAdvEnum.RFILLER]: CreepFiller,
-    [roleWarEnum.SOLDIER]: CreepHarvester,
-    [roleWarEnum.DOCTOR]: CreepHarvester,
-    [roleWarEnum.DISMANTLER]: CreepHarvester,
-    [roleWarEnum.DEFENDER]: CreepHarvester,
-    [roleWarEnum.ALLINONE]: CreepHarvester
-};
+export enum colorEnum {
+    RED = '#ef9a9a',
+    GREEN = '#6b9955',
+    YELLOW = '#c5c599',
+    BLUE = '#8dc5e3'
+}
