@@ -1,7 +1,8 @@
 import { mountWork } from "mount"
-import { ErrorMapper } from "./module/ErrorMapper"
-import { creepController } from "./module/CreepController"
-import { structureController } from "./module/StructureController"
+import { ErrorMapper } from "./utils/ErrorMapper"
+import { creepNumberController, creepWorkController } from "./module/CreepController"
+import { structureWorkController } from "./module/StructureController"
+import { visualController } from "./module/VisualController"
 
 export const loop = ErrorMapper.wrapLoop(() => {
   // console.log(`Current game tick is ${Game.time}`)
@@ -10,9 +11,15 @@ export const loop = ErrorMapper.wrapLoop(() => {
   mountWork()
 
   // Creep数量控制
-  creepController()
+  creepNumberController()
+
+  // Creep工作控制
+  creepWorkController()
 
   // 建筑工作控制
-  structureController()
+  structureWorkController()
+
+  // 可视化信息
+  visualController()
 
 })

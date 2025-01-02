@@ -4,7 +4,21 @@ export const STRUCTURE_MEMORYKEY_PERFIX = 'IDOF_'
 
 export const defaultConrtollerSign = 'I am a novice and a peaceful player. Please do not attack me!!!'
 
+const workerBodyConfigs = [
+    { [WORK]: 1, [CARRY]: 1, [MOVE]: 1 },
+    { [WORK]: 2, [CARRY]: 2, [MOVE]: 2 },
+    { [WORK]: 3, [CARRY]: 3, [MOVE]: 3 },
+    { [WORK]: 4, [CARRY]: 4, [MOVE]: 4 },
+    { [WORK]: 6, [CARRY]: 6, [MOVE]: 6 },
+    { [WORK]: 7, [CARRY]: 7, [MOVE]: 7 },
+    { [WORK]: 12, [CARRY]: 6, [MOVE]: 9 },
+    { [WORK]: 20, [CARRY]: 8, [MOVE]: 14 }
+]
+
 export const bodyConfigs = {
+    upgrader: workerBodyConfigs,
+    builder: workerBodyConfigs,
+    repairer: workerBodyConfigs,
     harvester: [
         { [WORK]: 2, [CARRY]: 1, [MOVE]: 1 },
         { [WORK]: 4, [CARRY]: 1, [MOVE]: 2 },
@@ -15,19 +29,9 @@ export const bodyConfigs = {
         { [WORK]: 8, [CARRY]: 1, [MOVE]: 5 },
         { [WORK]: 8, [CARRY]: 1, [MOVE]: 5 },
     ],
-    worker: [
-        { [WORK]: 1, [CARRY]: 1, [MOVE]: 1 },
-        { [WORK]: 2, [CARRY]: 2, [MOVE]: 2 },
-        { [WORK]: 3, [CARRY]: 3, [MOVE]: 3 },
-        { [WORK]: 4, [CARRY]: 4, [MOVE]: 4 },
-        { [WORK]: 6, [CARRY]: 6, [MOVE]: 6 },
-        { [WORK]: 7, [CARRY]: 7, [MOVE]: 7 },
-        { [WORK]: 12, [CARRY]: 6, [MOVE]: 9 },
-        { [WORK]: 20, [CARRY]: 8, [MOVE]: 14 }
-    ],
     filler: [
-        { [CARRY]: 2, [MOVE]: 1 },
-        { [CARRY]: 3, [MOVE]: 2 },
+        { [CARRY]: 2, [MOVE]: 2 },
+        { [CARRY]: 3, [MOVE]: 3 },
         { [CARRY]: 4, [MOVE]: 2 },
         { [CARRY]: 5, [MOVE]: 3 },
         { [CARRY]: 8, [MOVE]: 4 },

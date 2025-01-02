@@ -13,7 +13,7 @@ type BaseRoleMiner = 'miner'
 // 房间高级运营
 type AdvancedRoleManager = 'manager'
 
-
+// Creep 基本工作接口定义
 interface ICreepConfig {
     // 每次死后都会进行判断，只有返回 true 时才会重新发布孵化任务
     isNeed: (room: Room, creepName: string) => boolean
@@ -21,12 +21,9 @@ interface ICreepConfig {
     doWork: (creep: Creep) => void
 }
 
+// Creep通用函数定义
 interface Creep {
-    buildStructure(): ScreepsReturnCode
-    upgradeController(): ScreepsReturnCode
-
-    getEnergyFrom(target: Structure | Source): ScreepsReturnCode
-    transferTo(target: Structure, resourceType: ResourceConstant): ScreepsReturnCode
+    pickupDroppedResource(allSource: boolean, range: number): boolean
 }
 
 interface Room {
@@ -36,6 +33,10 @@ interface Room {
     // 建筑缓存一键访问
     mineral: Mineral
     sources: Source[]
+
+    ruins: Ruin[]
+    tombstones: Tombstone[]
+    droppedResource: Resource[]
 
     structures: Structure[]
     constructionSites: ConstructionSite[]
@@ -67,9 +68,6 @@ interface Room {
 
     centerLink?: StructureLink
     controllerLink?: StructureLink
-
-
-    spawnCreep(): void
 }
 
 interface Source {
@@ -80,12 +78,17 @@ interface Mineral {
     freeSpaceCount: number
 }
 
+interface Structure {
+    doWork(): void
+}
+
 interface RoomMemory {
     infoPos?: RoomPosition
     managerPos?: RoomPosition
     centerPos?: RoomPosition
 
     autoLaylout?: boolean
+    centerLinkSentMode?: boolean
 
     freeSpaceCount: { [sourceId: string]: number }
     creepConfig: { [creepName: string]: CreepMemory }
@@ -105,7 +108,7 @@ type CreepWork = { [role in CreepRoleConstant]: (data: CreepData) => ICreepConfi
 
 
 // 所有 Creep 角色的 Data 数据
-type CreepData = EmptyData | HarvesterData | FillerData | WorkerData
+type CreepData = EmptyData | HarvesterData | MineralData | FillerData | BuilderData | RepairerData
 
 interface EmptyData { }
 
@@ -113,14 +116,26 @@ interface HarvesterData {
     sourceId: string
 }
 
+interface MineralData {
+    sourceId: string
+}
+
 interface FillerData {
     sourceId: string
 }
 
-interface WorkerData {
+interface UpgraderData {
     sourceId: string
 }
 
+interface BuilderData {
+    sourceId: string
+}
+
+interface RepairerData {
+    sourceId: string
+    repairTarget: string
+}
 
 interface BodySet {
     [MOVE]?: number
