@@ -19,6 +19,7 @@ export const bodyConfigs = {
     upgrader: workerBodyConfigs,
     builder: workerBodyConfigs,
     repairer: workerBodyConfigs,
+    miner: workerBodyConfigs,
     harvester: [
         { [WORK]: 2, [CARRY]: 1, [MOVE]: 1 },
         { [WORK]: 4, [CARRY]: 1, [MOVE]: 2 },

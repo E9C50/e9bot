@@ -16,15 +16,23 @@ export default class SpawnExtension extends StructureSpawn {
         // 如果有harvester，但是没有filler，则优先孵化一个对应的filler
         if (this.room.containers.length > 0 && fillers.length == 0 && harvesters.length > 0) {
             const container = this.room.containers.filter(container => container.store[RESOURCE_ENERGY] > 0)
-            creepSpawnQueue = creepSpawnQueue.filter(
-                creepName => creepConfigCache[creepName].role == roleBaseEnum.FILLER &&
-                    container.length > 0 && container[0].id == (creepConfigCache[creepName].data as FillerData).sourceId
-            )
+            const highPriority = creepSpawnQueue.filter(creepName => creepConfigCache[creepName].role == roleBaseEnum.FILLER &&
+                container.length > 0 && container[0].id == (creepConfigCache[creepName].data as FillerData).sourceId)[0]
+
+            if (highPriority) {
+                creepSpawnQueue = [highPriority, ...creepSpawnQueue.filter(creepName => creepName != highPriority)]
+            }
         }
 
-        for (let i = 0; i < creepSpawnQueue.length; i++) {
-            this.room.visual.text(creepSpawnQueue[i], 0, i + 1, { align: 'left' });
+        // 如果没有harvester，则优先孵化一个对应的harvester
+        if (harvesters.length == 0) {
+            const highPriority = creepSpawnQueue.filter(creepName => creepConfigCache[creepName].role == roleBaseEnum.HARVESTER)[0]
+            if (highPriority) {
+                creepSpawnQueue = [highPriority, ...creepSpawnQueue.filter(creepName => creepName != highPriority)]
+            }
         }
+
+        this.room.memory.creepSpawnQueue = creepSpawnQueue
 
         // 如果队列中有creep，则进行孵化
         if (creepSpawnQueue.length > 0) {

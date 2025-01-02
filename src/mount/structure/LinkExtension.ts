@@ -15,7 +15,8 @@ export default class LinkExtension extends StructureLink {
         }
 
         // 如果中央link有多余10的空间，就把能量转移到中央link
-        if (centerLink && centerLink.store.getFreeCapacity(RESOURCE_ENERGY) > 10) {
+        if (centerLink && this.store.getFreeCapacity(RESOURCE_ENERGY) == 0
+            && centerLink.store.getFreeCapacity(RESOURCE_ENERGY) > 10) {
             this.transferEnergy(centerLink)
         }
     }

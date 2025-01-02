@@ -22,4 +22,8 @@ export const loop = ErrorMapper.wrapLoop(() => {
   // 可视化信息
   visualController()
 
+  // Object.values(Game.creeps).forEach(creep => {
+  //   creep.suicide()
+  // })
+
 })

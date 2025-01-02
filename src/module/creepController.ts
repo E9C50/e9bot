@@ -30,8 +30,8 @@ function addCreepConfig(room: Room, creepRole: CreepRoleConstant, creepName: str
 /**
  * 检查房间信息，发布对应Creep需求
  *
- * _HARVESTER_          0
- * _MANAGER             1
+ * _MANAGER             0
+ * _HARVESTER_          1
  * _MINER               7
  *
  * _FILLER_STORAGE      3
@@ -59,18 +59,19 @@ function releaseCreepConfig(): void {
             for (let i = 0; i < canHarvesterPos; i++) {
                 const creepMemory: HarvesterData = { sourceId: source.id }
                 const creepName: string = room.name + '_HARVESTER_' + source.id + '_' + i
-                addCreepConfig(room, roleBaseEnum.HARVESTER, creepName, creepMemory, 0)
+                addCreepConfig(room, roleBaseEnum.HARVESTER, creepName, creepMemory, 1)
             }
         });
 
         // 如果有中央Link，则发布中央搬运者
         if (room.centerLink) {
-            addCreepConfig(room, roleAdvEnum.MANAGER, room.name + '_MANAGER', {}, 1)
+            addCreepConfig(room, roleAdvEnum.MANAGER, room.name + '_MANAGER', {}, 0)
         }
 
         // 如果有矿机，则发布一个元素矿矿工
         if (room.extractor && room.mineral.mineralAmount > 0) {
-            addCreepConfig(room, roleBaseEnum.MINER, room.name + '_MINER', { sourceTarget: room.mineral.id }, 7)
+            const creepMemory: MineralData = { sourceId: room.mineral.id }
+            addCreepConfig(room, roleBaseEnum.MINER, room.name + '_MINER', creepMemory, 7)
         }
 
         // 如果有Storage，则发布Storage相关Creep

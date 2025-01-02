@@ -14,7 +14,7 @@ export default (data: CreepData): ICreepConfig => ({
         }
 
         // 如果不在目标位置则移动
-        if (!creep.pos.isNearTo(sourceTarget)) {
+        if (creep.store.getFreeCapacity() > 0 && !creep.pos.isNearTo(sourceTarget)) {
             creep.moveTo(sourceTarget)
             return
         }

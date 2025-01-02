@@ -86,6 +86,17 @@ export default class RoomExtension extends Room {
         }
     }
 
+    // 敌人缓存
+    public enemiesGetter(): Creep[] {
+        const privateKey = STRUCTURE_PRIVATEKEY_PERFIX + 'ENEMIES'
+        if (this[privateKey]) {
+            return this[privateKey].map(creepId => Game.getObjectById(creepId))
+        }
+        const enemies: Creep[] = this.find(FIND_HOSTILE_CREEPS)
+        this[privateKey] = enemies.map(creep => creep.id)
+        return enemies
+    }
+
     // 废墟、墓碑和掉落资源缓存
     public ruinsGetter(): Ruin[] {
         const privateKey = STRUCTURE_PRIVATEKEY_PERFIX + 'RUINS'

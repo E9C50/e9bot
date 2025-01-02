@@ -30,6 +30,8 @@ interface Room {
     my: boolean
     level: number
 
+    enemies: Creep[]
+
     // 建筑缓存一键访问
     mineral: Mineral
     sources: Source[]
@@ -89,6 +91,9 @@ interface RoomMemory {
 
     autoLaylout?: boolean
     centerLinkSentMode?: boolean
+    enableTowerRepairWall?: boolean
+
+    creepSpawnQueue: string[]
 
     freeSpaceCount: { [sourceId: string]: number }
     creepConfig: { [creepName: string]: CreepMemory }

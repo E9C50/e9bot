@@ -26,13 +26,13 @@ export default (data: CreepData): ICreepConfig => ({
         }
 
         // 如果身上没有能量则采集
-        if (creep.store.getFreeCapacity() > 0) {
+        if (creep.store.getFreeCapacity() > 20) {
             creep.harvest(sourceTarget)
             return
         }
 
         // 获取周围建筑
-        const link = creep.room.links.filter(item => creep.pos.getRangeTo(item) <= 2)[0]
+        const link = creep.room.links.filter(item => creep.pos.isNearTo(item))[0]
         const container = creep.room.containers.filter(item => creep.pos.isNearTo(item))[0]
         const constructionSite = creep.room.constructionSites.filter(item => creep.pos.getRangeTo(item) <= 2)[0]
 

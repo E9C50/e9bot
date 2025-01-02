@@ -1,4 +1,3 @@
-
 export default (data: CreepData): ICreepConfig => ({
     isNeed: (room: Room, creepName: string) => {
         return room.centerLink != undefined && room.storage != undefined

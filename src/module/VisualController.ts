@@ -38,17 +38,24 @@ function showCreepCountInfo(room: Room): void {
     // delete roleCounts['dismantler'];
 
     // 显示统计信息
+    var index = 0
     const infoPos = room.memory.infoPos || (room.controller && room.controller.pos);
     if (infoPos) {
-        var index = infoPos.y - 4;
+        index = infoPos.y
         for (let role in roleCounts) {
             const checkText = (roleCounts[role] == roleMaxCounts[role]) ? ' ✅' : (roleCounts[role] > roleMaxCounts[role]) ? ' ⏳' : ' ❌';
             const countText = roleCounts[role] + '/' + roleMaxCounts[role] + checkText;
-            room.visual.text(role, infoPos.x + 2, index, { align: 'left' });
-            room.visual.text(countText, infoPos.x + 9, index, { align: 'right' });
+            room.visual.text(role, infoPos.x, index, { align: 'left' });
+            room.visual.text(countText, infoPos.x + 7, index, { align: 'right' });
+            index++;
+        }
+
+        for (let i = 0; i < room.memory.creepSpawnQueue.length; i++) {
+            room.visual.text(room.memory.creepSpawnQueue[i], infoPos.x, index + 1, { font: 0.5, align: 'left' });
             index++;
         }
     }
+
 }
 
 export const visualController = function (): void {
