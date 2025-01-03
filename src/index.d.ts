@@ -1,6 +1,3 @@
-// 所有的 creep 角色
-type CreepRoleConstant = BaseRoleHarvester | BaseRoleFiller | BaseRoleUpgrader | BaseRoleBuilder
-    | BaseRoleRepairer | BaseRoleMiner | AdvancedRoleManager
 
 // 房间基础运营
 type BaseRoleHarvester = 'harvester'
@@ -13,18 +10,16 @@ type BaseRoleMiner = 'miner'
 // 房间高级运营
 type AdvancedRoleManager = 'manager'
 
-// Creep 基本工作接口定义
-interface ICreepConfig {
-    // 每次死后都会进行判断，只有返回 true 时才会重新发布孵化任务
-    isNeed: (room: Room, creepName: string) => boolean
-    // 准备阶段执行的方法, 返回 true 时代表准备完成
-    doWork: (creep: Creep) => void
-}
+// 所有的 creep 角色
+type CreepRoleConstant = BaseRoleHarvester | BaseRoleFiller | BaseRoleUpgrader | BaseRoleBuilder
+    | BaseRoleRepairer | BaseRoleMiner | AdvancedRoleManager
 
-// Creep通用函数定义
-interface Creep {
-    pickupDroppedResource(allSource: boolean, range: number): boolean
-}
+// Creep 工作逻辑集合 包含了每个角色应该做的工作
+type CreepWork = { [role in CreepRoleConstant]: (data: CreepData) => ICreepConfig }
+
+// 所有 Creep 角色的 Data 数据
+type CreepData = EmptyData | HarvesterData | MineralData | FillerData | BuilderData | RepairerData
+
 
 interface Room {
     my: boolean
@@ -72,6 +67,19 @@ interface Room {
     controllerLink?: StructureLink
 }
 
+// Creep 基本工作接口定义
+interface ICreepConfig {
+    // 每次死后都会进行判断，只有返回 true 时才会重新发布孵化任务
+    isNeed: (room: Room, creepName: string) => boolean
+    // 准备阶段执行的方法, 返回 true 时代表准备完成
+    doWork: (creep: Creep) => void
+}
+
+// Creep通用函数定义
+interface Creep {
+    pickupDroppedResource(allSource: boolean, range: number): boolean
+}
+
 interface Source {
     freeSpaceCount: number
 }
@@ -84,10 +92,18 @@ interface Structure {
     doWork(): void
 }
 
+// 反应底物表接口
+interface IReactionSource {
+    [targetResourceName: string]: string[]
+}
+
 interface RoomMemory {
     infoPos?: RoomPosition
     managerPos?: RoomPosition
     centerPos?: RoomPosition
+
+    sourceLab1?: string
+    sourceLab2?: string
 
     autoLaylout?: boolean
     centerLinkSentMode?: boolean
@@ -106,16 +122,12 @@ interface CreepMemory {
     spawnRoom: string
     spawnPriority: number
     data: CreepData
+    dontPullMe?: boolean
 }
 
-// Creep 工作逻辑集合 包含了每个角色应该做的工作
-type CreepWork = { [role in CreepRoleConstant]: (data: CreepData) => ICreepConfig }
+interface EmptyData {
 
-
-// 所有 Creep 角色的 Data 数据
-type CreepData = EmptyData | HarvesterData | MineralData | FillerData | BuilderData | RepairerData
-
-interface EmptyData { }
+}
 
 interface HarvesterData {
     sourceId: string

@@ -5,7 +5,7 @@ export default class RoomExtension extends Room {
     private getStructure<T extends Structure>(structureType: string, privateKey: string, memoryKey: string): T | undefined {
         if (this[privateKey] != undefined) return (this[privateKey])
 
-        if (this.memory[memoryKey] != undefined && Game.time % 1 != 0) {
+        if (this.memory[memoryKey] != undefined && true) {
             const structure: T = Game.getObjectById(this.memory[memoryKey]) as T;
             if (structure == undefined) {
                 delete this.memory[memoryKey]
@@ -27,7 +27,7 @@ export default class RoomExtension extends Room {
     private getStructures<T extends Structure>(structureType: string, privateKey: string, memoryKey: string): T[] {
         if (this[privateKey] != undefined) return (this[privateKey])
 
-        if (this.memory[memoryKey] != undefined && Game.time % 1 != 0) {
+        if (this.memory[memoryKey] != undefined && true) {
             const structures: T[] = this.memory[memoryKey]
                 .map(structureId => Game.getObjectById(structureId) as T)
                 .filter(structure => structure != undefined)
@@ -103,7 +103,7 @@ export default class RoomExtension extends Room {
         const memoryKey = STRUCTURE_MEMORYKEY_PERFIX + 'RUINS'
         if (this[privateKey]) return this[privateKey]
 
-        if (this.memory[memoryKey] != undefined && Game.time % 1 != 0) {
+        if (this.memory[memoryKey] != undefined && true) {
             const ruins: Ruin[] = this.memory[memoryKey].map(ruinId => Game.getObjectById(ruinId))
             this[privateKey] = ruins;
             return ruins
@@ -118,7 +118,7 @@ export default class RoomExtension extends Room {
         const memoryKey = STRUCTURE_MEMORYKEY_PERFIX + 'TOMBSTONES'
         if (this[privateKey]) return this[privateKey]
 
-        if (this.memory[memoryKey] != undefined && Game.time % 1 != 0) {
+        if (this.memory[memoryKey] != undefined && true) {
             const tombstones: Tombstone[] = this.memory[memoryKey].map(tombstoneId => Game.getObjectById(tombstoneId))
             this[privateKey] = tombstones;
             return tombstones
@@ -134,7 +134,7 @@ export default class RoomExtension extends Room {
         const memoryKey = STRUCTURE_MEMORYKEY_PERFIX + 'DROPPED_RESOURCE'
         if (this[privateKey]) return this[privateKey]
 
-        if (this.memory[memoryKey] != undefined && Game.time % 1 != 0) {
+        if (this.memory[memoryKey] != undefined && true) {
             const droppedResources: Resource[] = this.memory[memoryKey].map(resourceId => Game.getObjectById(resourceId))
             this[privateKey] = droppedResources;
             return droppedResources
@@ -151,7 +151,7 @@ export default class RoomExtension extends Room {
         const memoryKey = STRUCTURE_MEMORYKEY_PERFIX + 'STRUCTURE'
         if (this[privateKey]) return this[privateKey]
 
-        if (this.memory[memoryKey] != undefined && Game.time % 1 != 0) {
+        if (this.memory[memoryKey] != undefined && true) {
             const structures: Structure[] = this.memory[memoryKey]
                 .map(structureId => Game.getObjectById(structureId))
                 .filter(structure => structure != undefined)
@@ -169,7 +169,7 @@ export default class RoomExtension extends Room {
         const memoryKey = STRUCTURE_MEMORYKEY_PERFIX + 'CONSTRUCTION_SITE'
         if (this[privateKey]) return this[privateKey]
 
-        if (this.memory[memoryKey] != undefined && Game.time % 1 != 0) {
+        if (this.memory[memoryKey] != undefined && true) {
             const constructionSites: ConstructionSite[] = this.memory[memoryKey].map(structureId => Game.getObjectById(structureId))
             this[privateKey] = constructionSites;
             return constructionSites
@@ -218,7 +218,7 @@ export default class RoomExtension extends Room {
         const memoryKey = STRUCTURE_MEMORYKEY_PERFIX + 'STRUCTURE_CENTER_LINK'
         if (this[privateKey]) return this[privateKey]
 
-        if (this.memory[memoryKey] != undefined && Game.time % 1 != 0) {
+        if (this.memory[memoryKey] != undefined && true) {
             const link: StructureLink = Game.getObjectById(this.memory[memoryKey]) as StructureLink
             this[privateKey] = link;
             return link
@@ -235,7 +235,7 @@ export default class RoomExtension extends Room {
         const memoryKey = STRUCTURE_MEMORYKEY_PERFIX + 'STRUCTURE_CONTROLLER_LINK'
         if (this[privateKey]) return this[privateKey]
 
-        if (this.memory[memoryKey] != undefined && Game.time % 1 != 0) {
+        if (this.memory[memoryKey] != undefined && true) {
             const link: StructureLink = Game.getObjectById(this.memory[memoryKey]) as StructureLink
             this[privateKey] = link;
             return link

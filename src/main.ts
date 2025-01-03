@@ -1,29 +1,33 @@
+import './utils/BetterMove'
+
 import { mountWork } from "mount"
+import { profile } from './utils/CodeProfiler'
 import { ErrorMapper } from "./utils/ErrorMapper"
-import { creepNumberController, creepWorkController } from "./module/CreepController"
-import { structureWorkController } from "./module/StructureController"
+import { exportStats } from "./utils/ExportStats"
 import { visualController } from "./module/VisualController"
+import { structureWorkController } from "./module/StructureController"
+import { creepNumberController, creepWorkController } from "./module/CreepController"
+
+profile.profileEnable();
 
 export const loop = ErrorMapper.wrapLoop(() => {
-  // console.log(`Current game tick is ${Game.time}`)
+  profile.profileWrap(function () {
+    // 挂载原型
+    mountWork()
 
-  // 挂载原型
-  mountWork()
+    // Creep 数量控制
+    creepNumberController()
 
-  // Creep数量控制
-  creepNumberController()
+    // Creep 工作控制
+    creepWorkController()
 
-  // Creep工作控制
-  creepWorkController()
+    // 建筑工作控制
+    structureWorkController()
 
-  // 建筑工作控制
-  structureWorkController()
+    // 可视化信息
+    visualController()
 
-  // 可视化信息
-  visualController()
-
-  // Object.values(Game.creeps).forEach(creep => {
-  //   creep.suicide()
-  // })
-
+    // 导出统计数据
+    exportStats()
+  });
 })

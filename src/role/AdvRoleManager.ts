@@ -10,8 +10,8 @@ export default (data: CreepData): ICreepConfig => ({
 
         // 如果不在目标位置则移动
         var managerPos: RoomPosition = creep.room.memory.managerPos as RoomPosition
-        managerPos = new RoomPosition(managerPos.x, managerPos.y, managerPos.roomName)
         if (managerPos != undefined) {
+            managerPos = new RoomPosition(managerPos.x, managerPos.y, managerPos.roomName)
             if (!creep.pos.isEqualTo(managerPos)) {
                 creep.moveTo(managerPos)
                 return
@@ -26,6 +26,8 @@ export default (data: CreepData): ICreepConfig => ({
                 return
             }
         }
+
+        creep.memory.dontPullMe = true;
 
         // 终端填充任务
         // if (!Memory.jobs.fillTerminal) Memory.jobs.fillTerminal = {};

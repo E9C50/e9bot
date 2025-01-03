@@ -93,7 +93,7 @@ function releaseCreepConfig(): void {
             addCreepConfig(room, roleBaseEnum.FILLER, creepFillerName0, creepFillerMemory, 3)
 
             // 如果extension数量大于20，则再发布一个填充者
-            if (room.extensions.length > 20) {
+            if (room.extensions.length > 20 && room.level < 8) {
                 const creepFillerName1 = room.name + '_FILLER_STORAGE_1'
                 addCreepConfig(room, roleBaseEnum.FILLER, creepFillerName1, creepFillerMemory, 3)
             }
