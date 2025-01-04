@@ -1,7 +1,8 @@
 
 
 export default class TowerExtension extends StructureTower {
-    private findEnemy(): Creep {
+    private findEnemy(): Creep | undefined {
+        if (this.room.enemies.length == 0) return undefined
         var enemys = this.room.enemies.filter(creep => creep.body.some(part => part.type === RANGED_ATTACK))
 
         if (!enemys) {
@@ -19,21 +20,6 @@ export default class TowerExtension extends StructureTower {
         return enemys[0]
     }
 
-    private findStructureToRepair(): Structure {
-        var structureToRepair = this.room.structures
-            .filter(structure => structure.hits < structure.hitsMax
-                && structure.structureType !== STRUCTURE_WALL
-                && structure.structureType !== STRUCTURE_RAMPART)
-            .sort((a, b) => a.hits - b.hits)[0];
-
-        if (!structureToRepair && this.room.memory.enableTowerRepairWall) {
-            structureToRepair = this.room.structures
-                .filter(structure => structure.hits < structure.hitsMax)
-                .sort((a, b) => a.hits - b.hits)[0];
-        }
-        return structureToRepair;
-    }
-
     public doWork(): void {
         var towerEnergy = this.store[RESOURCE_ENERGY];
 
@@ -44,23 +30,28 @@ export default class TowerExtension extends StructureTower {
             return
         }
 
-        // 检测需要治疗的单位
-        var needHealCreep = this.pos.findClosestByRange(FIND_MY_CREEPS, { filter: creep => creep.hits < creep.hitsMax });
-        if (needHealCreep) {
-            this.heal(needHealCreep);
-            return;
-        }
-
         // 只有energy大于500时，才会修复建筑物/治疗单位（储备弹药优先攻击敌人）
         if (towerEnergy < 500) {
-            return;
+            return
         }
 
+        // 检测需要治疗的单位
+        var needHealCreep = Object.values(Game.creeps).filter(creep => creep.room.name == this.room.name && creep.hits < creep.hitsMax)[0]
+        if (needHealCreep) {
+            this.heal(needHealCreep);
+            return
+        }
+
+        if (this.id != this.room.memory.towerAllowRepair) return
+
         // 如果没有敌人，尝试修复建筑物，优先除墙外的血量最低的建筑，其次修墙
-        var structure = this.findStructureToRepair();
+        var structure = this.room.structuresNeedRepair[0]
+        if (!structure && this.room.memory.enableTowerRepairWall && this.store[RESOURCE_ENERGY] > 500) {
+            structure = this.room.wallsNeedRepair[0]
+        }
         if (structure) {
             this.repair(structure);
-            return;
+            return
         }
     }
 }

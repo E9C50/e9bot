@@ -4,12 +4,10 @@ export default (data: CreepData): ICreepConfig => ({
         return room.extractor != undefined && room.mineral.mineralAmount > 0
     },
     doWork: (creep: Creep) => {
-        creep.say('⛏️')
         const creepData: MineralData = data as MineralData
         const sourceTarget = Game.getObjectById<Mineral>(creepData.sourceId)
 
         if (!sourceTarget) {
-            creep.say('❓')
             return
         }
 
@@ -21,7 +19,6 @@ export default (data: CreepData): ICreepConfig => ({
 
         // 如果 extractor 在冷却中则等待
         if (creep.room.extractor?.cooldown !== 0) {
-            creep.say('💤')
             return
         }
 

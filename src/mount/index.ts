@@ -41,4 +41,5 @@ export function mountWork() {
 
     processFlagStructure('lab1', 'sourceLab1')
     processFlagStructure('lab2', 'sourceLab2')
+    processFlagStructure('repairTower', 'towerAllowRepair')
 }

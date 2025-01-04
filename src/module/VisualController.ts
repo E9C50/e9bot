@@ -1,6 +1,6 @@
 function showCreepCountInfo(room: Room): void {
     const initDict = {
-        'harvester': 0, 'filler': 0, 'manager': 0, 'builder': 0, 'repairer': 0, 'upgrader': 0,
+        'harvester': 0, 'filler': 0, 'manager': 0, 'processer': 0, 'builder': 0, 'repairer': 0, 'upgrader': 0,
         'miner': 0, 'reserver': 0, 'rHarvester': 0, 'rFiller': 0
     };
 

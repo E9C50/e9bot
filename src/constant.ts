@@ -9,6 +9,7 @@ export enum roleBaseEnum {
 
 export enum roleAdvEnum {
     MANAGER = "manager",
+    PROCESSER = "processer",
     CLAIMER = "claimer",
     RESERVER = "reserver",
     RHARVESTER = "remoteHarvester",

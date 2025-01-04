@@ -9,7 +9,6 @@ export default (data: CreepData): ICreepConfig => ({
         const sourceTarget = Game.getObjectById<Structure>(creepData.sourceId)
 
         if (!sourceTarget) {
-            creep.say('❓')
             return
         }
 
@@ -54,10 +53,10 @@ export default (data: CreepData): ICreepConfig => ({
             creep.moveTo(transferTarget);
         }
 
-        // 如果所有的都满了，就移动到Spawn等待
-        if (creep.memory.working && transferResult != OK && transferResult != ERR_NOT_IN_RANGE) {
-            creep.moveTo(creep.room.spawns[0])
-        }
+        // // 如果所有的都满了，就移动到Spawn等待
+        // if (creep.memory.working && transferResult != OK && transferResult != ERR_NOT_IN_RANGE) {
+        //     creep.moveTo(creep.room.spawns[0])
+        // }
 
         // 如果携带了除了能量之外的资源，就把它们都放到Storage里
         if (creep.room.storage && creep.store.getUsedCapacity() > creep.store.getUsedCapacity(RESOURCE_ENERGY)) {
@@ -69,13 +68,6 @@ export default (data: CreepData): ICreepConfig => ({
         // 如果是工作状态，但是没有能量了，就切换为采集状态
         if (creep.store[RESOURCE_ENERGY] == 0) {
             creep.memory.working = false
-        }
-
-        // 设置creep的表情
-        if (creep.memory.working) {
-            creep.say('📦')
-        } else {
-            creep.say('🈳')
         }
     },
 })

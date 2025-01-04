@@ -50,6 +50,12 @@ function releaseCreepConfig(): void {
         if (!room.my) continue;
         room.memory.creepConfig = {}
 
+        addCreepConfig(room, roleAdvEnum.MANAGER, room.name + '_MANAGER', {}, 0)
+        addCreepConfig(room, roleAdvEnum.PROCESSER, room.name + '_PROCESSER', {}, 8)
+
+        const creepMemory: MineralData = { sourceId: room.mineral.id }
+        addCreepConfig(room, roleBaseEnum.MINER, room.name + '_MINER', creepMemory, 7)
+
         // 根据矿产情况发布矿工
         room.sources.forEach(source => {
             let canHarvesterPos: number = source.freeSpaceCount;
@@ -62,17 +68,6 @@ function releaseCreepConfig(): void {
                 addCreepConfig(room, roleBaseEnum.HARVESTER, creepName, creepMemory, 1)
             }
         });
-
-        // 如果有中央Link，则发布中央搬运者
-        if (room.centerLink) {
-            addCreepConfig(room, roleAdvEnum.MANAGER, room.name + '_MANAGER', {}, 0)
-        }
-
-        // 如果有矿机，则发布一个元素矿矿工
-        if (room.extractor && room.mineral.mineralAmount > 0) {
-            const creepMemory: MineralData = { sourceId: room.mineral.id }
-            addCreepConfig(room, roleBaseEnum.MINER, room.name + '_MINER', creepMemory, 7)
-        }
 
         // 如果有Storage，则发布Storage相关Creep
         if (room.storage) {
@@ -161,6 +156,7 @@ export const creepNumberController = function (): void {
 export const creepWorkController = function (): void {
     // 执行工作
     Object.values(Game.creeps).forEach(creep => {
+        if (creep.spawning) return
         roles[creep.memory.role](creep.memory.data).doWork(creep)
     });
 }

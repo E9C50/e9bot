@@ -10,12 +10,10 @@ export default (data: CreepData): ICreepConfig => ({
         return true
     },
     doWork: (creep: Creep) => {
-        creep.say('⛏️')
         const creepData: HarvesterData = data as HarvesterData
         const sourceTarget = Game.getObjectById<Source>(creepData.sourceId)
 
         if (!sourceTarget) {
-            creep.say('❓')
             return
         }
 
@@ -57,8 +55,6 @@ export default (data: CreepData): ICreepConfig => ({
             return
         } else if (creep.store.getFreeCapacity() > 0) {
             creep.harvest(sourceTarget)
-        } else {
-            creep.say('💤')
         }
     },
 })

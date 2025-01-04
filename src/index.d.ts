@@ -9,10 +9,25 @@ type BaseRoleMiner = 'miner'
 
 // 房间高级运营
 type AdvancedRoleManager = 'manager'
+type AdvancedRoleProcesser = 'processer'
+type AdvancedRoleClaimer = 'claimer'
+type AdvancedRoleReserver = 'reserver'
+type AdvancedRoleRemoteHarvester = 'remoteHarvester'
+type AdvancedRoleRemoteFiller = 'remoteFiller'
+
+// 战争角色
+type WarRoleAttacker = 'attacker'
+type WarRoleHealer = 'healer'
+type WarRoleRangedAttacker = 'rangedAttacker'
+type WarRoleDismantler = 'dismantler'
+type WarRoleIntegrate = 'integrate'
+
 
 // 所有的 creep 角色
 type CreepRoleConstant = BaseRoleHarvester | BaseRoleFiller | BaseRoleUpgrader | BaseRoleBuilder
-    | BaseRoleRepairer | BaseRoleMiner | AdvancedRoleManager
+    | BaseRoleRepairer | BaseRoleMiner | AdvancedRoleManager | AdvancedRoleProcesser | AdvancedRoleClaimer
+    | AdvancedRoleReserver | AdvancedRoleRemoteHarvester | AdvancedRoleRemoteFiller | WarRoleAttacker
+    | WarRoleHealer | WarRoleRangedAttacker | WarRoleDismantler | WarRoleIntegrate
 
 // Creep 工作逻辑集合 包含了每个角色应该做的工作
 type CreepWork = { [role in CreepRoleConstant]: (data: CreepData) => ICreepConfig }
@@ -34,6 +49,9 @@ interface Room {
     ruins: Ruin[]
     tombstones: Tombstone[]
     droppedResource: Resource[]
+
+    wallsNeedRepair: Structure[]
+    structuresNeedRepair: Structure[]
 
     structures: Structure[]
     constructionSites: ConstructionSite[]
@@ -97,6 +115,17 @@ interface IReactionSource {
     [targetResourceName: string]: string[]
 }
 
+interface JobMemory {
+    reserving: string[]
+    remoteHarvester: string[]
+    processTaksQueue: string[]
+    remoteFiller: { [roomName: string]: number }
+}
+
+interface Memory {
+    jobs: { [roomName: string]: JobMemory }
+}
+
 interface RoomMemory {
     infoPos?: RoomPosition
     managerPos?: RoomPosition
@@ -108,6 +137,9 @@ interface RoomMemory {
     autoLaylout?: boolean
     centerLinkSentMode?: boolean
     enableTowerRepairWall?: boolean
+    towerAllowRepair?: string
+
+    labReaction: ResourceConstant
 
     creepSpawnQueue: string[]
 
@@ -125,34 +157,18 @@ interface CreepMemory {
     dontPullMe?: boolean
 }
 
-interface EmptyData {
+interface EmptyData { }
 
-}
+interface HarvesterData { sourceId: string }
+interface MineralData { sourceId: string }
+interface FillerData { sourceId: string }
 
-interface HarvesterData {
-    sourceId: string
-}
+interface ManagerData { }
+interface ProcesserData { waiting: number }
 
-interface MineralData {
-    sourceId: string
-}
-
-interface FillerData {
-    sourceId: string
-}
-
-interface UpgraderData {
-    sourceId: string
-}
-
-interface BuilderData {
-    sourceId: string
-}
-
-interface RepairerData {
-    sourceId: string
-    repairTarget: string
-}
+interface UpgraderData { sourceId: string }
+interface BuilderData { sourceId: string }
+interface RepairerData { sourceId: string, repairTarget: string }
 
 interface BodySet {
     [MOVE]?: number

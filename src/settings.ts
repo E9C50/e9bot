@@ -15,11 +15,24 @@ const workerBodyConfigs = [
     { [WORK]: 20, [CARRY]: 8, [MOVE]: 14 }
 ]
 
+const carryBodyConfigs = [
+    { [CARRY]: 2, [MOVE]: 2 },
+    { [CARRY]: 3, [MOVE]: 3 },
+    { [CARRY]: 4, [MOVE]: 2 },
+    { [CARRY]: 5, [MOVE]: 3 },
+    { [CARRY]: 8, [MOVE]: 4 },
+    { [CARRY]: 14, [MOVE]: 7 },
+    { [CARRY]: 20, [MOVE]: 10 },
+    { [CARRY]: 32, [MOVE]: 16 }
+]
+
 export const bodyConfigs = {
     upgrader: workerBodyConfigs,
     builder: workerBodyConfigs,
     repairer: workerBodyConfigs,
     miner: workerBodyConfigs,
+    filler: carryBodyConfigs,
+    processer: carryBodyConfigs,
     harvester: [
         { [WORK]: 2, [CARRY]: 1, [MOVE]: 1 },
         { [WORK]: 4, [CARRY]: 1, [MOVE]: 2 },
@@ -29,16 +42,6 @@ export const bodyConfigs = {
         { [WORK]: 8, [CARRY]: 1, [MOVE]: 5 },
         { [WORK]: 8, [CARRY]: 1, [MOVE]: 5 },
         { [WORK]: 8, [CARRY]: 1, [MOVE]: 5 },
-    ],
-    filler: [
-        { [CARRY]: 2, [MOVE]: 2 },
-        { [CARRY]: 3, [MOVE]: 3 },
-        { [CARRY]: 4, [MOVE]: 2 },
-        { [CARRY]: 5, [MOVE]: 3 },
-        { [CARRY]: 8, [MOVE]: 4 },
-        { [CARRY]: 14, [MOVE]: 7 },
-        { [CARRY]: 20, [MOVE]: 10 },
-        { [CARRY]: 32, [MOVE]: 16 }
     ],
     manager: [
         { [CARRY]: 2, [MOVE]: 1 },
@@ -161,4 +164,44 @@ export const baseLayout = {
         [STRUCTURE_POWER_SPAWN]: [[0, 2]],
         [STRUCTURE_NUKER]: [[0, -2]],
     }
+}
+
+export const reactionConfig = {
+    [RESOURCE_CATALYZED_GHODIUM_ACID]: 3000,
+    [RESOURCE_CATALYZED_GHODIUM_ALKALIDE]: 3000,
+    [RESOURCE_CATALYZED_KEANIUM_ACID]: 3000,
+    [RESOURCE_CATALYZED_KEANIUM_ALKALIDE]: 3000,
+    [RESOURCE_CATALYZED_LEMERGIUM_ACID]: 3000,
+    [RESOURCE_CATALYZED_LEMERGIUM_ALKALIDE]: 3000,
+    [RESOURCE_CATALYZED_UTRIUM_ACID]: 3000,
+    [RESOURCE_CATALYZED_UTRIUM_ALKALIDE]: 3000,
+    [RESOURCE_CATALYZED_ZYNTHIUM_ACID]: 3000,
+    [RESOURCE_CATALYZED_ZYNTHIUM_ALKALIDE]: 3000,
+
+    [RESOURCE_GHODIUM_ACID]: 3000,
+    [RESOURCE_GHODIUM_ALKALIDE]: 3000,
+    [RESOURCE_KEANIUM_ACID]: 3000,
+    [RESOURCE_KEANIUM_ALKALIDE]: 3000,
+    [RESOURCE_LEMERGIUM_ACID]: 3000,
+    [RESOURCE_LEMERGIUM_ALKALIDE]: 3000,
+    [RESOURCE_UTRIUM_ACID]: 3000,
+    [RESOURCE_UTRIUM_ALKALIDE]: 3000,
+    [RESOURCE_ZYNTHIUM_ACID]: 3000,
+    [RESOURCE_ZYNTHIUM_ALKALIDE]: 3000,
+
+    [RESOURCE_GHODIUM_HYDRIDE]: 3000,
+    [RESOURCE_GHODIUM_OXIDE]: 3000,
+    [RESOURCE_KEANIUM_HYDRIDE]: 3000,
+    [RESOURCE_KEANIUM_OXIDE]: 3000,
+    [RESOURCE_LEMERGIUM_HYDRIDE]: 3000,
+    [RESOURCE_LEMERGIUM_OXIDE]: 3000,
+    [RESOURCE_UTRIUM_HYDRIDE]: 3000,
+    [RESOURCE_UTRIUM_OXIDE]: 3000,
+    [RESOURCE_ZYNTHIUM_HYDRIDE]: 3000,
+    [RESOURCE_ZYNTHIUM_OXIDE]: 3000,
+    [RESOURCE_GHODIUM]: 3000,
+
+    [RESOURCE_ZYNTHIUM_KEANITE]: 3000,
+    [RESOURCE_UTRIUM_LEMERGITE]: 3000,
+    [RESOURCE_HYDROXIDE]: 3000,
 }

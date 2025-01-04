@@ -1,8 +1,11 @@
 export default class MineralExtension extends Mineral {
     public freeSpaceCountGetter(): number {
         if (this.room == undefined) return 0
-        const terrain = this.room.getTerrain();
+        if (this.room.memory.freeSpaceCount[this.id] != undefined) {
+            return this.room.memory.freeSpaceCount[this.id]
+        }
 
+        const terrain = this.room.getTerrain();
         if (this.room.memory.freeSpaceCount == undefined)
             this.room.memory.freeSpaceCount = {}
 

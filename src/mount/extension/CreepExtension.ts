@@ -40,29 +40,28 @@ export default class CreepExtension extends Creep {
         // 没有携带空间的跳过
         if (this.store.getFreeCapacity() == 0) return false
 
-        // 优先捡起附近掉落的资源
-        const droppedEnergy = this.room.droppedResource.filter(resource => resource.pos.inRangeTo(this.pos, range));
+        // // 优先捡起附近掉落的资源
+        // const droppedEnergy = this.room.droppedResource.filter(resource => resource.pos.inRangeTo(this.pos, range));
 
-        if (droppedEnergy.length > 0 && droppedEnergy[0].amount > 100) {
-            this.say('🔄');
-            if (this.pickup(droppedEnergy[0]) == ERR_NOT_IN_RANGE) {
-                this.moveTo(droppedEnergy[0]);
-            }
-            return true;
-        }
+        // if (droppedEnergy.length > 0) {
+        //     if (this.pickup(droppedEnergy[0]) == ERR_NOT_IN_RANGE) {
+        //         this.moveTo(droppedEnergy[0]);
+        //     }
+        //     return true;
+        // }
 
         // 查找附近的墓碑和废墟
         const tombstones: Tombstone[] = this.room.tombstones.filter(tombstone =>
             tombstone.pos.inRangeTo(this.pos, range) && tombstone.store.getUsedCapacity() > 0
         );
-        const ruins: Ruin[] = this.room.ruins.filter(ruin =>
-            ruin.pos.inRangeTo(this.pos, range) && ruin.store.getUsedCapacity() > 0
-        );
-        const destroyed: (Tombstone | Ruin)[] = [...ruins, ...tombstones];
+        // const ruins: Ruin[] = this.room.ruins.filter(ruin =>
+        //     ruin.pos.inRangeTo(this.pos, range) && ruin.store.getUsedCapacity() > 0
+        // );
+        // const destroyed: (Tombstone | Ruin)[] = [...ruins, ...tombstones];
+        const destroyed: (Tombstone | Ruin)[] = tombstones;
 
         // 捡取资源
         if (destroyed.length > 0) {
-            this.say('🔄');
             for (let resource in destroyed[0].store) {
                 if (resource != RESOURCE_ENERGY && !allSource) {
                     continue;

@@ -3,11 +3,9 @@ import BaseRoleUpgrader from "./BaseRoleUpgrader"
 export default (data: CreepData): ICreepConfig => ({
     isNeed: (room: Room, creepName: string) => {
         return room.storage != undefined && room.storage.store[RESOURCE_ENERGY] > 50000
-            && room.structures.filter(structure => structure.hits / structure.hitsMax < 0.5).length > 0
+            && [...room.walls, ...room.ramparts].filter(structure => structure.hits / structure.hitsMax < 0.5).length > 0
     },
     doWork: (creep: Creep) => {
-        if (creep.pickupDroppedResource(false, 1)) return
-
         const creepData: RepairerData = data as RepairerData
         const sourceTarget: Structure = Game.getObjectById(creepData.sourceId) as Structure
 
@@ -40,12 +38,6 @@ export default (data: CreepData): ICreepConfig => ({
         if (creep.store[RESOURCE_ENERGY] == 0) {
             creep.memory.working = false
             creepData.repairTarget = ''
-        }
-
-        if (creep.memory.working) {
-            creep.say('🛠️')
-        } else {
-            creep.say('🈳')
         }
     },
 })

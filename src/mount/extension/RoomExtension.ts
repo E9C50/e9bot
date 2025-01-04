@@ -5,8 +5,8 @@ export default class RoomExtension extends Room {
     private getStructure<T extends Structure>(structureType: string, privateKey: string, memoryKey: string): T | undefined {
         if (this[privateKey] != undefined) return (this[privateKey])
 
-        if (this.memory[memoryKey] != undefined && true) {
-            const structure: T = Game.getObjectById(this.memory[memoryKey]) as T;
+        const structure: T = Game.getObjectById(this.memory[memoryKey]) as T;
+        if (structure != undefined && Game.time % 100 != 0) {
             if (structure == undefined) {
                 delete this.memory[memoryKey]
                 delete this[privateKey]
@@ -27,10 +27,10 @@ export default class RoomExtension extends Room {
     private getStructures<T extends Structure>(structureType: string, privateKey: string, memoryKey: string): T[] {
         if (this[privateKey] != undefined) return (this[privateKey])
 
-        if (this.memory[memoryKey] != undefined && true) {
-            const structures: T[] = this.memory[memoryKey]
-                .map(structureId => Game.getObjectById(structureId) as T)
-                .filter(structure => structure != undefined)
+        const structures: T[] = this.memory[memoryKey]
+            .map(structureId => Game.getObjectById(structureId) as T)
+            .filter(structure => structure != undefined)
+        if (structures.length > 0 && Game.time % 100 != 0) {
             this.memory[memoryKey] = structures.map(structure => structure.id)
             this[privateKey] = structures;
             return structures
@@ -56,11 +56,12 @@ export default class RoomExtension extends Room {
     public sourcesGetter(): Source[] {
         const privateKey = STRUCTURE_PRIVATEKEY_PERFIX + 'SOURCES'
         const memoryKey = STRUCTURE_MEMORYKEY_PERFIX + 'SOURCES'
-
         if (this[privateKey]) return this[privateKey]
 
-        if (this.memory[memoryKey] != undefined) {
-            const sources: Source[] = this.memory[memoryKey].map(sourceId => Game.getObjectById(sourceId))
+        const sources: Source[] = this.memory[memoryKey]
+            .map(sourceId => Game.getObjectById(sourceId))
+            .filter(source => source != undefined)
+        if (sources.length > 0) {
             this[privateKey] = sources;
             return sources
         } else {
@@ -74,8 +75,8 @@ export default class RoomExtension extends Room {
         const memoryKey = STRUCTURE_MEMORYKEY_PERFIX + 'MINERAL'
         if (this[privateKey]) return this[privateKey]
 
-        if (this.memory[memoryKey] != undefined) {
-            const mineral: Mineral = Game.getObjectById(this.memory[memoryKey]) as Mineral
+        const mineral: Mineral = Game.getObjectById(this.memory[memoryKey]) as Mineral
+        if (mineral != undefined) {
             this[privateKey] = mineral;
             return mineral
         } else {
@@ -90,10 +91,12 @@ export default class RoomExtension extends Room {
     public enemiesGetter(): Creep[] {
         const privateKey = STRUCTURE_PRIVATEKEY_PERFIX + 'ENEMIES'
         if (this[privateKey]) {
-            return this[privateKey].map(creepId => Game.getObjectById(creepId))
+            return this[privateKey]
+                .map(creepId => Game.getObjectById(creepId))
+                .filter(creep => creep != undefined)
         }
         const enemies: Creep[] = this.find(FIND_HOSTILE_CREEPS)
-        this[privateKey] = enemies.map(creep => creep.id)
+        this[privateKey] = enemies
         return enemies
     }
 
@@ -103,30 +106,19 @@ export default class RoomExtension extends Room {
         const memoryKey = STRUCTURE_MEMORYKEY_PERFIX + 'RUINS'
         if (this[privateKey]) return this[privateKey]
 
-        if (this.memory[memoryKey] != undefined && true) {
-            const ruins: Ruin[] = this.memory[memoryKey].map(ruinId => Game.getObjectById(ruinId))
-            this[privateKey] = ruins;
-            return ruins
-        } else {
-            const ruins: Ruin[] = this.find(FIND_RUINS)
-            this.memory[memoryKey] = ruins.map(ruin => ruin.id)
-            return ruins
-        }
+        const ruins: Ruin[] = this.find(FIND_RUINS)
+        this[privateKey] = ruins
+        return ruins
     }
+
     public tombstonesGetter(): Tombstone[] {
         const privateKey = STRUCTURE_PRIVATEKEY_PERFIX + 'TOMBSTONES'
         const memoryKey = STRUCTURE_MEMORYKEY_PERFIX + 'TOMBSTONES'
         if (this[privateKey]) return this[privateKey]
 
-        if (this.memory[memoryKey] != undefined && true) {
-            const tombstones: Tombstone[] = this.memory[memoryKey].map(tombstoneId => Game.getObjectById(tombstoneId))
-            this[privateKey] = tombstones;
-            return tombstones
-        } else {
-            const tombstones: Tombstone[] = this.find(FIND_TOMBSTONES)
-            this.memory[memoryKey] = tombstones.map(tombstone => tombstone.id)
-            return tombstones
-        }
+        const tombstones: Tombstone[] = this.find(FIND_TOMBSTONES)
+        this[privateKey] = tombstones
+        return tombstones
     }
 
     public droppedResourceGetter(): Resource[] {
@@ -134,15 +126,35 @@ export default class RoomExtension extends Room {
         const memoryKey = STRUCTURE_MEMORYKEY_PERFIX + 'DROPPED_RESOURCE'
         if (this[privateKey]) return this[privateKey]
 
-        if (this.memory[memoryKey] != undefined && true) {
-            const droppedResources: Resource[] = this.memory[memoryKey].map(resourceId => Game.getObjectById(resourceId))
-            this[privateKey] = droppedResources;
-            return droppedResources
-        } else {
-            const droppedResources: Resource[] = this.find(FIND_DROPPED_RESOURCES)
-            this.memory[memoryKey] = droppedResources.map(resource => resource.id)
-            return droppedResources
-        }
+        const droppedResources: Resource[] = this.find(FIND_DROPPED_RESOURCES)
+        this[privateKey] = droppedResources
+        return droppedResources
+    }
+
+    // 需要修复的墙缓存
+    public wallsNeedRepairGetter(): Structure[] {
+        const privateKey = STRUCTURE_PRIVATEKEY_PERFIX + 'WALLS_NEED_REPAIR'
+        const memoryKey = STRUCTURE_MEMORYKEY_PERFIX + 'WALLS_NEED_REPAIR'
+        if (this[privateKey]) return this[privateKey]
+
+        const walls: Structure[] = this.structures.filter(structure => structure.hits < structure.hitsMax &&
+            (structure.structureType == STRUCTURE_WALL || structure.structureType == STRUCTURE_RAMPART)
+        )
+        this[privateKey] = walls
+        return walls
+    }
+
+    // 需要维修的建筑缓存
+    public structuresNeedRepairGetter(): Structure[] {
+        const privateKey = STRUCTURE_PRIVATEKEY_PERFIX + 'STRUCTURES_NEED_REPAIR'
+        const memoryKey = STRUCTURE_MEMORYKEY_PERFIX + 'STRUCTURES_NEED_REPAIR'
+        if (this[privateKey]) return this[privateKey]
+
+        const structures: Structure[] = this.structures.filter(structure => structure.hits < structure.hitsMax &&
+            structure.structureType != STRUCTURE_WALL && structure.structureType != STRUCTURE_RAMPART
+        )
+        this[privateKey] = structures
+        return structures
     }
 
     // 全局建筑缓存
@@ -151,10 +163,10 @@ export default class RoomExtension extends Room {
         const memoryKey = STRUCTURE_MEMORYKEY_PERFIX + 'STRUCTURE'
         if (this[privateKey]) return this[privateKey]
 
-        if (this.memory[memoryKey] != undefined && true) {
-            const structures: Structure[] = this.memory[memoryKey]
-                .map(structureId => Game.getObjectById(structureId))
-                .filter(structure => structure != undefined)
+        const structures: Structure[] = this.memory[memoryKey]
+            .map(structureId => Game.getObjectById(structureId))
+            .filter(structure => structure != undefined)
+        if (structures.length > 0 && Game.time % 100 != 0) {
             this[privateKey] = structures;
             return structures
         } else {
@@ -169,8 +181,10 @@ export default class RoomExtension extends Room {
         const memoryKey = STRUCTURE_MEMORYKEY_PERFIX + 'CONSTRUCTION_SITE'
         if (this[privateKey]) return this[privateKey]
 
-        if (this.memory[memoryKey] != undefined && true) {
-            const constructionSites: ConstructionSite[] = this.memory[memoryKey].map(structureId => Game.getObjectById(structureId))
+        const constructionSites: ConstructionSite[] = this.memory[memoryKey]
+            .map(structureId => Game.getObjectById(structureId))
+            .filter(structure => structure != undefined)
+        if (constructionSites.length > 0 && Game.time % 100 != 0) {
             this[privateKey] = constructionSites;
             return constructionSites
         } else {
@@ -180,6 +194,39 @@ export default class RoomExtension extends Room {
         }
     }
 
+    public centerLinkGetter(): StructureLink | undefined {
+        const privateKey = STRUCTURE_PRIVATEKEY_PERFIX + 'STRUCTURE_CENTER_LINK'
+        const memoryKey = STRUCTURE_MEMORYKEY_PERFIX + 'STRUCTURE_CENTER_LINK'
+        if (this[privateKey]) return this[privateKey]
+
+        const link: StructureLink = Game.getObjectById(this.memory[memoryKey]) as StructureLink
+        if (link != undefined && Game.time % 100 != 0) {
+            this[privateKey] = link;
+            return link
+        } else {
+            const link = this.links.filter(link => this.storage && link.pos.inRangeTo(this.storage.pos, 2))[0]
+            this.memory[memoryKey] = link?.id
+            this[privateKey] = link;
+            return link
+        }
+    }
+
+    public controllerLinkGetter(): StructureLink | undefined {
+        const privateKey = STRUCTURE_PRIVATEKEY_PERFIX + 'STRUCTURE_CONTROLLER_LINK'
+        const memoryKey = STRUCTURE_MEMORYKEY_PERFIX + 'STRUCTURE_CONTROLLER_LINK'
+        if (this[privateKey]) return this[privateKey]
+
+        const link: StructureLink = Game.getObjectById(this.memory[memoryKey]) as StructureLink
+        if (link != undefined && Game.time % 100 != 0) {
+            this[privateKey] = link;
+            return link
+        } else {
+            const link = this.links.filter(link => this.controller && link.pos.inRangeTo(this.controller.pos, 2))[0]
+            this.memory[memoryKey] = link?.id
+            this[privateKey] = link;
+            return link
+        }
+    }
 
     // 单个建筑缓存
     public nukerGetter(): StructureNuker | undefined {
@@ -211,40 +258,6 @@ export default class RoomExtension extends Room {
         const privateKey = STRUCTURE_PRIVATEKEY_PERFIX + 'STRUCTURE_INVADER_CORE'
         const memoryKey = STRUCTURE_MEMORYKEY_PERFIX + 'STRUCTURE_INVADER_CORE'
         return this.getStructure<StructureInvaderCore>(STRUCTURE_INVADER_CORE, privateKey, memoryKey)
-    }
-
-    public centerLinkGetter(): StructureLink | undefined {
-        const privateKey = STRUCTURE_PRIVATEKEY_PERFIX + 'STRUCTURE_CENTER_LINK'
-        const memoryKey = STRUCTURE_MEMORYKEY_PERFIX + 'STRUCTURE_CENTER_LINK'
-        if (this[privateKey]) return this[privateKey]
-
-        if (this.memory[memoryKey] != undefined && true) {
-            const link: StructureLink = Game.getObjectById(this.memory[memoryKey]) as StructureLink
-            this[privateKey] = link;
-            return link
-        } else {
-            const link = this.links.filter(link => this.storage && link.pos.inRangeTo(this.storage.pos, 2))[0]
-            this.memory[memoryKey] = link?.id
-            this[privateKey] = link;
-            return link
-        }
-    }
-
-    public controllerLinkGetter(): StructureLink | undefined {
-        const privateKey = STRUCTURE_PRIVATEKEY_PERFIX + 'STRUCTURE_CONTROLLER_LINK'
-        const memoryKey = STRUCTURE_MEMORYKEY_PERFIX + 'STRUCTURE_CONTROLLER_LINK'
-        if (this[privateKey]) return this[privateKey]
-
-        if (this.memory[memoryKey] != undefined && true) {
-            const link: StructureLink = Game.getObjectById(this.memory[memoryKey]) as StructureLink
-            this[privateKey] = link;
-            return link
-        } else {
-            const link = this.links.filter(link => this.controller && link.pos.inRangeTo(this.controller.pos, 2))[0]
-            this.memory[memoryKey] = link?.id
-            this[privateKey] = link;
-            return link
-        }
     }
 
     // 多个建筑缓存

@@ -5,8 +5,6 @@ export default (data: CreepData): ICreepConfig => ({
         return room.constructionSites.length > 0
     },
     doWork: (creep: Creep) => {
-        if (creep.pickupDroppedResource(false, 1)) return
-
         const creepData: BuilderData = data as BuilderData
         const sourceTarget: Structure = Game.getObjectById(creepData.sourceId) as Structure
 
@@ -31,12 +29,6 @@ export default (data: CreepData): ICreepConfig => ({
 
         if (creep.store[RESOURCE_ENERGY] == 0) {
             creep.memory.working = false
-        }
-
-        if (creep.memory.working) {
-            creep.say('🪛')
-        } else {
-            creep.say('🈳')
         }
     },
 })

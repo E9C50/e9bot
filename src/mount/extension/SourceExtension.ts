@@ -1,7 +1,11 @@
 export default class SourceExtension extends Source {
     public freeSpaceCountGetter(): number {
-        const terrain = this.room.getTerrain();
+        if (this.room == undefined) return 0
+        if (this.room.memory.freeSpaceCount[this.id] != undefined) {
+            return this.room.memory.freeSpaceCount[this.id]
+        }
 
+        const terrain = this.room.getTerrain();
         if (this.room.memory.freeSpaceCount == undefined)
             this.room.memory.freeSpaceCount = {}
 

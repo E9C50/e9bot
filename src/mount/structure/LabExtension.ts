@@ -22,7 +22,7 @@ export default class LabExtension extends StructureLab {
         }
 
         // 如果两个lab中有一个没有物质，就跳过
-        if (lab1.store.getUsedCapacity() == 0 || lab2.store.getUsedCapacity() == 0) return
+        if (lab1.mineralType == undefined || lab2.mineralType == undefined) return
         this.runReaction(lab1, lab2);
     }
 }

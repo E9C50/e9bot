@@ -3,7 +3,8 @@ export const structureWorkController = function (): void {
         const room: Room = Game.rooms[roomName];
         if (!room.my) continue;
 
-        room.structures.forEach(structure => {
+        // [...room.towers, ...room.labs, ...room.spawns, ...room.links]
+        [...room.towers, ...room.labs, ...room.spawns, ...room.links].forEach(structure => {
             if (typeof structure.doWork === 'function') structure.doWork()
         })
     }
