@@ -40,6 +40,8 @@ export const getBodyConfig = function (room: Room, bodyConfigs: { [key: string]:
             needEnergy += BODYPART_COST[config] * bodyConfigs[i][config];
         }
 
+        console.log(i + ' ' + energy)
+        console.log(i + ' ' + needEnergy)
         if (needEnergy <= energy) {
             for (let config in bodyConfigs[i]) {
                 bodyConfig = bodyConfig.concat(
@@ -79,7 +81,7 @@ export const sha1String = function (...strings: string[]): string {
     const concatenatedString = strings.join('_')
     const shaObj = new jsSHA("SHA-1", "TEXT", { encoding: "UTF8" })
     shaObj.update(concatenatedString)
-    return shaObj.getHash("HEX").toUpperCase().substring(0, 16)
+    return shaObj.getHash("HEX").toUpperCase().substring(0, 10)
 }
 
 /**

@@ -4,6 +4,7 @@ export const STRUCTURE_MEMORYKEY_PERFIX = 'IDOF_'
 
 export const defaultConrtollerSign = 'I am a novice and a peaceful player. Please do not attack me!!!'
 
+// TODO 重新配置！！！
 const workerBodyConfigs = [
     { [WORK]: 1, [CARRY]: 1, [MOVE]: 1 },
     { [WORK]: 2, [CARRY]: 2, [MOVE]: 2 },

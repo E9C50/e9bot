@@ -1,9 +1,17 @@
 import { reactionSource } from "constant"
+import { getRoomResourceByType } from "utils"
 
 export default (data: CreepData): ICreepConfig => ({
     isNeed: (room: Room, creepName: string) => {
-        return (room.memory.sourceLab1 != undefined && room.memory.sourceLab2 != undefined && room.memory.labReaction != undefined)
-            || Memory.jobs != null && Memory.jobs[room.name].processTaksQueue.length > 0
+        const processTask = Memory.jobs != null && Memory.jobs[room.name].processTaksQueue.length > 0
+        const reactionConfig = room.memory.sourceLab1 != undefined && room.memory.sourceLab2 != undefined && room.memory.labReaction != undefined
+
+        const config: string[] = reactionSource[room.memory.labReaction]
+        const reactionCheck = reactionConfig
+            && getRoomResourceByType(room, config[0] as ResourceConstant) > 1000
+            && getRoomResourceByType(room, config[1] as ResourceConstant) > 1000;
+
+        return reactionCheck || processTask
     },
     doWork: (creep: Creep) => {
         const debug = false

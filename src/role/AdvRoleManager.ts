@@ -6,25 +6,29 @@ export default (data: CreepData): ICreepConfig => ({
         if (creep.room.centerLink == undefined || creep.room.storage == undefined) {
             return
         }
-
         creep.memory.dontPullMe = true;
 
         // 如果不在目标位置则移动
-        var managerPos: RoomPosition = creep.room.memory.managerPos as RoomPosition
-        if (managerPos != undefined) {
-            managerPos = new RoomPosition(managerPos.x, managerPos.y, managerPos.roomName)
-            if (!creep.pos.isEqualTo(managerPos)) {
-                creep.moveTo(managerPos)
-                return
-            }
-        } else {
-            if (!creep.pos.isNearTo(creep.room.storage)) {
-                creep.moveTo(creep.room.storage)
-                return
-            }
-            if (!creep.pos.isNearTo(creep.room.centerLink)) {
-                creep.moveTo(creep.room.centerLink)
-                return
+        if (!creep.memory.ready) {
+            var managerPos: RoomPosition = creep.room.memory.managerPos as RoomPosition
+            if (managerPos != undefined) {
+                managerPos = new RoomPosition(managerPos.x, managerPos.y, managerPos.roomName)
+                if (!creep.pos.isEqualTo(managerPos)) {
+                    creep.moveTo(managerPos)
+                    return
+                } else {
+                    creep.memory.ready = true
+                }
+            } else {
+                if (!creep.pos.isNearTo(creep.room.storage)) {
+                    creep.moveTo(creep.room.storage)
+                    return
+                } else if (!creep.pos.isNearTo(creep.room.centerLink)) {
+                    creep.moveTo(creep.room.centerLink)
+                    return
+                } else {
+                    creep.memory.ready = true
+                }
             }
         }
 

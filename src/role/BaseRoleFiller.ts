@@ -46,6 +46,11 @@ export default (data: CreepData): ICreepConfig => ({
             targets = creep.room.nuker ? [creep.room.nuker].filter(item => item.store.getFreeCapacity(RESOURCE_ENERGY) > 0) : []
         }
 
+        // 如果没有Nuker需要填充，则填充PowerSpawn
+        if (targets.length == 0) {
+            targets = creep.room.powerSpawn ? [creep.room.powerSpawn].filter(item => item.store.getFreeCapacity(RESOURCE_ENERGY) > 0) : []
+        }
+
         // 如果有需要填充的目标 就填充
         var transferTarget: Structure = targets.sort((a, b) => creep.pos.getRangeTo(a) - creep.pos.getRangeTo(b))[0];
         const transferResult = creep.transfer(transferTarget, RESOURCE_ENERGY)

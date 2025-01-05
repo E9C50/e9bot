@@ -18,9 +18,13 @@ export default (data: CreepData): ICreepConfig => ({
         }
 
         // 如果不在目标位置则移动
-        if (!creep.pos.isNearTo(sourceTarget)) {
-            creep.moveTo(sourceTarget)
-            return
+        if (!creep.memory.ready) {
+            if (!creep.pos.isNearTo(sourceTarget)) {
+                creep.moveTo(sourceTarget)
+                return
+            } else {
+                creep.memory.ready = true
+            }
         }
 
         // 如果身上没有能量则采集
@@ -29,32 +33,29 @@ export default (data: CreepData): ICreepConfig => ({
             return
         }
 
-        // 获取周围建筑
+        // 如果有link则存放；如果有容器则存放
         const link = creep.room.links.filter(item => creep.pos.isNearTo(item))[0]
-        const container = creep.room.containers.filter(item => creep.pos.isNearTo(item))[0]
-        const constructionSite = creep.room.constructionSites.filter(item => creep.pos.getRangeTo(item) <= 2)[0]
-
-        // 如果有工地则建设
-        if (constructionSite) {
-            creep.build(constructionSite)
+        if (link && link.store.getFreeCapacity(RESOURCE_ENERGY) > 0) {
+            creep.transfer(link, RESOURCE_ENERGY)
             return
         }
 
-        // 如果容器生命值不足则维修
+        // 如果有container则存放
+        const container = creep.room.containers.filter(item => creep.pos.isNearTo(item))[0]
         if (container && container.hits < container.hitsMax) {
             creep.repair(container)
             return
         }
-
-        // 如果有link则存放；如果有容器则存放
-        if (link && link.store.getFreeCapacity(RESOURCE_ENERGY) > 0) {
-            creep.transfer(link, RESOURCE_ENERGY)
-            return
-        } else if (container && container.store.getFreeCapacity(RESOURCE_ENERGY) > 0) {
+        if (container && container.store.getFreeCapacity(RESOURCE_ENERGY) > 0) {
             creep.transfer(container, RESOURCE_ENERGY)
             return
-        } else if (creep.store.getFreeCapacity() > 0) {
-            creep.harvest(sourceTarget)
+        }
+
+        // 如果有工地则建造
+        const constructionSite = creep.room.constructionSites.filter(item => creep.pos.getRangeTo(item) <= 2)[0]
+        if (constructionSite) {
+            creep.build(constructionSite)
+            return
         }
     },
 })

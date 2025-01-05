@@ -15,15 +15,13 @@ function addCreepConfig(room: Room, creepRole: CreepRoleConstant, creepName: str
     if (creepNameHash in room.memory.creepConfig) return
 
     // 判断是否需要发布
-    if (roles[creepRole](creepData).isNeed(room, creepName)) {
-        room.memory.creepConfig[creepNameHash] = {
-            role: creepRole,
-            working: false,
-            ready: false,
-            spawnRoom: room.name,
-            spawnPriority: priority,
-            data: creepData
-        }
+    room.memory.creepConfig[creepNameHash] = {
+        role: creepRole,
+        working: false,
+        ready: false,
+        spawnRoom: room.name,
+        spawnPriority: priority,
+        data: creepData
     }
 }
 
@@ -50,11 +48,18 @@ function releaseCreepConfig(): void {
         if (!room.my) continue;
         room.memory.creepConfig = {}
 
-        addCreepConfig(room, roleAdvEnum.MANAGER, room.name + '_MANAGER', {}, 0)
-        addCreepConfig(room, roleAdvEnum.PROCESSER, room.name + '_PROCESSER', {}, 8)
+        if (roles[roleAdvEnum.MANAGER]({}).isNeed(room, '')) {
+            addCreepConfig(room, roleAdvEnum.MANAGER, room.name + '_MANAGER', {}, 0)
+        }
+
+        if (roles[roleAdvEnum.PROCESSER]({}).isNeed(room, '')) {
+            addCreepConfig(room, roleAdvEnum.PROCESSER, room.name + '_PROCESSER', {}, 8)
+        }
 
         const creepMemory: MineralData = { sourceId: room.mineral.id }
-        addCreepConfig(room, roleBaseEnum.MINER, room.name + '_MINER', creepMemory, 7)
+        if (roles[roleBaseEnum.MINER](creepMemory).isNeed(room, '')) {
+            addCreepConfig(room, roleBaseEnum.MINER, room.name + '_MINER', creepMemory, 7)
+        }
 
         // 根据矿产情况发布矿工
         room.sources.forEach(source => {
@@ -71,16 +76,19 @@ function releaseCreepConfig(): void {
 
         // 如果有Storage，则发布Storage相关Creep
         if (room.storage) {
-            // 每5000能量发布一个升级者
-            var upgradeCount = Math.floor(room.storage.store[RESOURCE_ENERGY] / 5000) + 1;
-            if (room.controller && room.controller.level == 8) upgradeCount = 1;
-            upgradeCount = Math.min(upgradeCount, 15);
+            // 每10000能量发布一个升级者
+            if (room.level < 8 || (room.controller && room.controller.ticksToDowngrade < 150000)) {
+                var upgradeCount = Math.floor(room.storage.store[RESOURCE_ENERGY] / 10000) + 1;
+                if (room.controller && room.controller.level == 8) upgradeCount = 1;
+                upgradeCount = Math.min(upgradeCount, 15);
 
-            for (let i = 0; i < upgradeCount; i++) {
-                const creepMemory: UpgraderData = { sourceId: room.storage.id }
-                const creepName: string = room.name + '_UPGRADER_STORAGE_' + i
-                addCreepConfig(room, roleBaseEnum.UPGRADER, creepName, creepMemory, 4)
+                for (let i = 0; i < upgradeCount; i++) {
+                    const creepMemory: UpgraderData = { sourceId: room.storage.id }
+                    const creepName: string = room.name + '_UPGRADER_STORAGE_' + i
+                    addCreepConfig(room, roleBaseEnum.UPGRADER, creepName, creepMemory, 4)
+                }
             }
+
 
             // 发布一个填充者
             const creepFillerMemory: FillerData = { sourceId: room.storage.id }
@@ -94,16 +102,24 @@ function releaseCreepConfig(): void {
             }
 
             // 发布两个建造者
-            const creepBuilderMemory: BuilderData = { sourceId: room.storage.id }
-            const creepBuilderName0 = room.name + '_BUILDER_STORAGE_0'
-            const creepBuilderName1 = room.name + '_BUILDER_STORAGE_1'
-            addCreepConfig(room, roleBaseEnum.BUILDER, creepBuilderName0, creepBuilderMemory, 5)
-            addCreepConfig(room, roleBaseEnum.BUILDER, creepBuilderName1, creepBuilderMemory, 5)
+            const creepBuilderMemory: BuilderData = { sourceId: room.storage.id, buildTarget: '' }
+            if (roles[roleBaseEnum.BUILDER](creepBuilderMemory).isNeed(room, '')) {
+                const creepBuilderName0 = room.name + '_BUILDER_STORAGE_0'
+                const creepBuilderName1 = room.name + '_BUILDER_STORAGE_1'
+                addCreepConfig(room, roleBaseEnum.BUILDER, creepBuilderName0, creepBuilderMemory, 5)
+                addCreepConfig(room, roleBaseEnum.BUILDER, creepBuilderName1, creepBuilderMemory, 5)
+            }
 
-            // 发布一个维修者
+            // 每100000能量发布一个升级者，8级以下只发布一个
             const creepRepairerMemory: RepairerData = { sourceId: room.storage.id, repairTarget: '' }
-            const creepRepairerName = room.name + '_REPAIRER_STORAGE'
-            addCreepConfig(room, roleBaseEnum.REPAIRER, creepRepairerName, creepRepairerMemory, 6)
+            if (roles[roleBaseEnum.REPAIRER](creepRepairerMemory).isNeed(room, '')) {
+                var repairerCount = Math.floor(room.storage.store[RESOURCE_ENERGY] / 100000) + 1;
+                if (room.controller && room.controller.level < 8) repairerCount = 1;
+                for (let i = 0; i < repairerCount; i++) {
+                    const creepRepairerName = room.name + '_REPAIRER_STORAGE' + i
+                    addCreepConfig(room, roleBaseEnum.REPAIRER, creepRepairerName, creepRepairerMemory, 6)
+                }
+            }
         }
 
         // 循环所有Container，发布对应Creep
@@ -118,18 +134,25 @@ function releaseCreepConfig(): void {
 
             if (room.storage) return
 
-            const creepBuilderMemory: BuilderData = { sourceId: container.id }
-            const creepBuilderName = room.name + '_BUILDER_CONTAINER_' + container.id
-            addCreepConfig(room, roleBaseEnum.BUILDER, creepBuilderName, creepBuilderMemory, 4);
+
+            const creepBuilderMemory: BuilderData = { sourceId: container.id, buildTarget: '' }
+            if (roles[roleBaseEnum.BUILDER](creepBuilderMemory).isNeed(room, '')) {
+                const creepBuilderName = room.name + '_BUILDER_CONTAINER_' + container.id
+                addCreepConfig(room, roleBaseEnum.BUILDER, creepBuilderName, creepBuilderMemory, 4);
+            }
 
             const creepRepairerMemory: RepairerData = { sourceId: container.id, repairTarget: '' }
-            const creepRepairerName = room.name + '_REPAIRER_CONTAINER_' + container.id
-            addCreepConfig(room, roleBaseEnum.REPAIRER, creepRepairerName, creepRepairerMemory, 5);
+            if (roles[roleBaseEnum.REPAIRER](creepRepairerMemory).isNeed(room, '')) {
+                const creepRepairerName = room.name + '_REPAIRER_CONTAINER_' + container.id
+                addCreepConfig(room, roleBaseEnum.REPAIRER, creepRepairerName, creepRepairerMemory, 5);
+            }
 
-            for (let i = 0; i < container.store[RESOURCE_ENERGY] / 1000; i++) {
-                const creepUpgraderMemory: UpgraderData = { sourceId: container.id }
-                const creepUpgraderName = room.name + '_UPGRADER_CONTAINER_' + container.id + '_' + i
-                addCreepConfig(room, roleBaseEnum.UPGRADER, creepUpgraderName, creepUpgraderMemory, 3);
+            if (room.level < 8) {
+                for (let i = 0; i < container.store[RESOURCE_ENERGY] / 1000; i++) {
+                    const creepUpgraderMemory: UpgraderData = { sourceId: container.id }
+                    const creepUpgraderName = room.name + '_UPGRADER_CONTAINER_' + container.id + '_' + i
+                    addCreepConfig(room, roleBaseEnum.UPGRADER, creepUpgraderName, creepUpgraderMemory, 3);
+                }
             }
         })
     }

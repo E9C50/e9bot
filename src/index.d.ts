@@ -167,8 +167,8 @@ interface ManagerData { }
 interface ProcesserData { waiting: number }
 
 interface UpgraderData { sourceId: string }
-interface BuilderData { sourceId: string }
-interface RepairerData { sourceId: string, repairTarget: string }
+interface BuilderData { sourceId: string, buildTarget?: string }
+interface RepairerData { sourceId: string, repairTarget?: string }
 
 interface BodySet {
     [MOVE]?: number

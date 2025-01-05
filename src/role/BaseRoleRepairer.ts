@@ -17,7 +17,7 @@ export default (data: CreepData): ICreepConfig => ({
             creep.memory.working = true
         }
 
-        var repairTarget = Game.getObjectById<Structure>(creepData.repairTarget);
+        var repairTarget = Game.getObjectById<Structure>(creepData.repairTarget || '');
         if (!repairTarget || repairTarget.hits == repairTarget.hitsMax) {
             repairTarget = creep.room.structures
                 .filter(structure => structure.hits < structure.hitsMax)
