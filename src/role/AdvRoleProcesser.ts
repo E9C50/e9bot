@@ -1,24 +1,21 @@
 import { reactionSource } from "constant"
+import { reactionConfig } from "settings"
 import { getRoomResourceByType } from "utils"
 
 export default (data: CreepData): ICreepConfig => ({
     isNeed: (room: Room, creepName: string) => {
         const processTask = Memory.jobs != null && Memory.jobs[room.name].processTaksQueue.length > 0
-        const reactionConfig = room.memory.sourceLab1 != undefined && room.memory.sourceLab2 != undefined && room.memory.labReaction != undefined
-
-        const config: string[] = reactionSource[room.memory.labReaction]
-        const reactionCheck = reactionConfig
-            && getRoomResourceByType(room, config[0] as ResourceConstant) > 1000
-            && getRoomResourceByType(room, config[1] as ResourceConstant) > 1000;
-
+        const reactionCheck = room.memory.sourceLab1 != undefined && room.memory.sourceLab2 != undefined
+            && room.memory.labReactionQueue.length > 0
         return reactionCheck || processTask
     },
     doWork: (creep: Creep) => {
         const debug = false
         var result: ScreepsReturnCode = OK
         const room = creep.room
-        const creepStore0 = Object.keys(creep.store)[0] as ResourceConstant
         const creepData = creep.memory.data as ProcesserData
+        const reactionTarget = room.memory.labReactionQueue[0]
+        const creepStore0 = Object.keys(creep.store)[0] as ResourceConstant
 
         // 如果核弹的G元素不足，并且仓库有G元素，就从仓库取出
         if (room.nuker && room.storage && room.nuker?.store.getFreeCapacity(RESOURCE_GHODIUM) > 0
@@ -59,9 +56,9 @@ export default (data: CreepData): ICreepConfig => ({
             lab2FreeCapacity = lab2FreeCapacity == undefined ? 3000 : lab2FreeCapacity
 
             // 获取当前房间的反应配置
-            const reactionConfig = room.memory.labReaction ? reactionSource[room.memory.labReaction] : []
-            const reactionConfig1 = reactionConfig[0] as ResourceConstant
-            const reactionConfig2 = reactionConfig[1] as ResourceConstant
+            const reactionConfigList = reactionTarget ? reactionSource[reactionTarget] : []
+            const reactionConfig1 = reactionConfigList[0] as ResourceConstant
+            const reactionConfig2 = reactionConfigList[1] as ResourceConstant
 
             // 检查两个SourceLab的资源是否符合反应配置，如果不符合就清空
             if (lab1MineralType != undefined && lab1MineralType != reactionConfig1) {
@@ -141,7 +138,7 @@ export default (data: CreepData): ICreepConfig => ({
             // 查找最近的非Source的Lab，取出其中的资源，然后放到Storage中
             const lab = room.labs.filter(lab =>
                 lab.id != room.memory.sourceLab1 && lab.id != room.memory.sourceLab2 && lab.mineralType != undefined && (
-                    lab.store.getUsedCapacity(lab.mineralType) > 200 || lab.mineralType != room.memory.labReaction
+                    lab.store.getUsedCapacity(lab.mineralType) > 200 || lab.mineralType != reactionTarget
                 )).sort((a, b) => b.store[b.mineralType as ResourceConstant] - a.store[a.mineralType as ResourceConstant])[0]
 
             if (lab) {

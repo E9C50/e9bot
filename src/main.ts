@@ -13,6 +13,7 @@ import { creepNumberController, creepWorkController } from "./module/CreepContro
 profile.profileEnable();
 
 export const loop = ErrorMapper.wrapLoop(() => {
+
   profile.profileWrap(function () {
     const debug = false
     const cpuInit = Game.cpu.getUsed()
@@ -54,7 +55,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
     cpu = Game.cpu.getUsed()
 
     // 可视化信息
-    // visualController()
+    visualController()
 
     if (debug) console.log(`可视化信息 CPU 使用量：${(Game.cpu.getUsed() - cpu).toFixed(2)}`)
     cpu = Game.cpu.getUsed()

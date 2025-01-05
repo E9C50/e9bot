@@ -23,7 +23,7 @@ function keepResourceAmount(resourceType: ResourceConstant, keepAmount: number =
     const maxBuyPrice = allEnergyOrder
         .filter(order => order.roomName !== undefined && !myAllRoomName.includes(order.roomName))
         .sort((a, b) => b.price - a.price)[0].price;
-    const newPrice = Math.min(maxBuyPrice + 0.001, maxPrice);
+    const newPrice = Math.min(maxBuyPrice + 1, maxPrice);
 
     for (const roomName in Game.rooms) {
         const room: Room = Game.rooms[roomName];
@@ -48,11 +48,11 @@ function keepResourceAmount(resourceType: ResourceConstant, keepAmount: number =
 export const resourceController = function (): void {
     removeEmptyOrder()
 
-    keepResourceAmount(RESOURCE_ENERGY, 800000, 35, 10)
-    keepResourceAmount(RESOURCE_OXYGEN, 10000, 35, 10)
-    keepResourceAmount(RESOURCE_HYDROGEN, 10000, 35, 10)
-    keepResourceAmount(RESOURCE_UTRIUM, 10000, 35, 10)
-    keepResourceAmount(RESOURCE_ZYNTHIUM, 10000, 35, 10)
-    keepResourceAmount(RESOURCE_KEANIUM, 10000, 35, 10)
-    keepResourceAmount(RESOURCE_LEMERGIUM, 10000, 35, 10)
+    keepResourceAmount(RESOURCE_ENERGY, 800000, 35, 100)
+    keepResourceAmount(RESOURCE_OXYGEN, 10000, 35, 100)
+    keepResourceAmount(RESOURCE_HYDROGEN, 10000, 35, 100)
+    keepResourceAmount(RESOURCE_UTRIUM, 10000, 35, 100)
+    keepResourceAmount(RESOURCE_ZYNTHIUM, 10000, 35, 100)
+    keepResourceAmount(RESOURCE_KEANIUM, 10000, 35, 100)
+    keepResourceAmount(RESOURCE_LEMERGIUM, 10000, 35, 100)
 }

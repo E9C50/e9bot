@@ -8,16 +8,33 @@ import { getRoomResourceByType } from "utils"
  * @param reactionTarget
  * @returns
  */
-function checkReaction(room: Room, reactionTarget: ResourceConstant) {
-    const config: string[] = reactionSource[reactionTarget]
-    const resourceAmount1 = getRoomResourceByType(room, config[0] as ResourceConstant)
-    const resourceAmount2 = getRoomResourceByType(room, config[1] as ResourceConstant)
-    const targetResource = getRoomResourceByType(room, reactionTarget)
-    return resourceAmount1 > 1000 && resourceAmount2 > 1000 && targetResource < reactionConfig[reactionTarget]
+function getReadyChildReaction(room: Room, reactionTarget: ResourceConstant): ResourceConstant[] {
+    const child: ResourceConstant[] = reactionSource[reactionTarget]
+    if (!child) return []
+
+    var child1List = getReadyChildReaction(room, child[0])
+    var child2List = getReadyChildReaction(room, child[1])
+
+    const child1Amount = getRoomResourceByType(room, child[0])
+    const child2Amount = getRoomResourceByType(room, child[1])
+
+    var childList: ResourceConstant[] = [...child1List, ...child2List]
+    if ((childList.includes(child[0]) || child1Amount > 0) && (childList.includes(child[1]) || child2Amount > 0)) {
+        childList = childList.concat([reactionTarget])
+    }
+    return childList
+}
+
+function checkReactionReady(room: Room, reactionTarget: ResourceConstant): boolean {
+    const child: ResourceConstant[] = reactionSource[reactionTarget]
+    const child1Amount = getRoomResourceByType(room, child[0])
+    const child2Amount = getRoomResourceByType(room, child[1])
+    const targetAmount = getRoomResourceByType(room, reactionTarget)
+    return (child1Amount > 0 && child2Amount > 0) || targetAmount > 30000
 }
 
 /**
- * 自动获取反应配置
+ * 自动更新反应配置
  * @param room
  * @returns
  */
@@ -25,14 +42,20 @@ function autoGetReactionConfig(room: Room): void {
     // 如果房间没有配置好两个sourceLab，就跳过
     if (!room.memory.sourceLab1 || !room.memory.sourceLab2) return
 
-    // 如果房间中有反应配置，且符合反应条件，就不做任何操作
-    if (room.memory.labReaction != undefined && checkReaction(room, room.memory.labReaction)) return
+    if (room.memory.labReactionQueue.length > 0 && !checkReactionReady(room, room.memory.labReactionQueue[0])) {
+        console.log(`Lab合成配置更新前：${room.memory.labReactionQueue}`)
+        room.memory.labReactionQueue.shift()
+        console.log(`Lab合成配置更新后：${room.memory.labReactionQueue}`)
+    }
 
-    // 循环reactionConfig，检查两个底物是否都大于1000
-    for (const reactionResource of Object.keys(reactionConfig)) {
-        if (checkReaction(room, reactionResource as ResourceConstant)) {
-            room.memory.labReaction = reactionResource as ResourceConstant
-            console.log(`[${room.name}] 已自动配置反应配方 ${reactionResource}`)
+    if (room.memory.labReactionQueue.length > 0) return
+
+    for (let config in reactionConfig) {
+        if (getRoomResourceByType(room, config as ResourceConstant) < reactionConfig[config]) {
+            const readyReactionList = getReadyChildReaction(room, config as ResourceConstant)
+            console.log(`Lab合成配置更新前：${room.memory.labReactionQueue}`)
+            room.memory.labReactionQueue = readyReactionList
+            console.log(`Lab合成配置更新后：${room.memory.labReactionQueue}`)
             return
         }
     }
@@ -42,6 +65,11 @@ export const roomController = function (): void {
     for (const roomName in Game.rooms) {
         const room: Room = Game.rooms[roomName];
         if (!room.my) continue;
+
+        if (room.memory.labReactionQueue == undefined) room.memory.labReactionQueue = []
+        if (room.memory.structureIdList == undefined) room.memory.structureIdList = {}
+        if (room.memory.freeSpaceCount == undefined) room.memory.freeSpaceCount = {}
+
         autoGetReactionConfig(room)
     }
 }

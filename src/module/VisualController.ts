@@ -1,3 +1,6 @@
+import { reactionSource } from "constant";
+import { reactionConfig } from "settings";
+
 function showCreepCountInfo(room: Room): void {
     const initDict = {
         'harvester': 0, 'filler': 0, 'manager': 0, 'processer': 0, 'builder': 0, 'repairer': 0, 'upgrader': 0,
@@ -73,7 +76,7 @@ export const visualController = function (): void {
         });
 
         // 显示控制器升级进度
-        if (room.controller) {
+        if (room.controller && room.level < 8) {
             const controllerPercent = (room.controller.progress / room.controller.progressTotal * 100).toFixed(2);
             room.visual.text(controllerPercent + ' %' + '', room.controller.pos.x, room.controller.pos.y + 2, { align: 'center' });
         }
@@ -89,6 +92,17 @@ export const visualController = function (): void {
         // 显示Storage能量存储信息
         if (room.storage) {
             room.visual.text(room.storage.store[RESOURCE_ENERGY].toString(), room.storage.pos.x, room.storage.pos.y + 2, { align: 'center' });
+        }
+
+        // 显示Lab合成配置
+        if (room.memory.sourceLab1 && room.memory.sourceLab2 && room.memory.labReactionQueue[0]) {
+            const lab1 = Game.getObjectById<StructureLab>(room.memory.sourceLab1)
+            const lab2 = Game.getObjectById<StructureLab>(room.memory.sourceLab2)
+
+            const source = reactionSource[room.memory.labReactionQueue[0]]
+
+            if (lab1) room.visual.text(source[0], lab1.pos.x, lab1.pos.y, { align: 'center', color: 'red', stroke: 'blue' });
+            if (lab2) room.visual.text(source[1], lab2.pos.x, lab2.pos.y, { align: 'center', color: 'red', stroke: 'blue' });
         }
 
         showCreepCountInfo(room);

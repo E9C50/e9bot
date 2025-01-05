@@ -40,8 +40,6 @@ export const getBodyConfig = function (room: Room, bodyConfigs: { [key: string]:
             needEnergy += BODYPART_COST[config] * bodyConfigs[i][config];
         }
 
-        console.log(i + ' ' + energy)
-        console.log(i + ' ' + needEnergy)
         if (needEnergy <= energy) {
             for (let config in bodyConfigs[i]) {
                 bodyConfig = bodyConfig.concat(

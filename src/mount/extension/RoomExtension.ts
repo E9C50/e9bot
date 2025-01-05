@@ -5,21 +5,21 @@ export default class RoomExtension extends Room {
     private getStructure<T extends Structure>(structureType: string, privateKey: string, memoryKey: string): T | undefined {
         if (this[privateKey] != undefined) return (this[privateKey])
 
-        const structure: T = Game.getObjectById(this.memory[memoryKey]) as T;
+        const structure: T = Game.getObjectById(this.memory.structureIdList[memoryKey]) as T;
         if (structure != undefined) {
             if (structure == undefined) {
-                delete this.memory[memoryKey]
+                delete this.memory.structureIdList[memoryKey]
                 delete this[privateKey]
                 return undefined
             }
-            this.memory[memoryKey] = structure.id
+            this.memory.structureIdList[memoryKey] = structure.id
             this[privateKey] = structure;
             return structure
         } else {
             const filterd = this.structures.filter(structure => structure.structureType == structureType)
             if (filterd.length == 0) return undefined
             const structure: T = filterd[0] as T
-            this.memory[memoryKey] = structure.id
+            this.memory.structureIdList[memoryKey] = structure.id
             return structure
         }
     }
@@ -27,18 +27,19 @@ export default class RoomExtension extends Room {
     private getStructures<T extends Structure>(structureType: string, privateKey: string, memoryKey: string): T[] {
         if (this[privateKey] != undefined) return (this[privateKey])
 
-        const structures: T[] = this.memory[memoryKey]
-            .map(structureId => Game.getObjectById(structureId) as T)
-            .filter(structure => structure != undefined)
+        const structures: T[] = this.memory.structureIdList[memoryKey] == undefined ? [] :
+            this.memory.structureIdList[memoryKey]
+                .map(structureId => Game.getObjectById(structureId) as T)
+                .filter(structure => structure != undefined)
         if (structures.length > 0) {
-            this.memory[memoryKey] = structures.map(structure => structure.id)
+            this.memory.structureIdList[memoryKey] = structures.map(structure => structure.id)
             this[privateKey] = structures;
             return structures
         } else {
             const structures: T[] = this.structures
                 .filter(structure => structure.structureType == structureType)
                 .map(structure => structure as T)
-            this.memory[memoryKey] = structures.map(structure => structure.id)
+            this.memory.structureIdList[memoryKey] = structures.map(structure => structure.id)
             return structures
         }
     }
@@ -58,15 +59,16 @@ export default class RoomExtension extends Room {
         const memoryKey = STRUCTURE_MEMORYKEY_PERFIX + 'SOURCES'
         if (this[privateKey]) return this[privateKey]
 
-        const sources: Source[] = this.memory[memoryKey]
-            .map(sourceId => Game.getObjectById(sourceId))
-            .filter(source => source != undefined)
+        const sources: Source[] = this.memory.structureIdList[memoryKey] == undefined ? [] :
+            this.memory.structureIdList[memoryKey]
+                .map(sourceId => Game.getObjectById(sourceId))
+                .filter(source => source != undefined)
         if (sources.length > 0) {
             this[privateKey] = sources;
             return sources
         } else {
             const sources: Source[] = this.find(FIND_SOURCES)
-            this.memory[memoryKey] = sources.map(source => source.id)
+            this.memory.structureIdList[memoryKey] = sources.map(source => source.id)
             return sources
         }
     }
@@ -75,14 +77,14 @@ export default class RoomExtension extends Room {
         const memoryKey = STRUCTURE_MEMORYKEY_PERFIX + 'MINERAL'
         if (this[privateKey]) return this[privateKey]
 
-        const mineral: Mineral = Game.getObjectById(this.memory[memoryKey]) as Mineral
+        const mineral: Mineral = Game.getObjectById(this.memory.structureIdList[memoryKey]) as Mineral
         if (mineral != undefined) {
             this[privateKey] = mineral;
             return mineral
         } else {
             const minerals: Mineral[] = this.find(FIND_MINERALS)
             if (minerals.length == 0) return undefined
-            this.memory[memoryKey] = minerals[0].id
+            this.memory.structureIdList[memoryKey] = minerals[0].id
             return minerals[0]
         }
     }
@@ -161,15 +163,15 @@ export default class RoomExtension extends Room {
         const memoryKey = STRUCTURE_MEMORYKEY_PERFIX + 'STRUCTURE'
         if (this[privateKey]) return this[privateKey]
 
-        const structures: Structure[] = this.memory[memoryKey] == undefined ? [] :
-            this.memory[memoryKey].map(structureId => Game.getObjectById(structureId))
+        const structures: Structure[] = this.memory.structureIdList[memoryKey] == undefined ? [] :
+            this.memory.structureIdList[memoryKey].map(structureId => Game.getObjectById(structureId))
                 .filter(structure => structure != undefined)
         if (structures.length > 0) {
             this[privateKey] = structures;
             return structures
         } else {
             const structures: Structure[] = this.find(FIND_STRUCTURES)
-            this.memory[memoryKey] = structures.map(source => source.id)
+            this.memory.structureIdList[memoryKey] = structures.map(source => source.id)
             return structures
         }
     }
@@ -179,15 +181,15 @@ export default class RoomExtension extends Room {
         const memoryKey = STRUCTURE_MEMORYKEY_PERFIX + 'CONSTRUCTION_SITE'
         if (this[privateKey]) return this[privateKey]
 
-        const constructionSites: ConstructionSite[] = this.memory[memoryKey] == undefined ? [] :
-            this.memory[memoryKey].map(structureId => Game.getObjectById(structureId))
+        const constructionSites: ConstructionSite[] = this.memory.structureIdList[memoryKey] == undefined ? [] :
+            this.memory.structureIdList[memoryKey].map(structureId => Game.getObjectById(structureId))
                 .filter(structure => structure != undefined)
         if (constructionSites.length > 0) {
             this[privateKey] = constructionSites;
             return constructionSites
         } else {
             const constructionSites: ConstructionSite[] = this.find(FIND_CONSTRUCTION_SITES)
-            this.memory[memoryKey] = constructionSites.map(source => source.id)
+            this.memory.structureIdList[memoryKey] = constructionSites.map(source => source.id)
             return constructionSites
         }
     }
@@ -197,13 +199,13 @@ export default class RoomExtension extends Room {
         const memoryKey = STRUCTURE_MEMORYKEY_PERFIX + 'STRUCTURE_CENTER_LINK'
         if (this[privateKey]) return this[privateKey]
 
-        const link: StructureLink = Game.getObjectById(this.memory[memoryKey]) as StructureLink
+        const link: StructureLink = Game.getObjectById(this.memory.structureIdList[memoryKey]) as StructureLink
         if (link != undefined) {
             this[privateKey] = link;
             return link
         } else {
             const link = this.links.filter(link => this.storage && link.pos.inRangeTo(this.storage.pos, 2))[0]
-            this.memory[memoryKey] = link?.id
+            this.memory.structureIdList[memoryKey] = link?.id
             this[privateKey] = link;
             return link
         }
@@ -214,13 +216,13 @@ export default class RoomExtension extends Room {
         const memoryKey = STRUCTURE_MEMORYKEY_PERFIX + 'STRUCTURE_CONTROLLER_LINK'
         if (this[privateKey]) return this[privateKey]
 
-        const link: StructureLink = Game.getObjectById(this.memory[memoryKey]) as StructureLink
+        const link: StructureLink = Game.getObjectById(this.memory.structureIdList[memoryKey]) as StructureLink
         if (link != undefined) {
             this[privateKey] = link;
             return link
         } else {
             const link = this.links.filter(link => this.controller && link.pos.inRangeTo(this.controller.pos, 2))[0]
-            this.memory[memoryKey] = link?.id
+            this.memory.structureIdList[memoryKey] = link?.id
             this[privateKey] = link;
             return link
         }

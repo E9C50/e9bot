@@ -112,7 +112,7 @@ interface Structure {
 
 // 反应底物表接口
 interface IReactionSource {
-    [targetResourceName: string]: string[]
+    [targetResourceName: string]: ResourceConstant[]
 }
 
 interface JobMemory {
@@ -139,9 +139,11 @@ interface RoomMemory {
     enableTowerRepairWall?: boolean
     towerAllowRepair?: string
 
-    labReaction: ResourceConstant
+    labReactionQueue: ResourceConstant[]
 
     creepSpawnQueue: string[]
+
+    structureIdList: {}
 
     freeSpaceCount: { [sourceId: string]: number }
     creepConfig: { [creepName: string]: CreepMemory }
