@@ -10,7 +10,7 @@ export default (data: CreepData): ICreepConfig => ({
 
         // 如果不在目标位置则移动
         if (!creep.memory.ready) {
-            var managerPos: RoomPosition = creep.room.memory.managerPos as RoomPosition
+            var managerPos: RoomPosition = creep.room.memory.roomPosition.managerPos as RoomPosition
             if (managerPos != undefined) {
                 managerPos = new RoomPosition(managerPos.x, managerPos.y, managerPos.roomName)
                 if (!creep.pos.isEqualTo(managerPos)) {

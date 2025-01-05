@@ -33,7 +33,7 @@ export default (data: CreepData): ICreepConfig => ({
 
         // 如果没有Storage需要填充，则填充Tower
         if (targets.length == 0) {
-            targets = creep.room.towers.filter(item => item.store.getFreeCapacity(RESOURCE_ENERGY) > 0)
+            targets = creep.room.towers.filter(item => item.store.getFreeCapacity(RESOURCE_ENERGY) > 400)
         }
 
         // 如果没有Tower需要填充，则填充Lab

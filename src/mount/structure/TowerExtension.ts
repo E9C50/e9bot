@@ -42,7 +42,7 @@ export default class TowerExtension extends StructureTower {
             return
         }
 
-        if (this.id != this.room.memory.towerAllowRepair) return
+        if (this.id != this.room.memory.structureIdList['towerAllowRepair']) return
 
         // 如果没有敌人，尝试修复建筑物，优先除墙外的血量最低的建筑，其次修墙
         var structure = this.room.structuresNeedRepair[0]

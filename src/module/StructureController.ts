@@ -4,8 +4,8 @@ export const structureWorkController = function (): void {
         if (!room.my) continue;
 
         // [...room.towers, ...room.labs, ...room.spawns, ...room.links]
-        [...room.towers, ...room.labs, ...room.spawns, ...room.links].forEach(structure => {
-            if (typeof structure.doWork === 'function') structure.doWork()
+        [...room.towers, ...room.labs, ...room.spawns, ...room.links, room.powerSpawn].forEach(structure => {
+            if (structure != undefined && typeof structure.doWork === 'function') structure.doWork()
         })
     }
 }

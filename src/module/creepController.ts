@@ -1,6 +1,6 @@
-import { roleAdvEnum, roleBaseEnum } from "constant";
 import { sha1String } from "utils";
 import roles from 'role'
+import { roleAdvEnum, roleBaseEnum, roleWarEnum } from "settings";
 
 /**
  * 添加需求配置
@@ -42,11 +42,10 @@ function addCreepConfig(room: Room, creepRole: CreepRoleConstant, creepName: str
  * _BUILDER_CONTAINER_  4
  * _REPAIRER_CONTAINER_ 5
  */
-function releaseCreepConfig(): void {
+function releaseBaseCreepConfig(): void {
     for (const roomName in Game.rooms) {
         const room: Room = Game.rooms[roomName];
         if (!room.my) continue;
-        room.memory.creepConfig = {}
 
         if (roles[roleAdvEnum.MANAGER]({}).isNeed(room, '')) {
             addCreepConfig(room, roleAdvEnum.MANAGER, room.name + '_MANAGER', {}, 0)
@@ -158,6 +157,57 @@ function releaseCreepConfig(): void {
     }
 }
 
+
+function releaseJobsCreepConfig(): void {
+    for (const roomName in Game.rooms) {
+        const room: Room = Game.rooms[roomName];
+        if (!room.my) continue;
+
+        const roomJobs = room.memory.roomJobs
+
+        // 发布 attacker
+        roomJobs.attacker.forEach(flagName => {
+            if (Game.flags[flagName] != undefined) {
+                const attackerMemory: AttackerData = { needBoost: false, targetFlag: flagName, team: undefined }
+                const creepName = room.name + '_ATTACKER_' + flagName
+                addCreepConfig(room, roleWarEnum.ATTACKER, creepName, attackerMemory, -1);
+            }
+        });
+
+        // 发布 integrate
+        roomJobs.integrate.forEach(flagName => {
+            if (Game.flags[flagName] != undefined) {
+                const integrateMemory: IntegrateData = { needBoost: false, targetFlag: flagName, team: undefined }
+                const creepName = room.name + '_INTEGRATE_' + flagName
+                addCreepConfig(room, roleWarEnum.INTEGRATE, creepName, integrateMemory, -1);
+            }
+        });
+
+        // 发布矿房预定工
+        roomJobs.reserver.forEach(targetRoomName => {
+            const reserverMemory: ReserverData = { targetRoom: targetRoomName }
+            const creepName = room.name + '_RESERVER_' + targetRoomName
+            addCreepConfig(room, roleAdvEnum.RESERVER, creepName, reserverMemory, 8);
+        })
+
+        // 发布外房搬运工
+        Object.keys(roomJobs.remoteFiller).forEach(targetRoomName => {
+            const remoteFillerMemory: RemoteFillerData = { targetRoom: targetRoomName }
+            for (let i = 0; i < roomJobs.remoteFiller[targetRoomName]; i++) {
+                const creepName = room.name + '_RFILLER_' + targetRoomName + '_' + i
+                addCreepConfig(room, roleAdvEnum.RFILLER, creepName, remoteFillerMemory, 8);
+            }
+        });
+
+        // 发布外矿能量矿工
+        Object.keys(roomJobs.remoteHarvester).forEach(sourceId => {
+            const creepMemory: RemoteHarvesterData = { sourceId: sourceId, targetRoom: roomJobs.remoteHarvester[sourceId] }
+            const creepNameHarvester: string = room.name + '_RHARVESTER_' + sourceId
+            addCreepConfig(room, roleAdvEnum.RHARVESTER, creepNameHarvester, creepMemory, 9)
+        })
+    }
+}
+
 /**
  * Creep 的数量控制器
  */
@@ -169,8 +219,16 @@ export const creepNumberController = function (): void {
         }
     }
 
-    // 发布需求配置
-    releaseCreepConfig()
+    // 重置发布配置
+    Object.values(Game.rooms).forEach(room => {
+        room.memory.creepConfig = {}
+    });
+
+    // 发布基础需求配置
+    releaseBaseCreepConfig()
+
+    // 发布远程工作配置
+    releaseJobsCreepConfig()
 }
 
 /**

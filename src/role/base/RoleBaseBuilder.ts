@@ -1,4 +1,4 @@
-import BaseRoleRepairer from './BaseRoleRepairer'
+import BaseRoleRepairer from './RoleBaseRepairer'
 
 export default (data: CreepData): ICreepConfig => ({
     isNeed: (room: Room, creepName: string) => {

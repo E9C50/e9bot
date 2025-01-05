@@ -1,11 +1,9 @@
-import { reactionSource } from "constant"
-import { reactionConfig } from "settings"
-import { getRoomResourceByType } from "utils"
+import { reactionSource } from "settings"
 
 export default (data: CreepData): ICreepConfig => ({
     isNeed: (room: Room, creepName: string) => {
-        const processTask = Memory.jobs != null && Memory.jobs[room.name].processTaksQueue.length > 0
-        const reactionCheck = room.memory.sourceLab1 != undefined && room.memory.sourceLab2 != undefined
+        const processTask = room.memory.roomJobs.processTaksQueue.length > 0
+        const reactionCheck = room.memory.structureIdList['sourceLab1'] != undefined && room.memory.structureIdList['sourceLab2'] != undefined
             && room.memory.labReactionQueue.length > 0
         return reactionCheck || processTask
     },
@@ -40,11 +38,34 @@ export default (data: CreepData): ICreepConfig => ({
             }
         }
 
-        // 处理Lab相关物流工作
-        if (creep.room.memory.sourceLab1 != undefined && creep.room.memory.sourceLab2 != undefined) {
+        // 如果PowerSpawn的Power不足，并且仓库有Power，就从仓库取出
+        if (room.powerSpawn && room.storage && room.powerSpawn.store.getFreeCapacity(RESOURCE_POWER) > 90
+            && (room.storage?.store[RESOURCE_POWER] > 10000 || creep.store[RESOURCE_POWER] == creep.store.getCapacity())) {
+            if (debug) console.log('补充Power')
+            if (creep.store[RESOURCE_POWER] > 0) {
+                result = creep.transfer(room.powerSpawn, RESOURCE_POWER)
+                if (result == OK) return
+                if (result == ERR_NOT_IN_RANGE) {
+                    creep.moveTo(room.powerSpawn)
+                    if (debug) console.log('搬运Power中')
+                    return
+                }
+            } else {
+                result = creep.withdraw(room.storage, RESOURCE_POWER, 100)
+                if (result == OK) return
+                if (result == ERR_NOT_IN_RANGE) {
+                    creep.moveTo(room.storage)
+                    if (debug) console.log('取出Power中')
+                    return
+                }
+            }
+        }
 
-            const lab1 = Game.getObjectById(creep.room.memory.sourceLab1) as StructureLab;
-            const lab2 = Game.getObjectById(creep.room.memory.sourceLab2) as StructureLab;
+        // 处理Lab相关物流工作
+        if (creep.room.memory.structureIdList['sourceLab1'] != undefined && creep.room.memory.structureIdList['sourceLab2'] != undefined) {
+
+            const lab1 = Game.getObjectById(creep.room.memory.structureIdList['sourceLab1']) as StructureLab;
+            const lab2 = Game.getObjectById(creep.room.memory.structureIdList['sourceLab2']) as StructureLab;
 
             const lab1MineralType = lab1.mineralType as ResourceConstant
             const lab2MineralType = lab2.mineralType as ResourceConstant
@@ -76,6 +97,30 @@ export default (data: CreepData): ICreepConfig => ({
                 if (creep.store.getFreeCapacity() > 0 && result == ERR_NOT_IN_RANGE) {
                     creep.moveTo(lab2)
                     if (debug) console.log('清空SourceLab2')
+                    return
+                }
+            }
+
+            // 查找最近的非Source的Lab，取出其中的资源，然后放到Storage中
+            const lab = room.labs.filter(lab =>
+                lab.id != room.memory.structureIdList['sourceLab1'] && lab.id != room.memory.structureIdList['sourceLab2'] && lab.mineralType != undefined && (
+                    lab.store.getUsedCapacity(lab.mineralType) > 200 || lab.mineralType != reactionTarget
+                )).sort((a, b) => b.store[b.mineralType as ResourceConstant] - a.store[a.mineralType as ResourceConstant])[0]
+
+            if (lab) {
+                const mineralType = lab.mineralType as ResourceConstant
+                result = creep.withdraw(lab, mineralType)
+                if (result == OK) return
+                if (room.storage && creep.store.getFreeCapacity() > 0 && result == ERR_NOT_IN_RANGE) {
+                    creep.moveTo(lab)
+                    if (debug) console.log('从产出Lab取出资源')
+                    return
+                }
+                result = room.storage != undefined ? creep.transfer(room.storage, mineralType) : ERR_NOT_FOUND
+                if (result == OK) return
+                if (room.storage && creep.store.getFreeCapacity() == 0 && result == ERR_NOT_IN_RANGE) {
+                    creep.moveTo(room.storage)
+                    if (debug) console.log('放入仓库')
                     return
                 }
             }
@@ -134,30 +179,6 @@ export default (data: CreepData): ICreepConfig => ({
                     return
                 }
             }
-
-            // 查找最近的非Source的Lab，取出其中的资源，然后放到Storage中
-            const lab = room.labs.filter(lab =>
-                lab.id != room.memory.sourceLab1 && lab.id != room.memory.sourceLab2 && lab.mineralType != undefined && (
-                    lab.store.getUsedCapacity(lab.mineralType) > 200 || lab.mineralType != reactionTarget
-                )).sort((a, b) => b.store[b.mineralType as ResourceConstant] - a.store[a.mineralType as ResourceConstant])[0]
-
-            if (lab) {
-                const mineralType = lab.mineralType as ResourceConstant
-                result = creep.withdraw(lab, mineralType)
-                if (result == OK) return
-                if (room.storage && creep.store.getFreeCapacity() > 0 && result == ERR_NOT_IN_RANGE) {
-                    creep.moveTo(lab)
-                    if (debug) console.log('从产出Lab取出资源')
-                    return
-                }
-                result = room.storage != undefined ? creep.transfer(room.storage, mineralType) : ERR_NOT_FOUND
-                if (result == OK) return
-                if (room.storage && creep.store.getFreeCapacity() == 0 && result == ERR_NOT_IN_RANGE) {
-                    creep.moveTo(room.storage)
-                    if (debug) console.log('放入仓库')
-                    return
-                }
-            }
         }
 
         const carryMineralType = Object.keys(creep.store)[0] as ResourceConstant
@@ -170,9 +191,9 @@ export default (data: CreepData): ICreepConfig => ({
         }
 
         // 没有工作就就去SourceLab1和SourceLab2旁边待命
-        if (creep.room.memory.sourceLab1 && creep.room.memory.sourceLab2) {
-            const sourceLab1 = Game.getObjectById(creep.room.memory.sourceLab1) as StructureLab
-            const sourceLab2 = Game.getObjectById(creep.room.memory.sourceLab2) as StructureLab
+        if (creep.room.memory.structureIdList['sourceLab1'] && creep.room.memory.structureIdList['sourceLab2']) {
+            const sourceLab1 = Game.getObjectById(creep.room.memory.structureIdList['sourceLab1']) as StructureLab
+            const sourceLab2 = Game.getObjectById(creep.room.memory.structureIdList['sourceLab2']) as StructureLab
             if (!creep.pos.isNearTo(sourceLab1)) {
                 creep.moveTo(sourceLab1)
                 if (debug) console.log('待命 移动到SourceLab1')

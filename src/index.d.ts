@@ -118,32 +118,34 @@ interface IReactionSource {
 interface JobMemory {
     reserving: string[]
     remoteHarvester: string[]
-    processTaksQueue: string[]
     remoteFiller: { [roomName: string]: number }
+
+    reserver: string[]
+    dismantle: string[]
+    attacker: string[]
+    integrate: string[]
+
+    processTaksQueue: string[]
 }
 
-interface Memory {
-    jobs: { [roomName: string]: JobMemory }
-}
-
-interface RoomMemory {
+interface IRoomPositionList {
     infoPos?: RoomPosition
     managerPos?: RoomPosition
     centerPos?: RoomPosition
+}
 
-    sourceLab1?: string
-    sourceLab2?: string
+interface RoomMemory {
+    structureIdList: {}
+
+    roomJobs: JobMemory
+    roomPosition: IRoomPositionList
 
     autoLaylout?: boolean
     centerLinkSentMode?: boolean
     enableTowerRepairWall?: boolean
-    towerAllowRepair?: string
-
-    labReactionQueue: ResourceConstant[]
 
     creepSpawnQueue: string[]
-
-    structureIdList: {}
+    labReactionQueue: ResourceConstant[]
 
     freeSpaceCount: { [sourceId: string]: number }
     creepConfig: { [creepName: string]: CreepMemory }
@@ -171,6 +173,14 @@ interface ProcesserData { waiting: number }
 interface UpgraderData { sourceId: string }
 interface BuilderData { sourceId: string, buildTarget?: string }
 interface RepairerData { sourceId: string, repairTarget?: string }
+
+interface ReserverData { targetRoom: string }
+
+interface RemoteHarvesterData { sourceId: string, targetRoom: string }
+interface RemoteFillerData { targetRoom: string }
+
+interface AttackerData { needBoost: boolean, targetFlag: string, team?: string }
+interface IntegrateData { needBoost: boolean, targetFlag: string, team?: string, attackEnemy?: string }
 
 interface BodySet {
     [MOVE]?: number

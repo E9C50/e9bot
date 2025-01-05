@@ -1,14 +1,8 @@
-import { reactionSource } from "constant";
-import { reactionConfig } from "settings";
+import { reactionSource } from "settings";
 
 function showCreepCountInfo(room: Room): void {
-    const initDict = {
-        'harvester': 0, 'filler': 0, 'manager': 0, 'processer': 0, 'builder': 0, 'repairer': 0, 'upgrader': 0,
-        'miner': 0, 'reserver': 0, 'rHarvester': 0, 'rFiller': 0
-    };
-
     //  统计当前数量
-    let roleCounts = { ...initDict };
+    let roleCounts = {};
     for (let creepName in Game.creeps) {
         let creep = Game.creeps[creepName];
         let role = creep.memory.role;
@@ -23,7 +17,7 @@ function showCreepCountInfo(room: Room): void {
     }
 
     //  统计最大数量
-    let roleMaxCounts = { ...initDict };
+    let roleMaxCounts = {};
     for (let creepName in room.memory.creepConfig) {
         let creep = room.memory.creepConfig[creepName];
         let role = creep.role;
@@ -36,21 +30,21 @@ function showCreepCountInfo(room: Room): void {
         }
     }
 
-    // 去除一些不需要统计的角色
-    // delete roleCounts['claimer'];
-    // delete roleCounts['dismantler'];
-
     // 显示统计信息
     var index = 0
-    const infoPos = room.memory.infoPos || (room.controller && room.controller.pos);
+    const infoPos = room.memory.roomPosition.infoPos || (room.controller && room.controller.pos);
     if (infoPos) {
         index = infoPos.y
         for (let role in roleCounts) {
+            if (roleMaxCounts[role] == undefined) roleMaxCounts[role] = 0
             const checkText = (roleCounts[role] == roleMaxCounts[role]) ? ' ✅' : (roleCounts[role] > roleMaxCounts[role]) ? ' ⏳' : ' ❌';
             const countText = roleCounts[role] + '/' + roleMaxCounts[role] + checkText;
-            room.visual.text(role, infoPos.x, index, { align: 'left' });
-            room.visual.text(countText, infoPos.x + 7, index, { align: 'right' });
-            index++;
+
+            if (roleCounts[role] > 0 || roleMaxCounts[role] > 0) {
+                room.visual.text(role, infoPos.x, index, { align: 'left' });
+                room.visual.text(countText, infoPos.x + 8, index, { align: 'right' });
+                index++;
+            }
         }
 
         for (let i = 0; i < room.memory.creepSpawnQueue.length; i++) {
@@ -81,8 +75,8 @@ export const visualController = function (): void {
             room.visual.text(controllerPercent + ' %' + '', room.controller.pos.x, room.controller.pos.y + 2, { align: 'center' });
         }
 
-        // 显示部分建筑能量存储信息
-        [...room.containers, ...room.towers].forEach(structure => {
+        // 显示部分建筑能量存储信息 [...room.containers, ...room.towers]
+        room.containers.forEach(structure => {
             if (structure) {
                 var showText = (structure.store.getUsedCapacity(RESOURCE_ENERGY) / structure.store.getCapacity(RESOURCE_ENERGY) * 100).toFixed(2) + ' %';
                 room.visual.text(showText, structure.pos.x, structure.pos.y + 2, { align: 'center' });
@@ -90,14 +84,14 @@ export const visualController = function (): void {
         })
 
         // 显示Storage能量存储信息
-        if (room.storage) {
-            room.visual.text(room.storage.store[RESOURCE_ENERGY].toString(), room.storage.pos.x, room.storage.pos.y + 2, { align: 'center' });
-        }
+        // if (room.storage) {
+        //     room.visual.text(room.storage.store[RESOURCE_ENERGY].toString(), room.storage.pos.x, room.storage.pos.y + 2, { align: 'center' });
+        // }
 
         // 显示Lab合成配置
-        if (room.memory.sourceLab1 && room.memory.sourceLab2 && room.memory.labReactionQueue[0]) {
-            const lab1 = Game.getObjectById<StructureLab>(room.memory.sourceLab1)
-            const lab2 = Game.getObjectById<StructureLab>(room.memory.sourceLab2)
+        if (room.memory.structureIdList['sourceLab1'] && room.memory.structureIdList['sourceLab2'] && room.memory.labReactionQueue[0]) {
+            const lab1 = Game.getObjectById<StructureLab>(room.memory.structureIdList['sourceLab1'])
+            const lab2 = Game.getObjectById<StructureLab>(room.memory.structureIdList['sourceLab2'])
 
             const source = reactionSource[room.memory.labReactionQueue[0]]
 

@@ -1,5 +1,5 @@
-import { colorEnum, roleAdvEnum } from "constant";
 import jsSHA from "jssha";
+import { colorEnum, roleAdvEnum } from "settings";
 
 /**
  * 把 obj2 的原型合并到 obj1 的原型上
@@ -30,7 +30,7 @@ export const assignPrototype = function (obj1: { [key: string]: any }, obj2: { [
      * @param {*} bodySets
      * @returns
      */
-export const getBodyConfig = function (room: Room, bodyConfigs: { [key: string]: number }[], forceSpawn: boolean = false): BodyPartConstant[] {
+export const getBodyConfig = function (room: Room, bodyConfigs: BodySet[], forceSpawn: boolean = false): BodyPartConstant[] {
     const energy = forceSpawn ? room.energyAvailable : room.energyCapacityAvailable;
 
     var bodyConfig: BodyPartConstant[] = [];

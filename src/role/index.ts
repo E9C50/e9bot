@@ -1,36 +1,41 @@
-import AdvRoleManager from "./AdvRoleManager"
-import AdvRoleProcesser from "./AdvRoleProcesser"
-import BaseRoleBuilder from "./BaseRoleBuilder"
-import BaseRoleFiller from "./BaseRoleFiller"
-import BaseRoleHarvester from "./BaseRoleHarvester"
-import BaseRoleMiner from "./BaseRoleMiner"
-import BaseRoleRepairer from "./BaseRoleRepairer"
-import BaseRoleUpgrader from "./BaseRoleUpgrader"
+import RoleAdvManager from "./adv/RoleAdvManager"
+import RoleAdvProcesser from "./adv/RoleAdvProcesser"
+import RoleAdvRemoteFiller from "./adv/RoleAdvRemoteFiller"
+import RoleAdvRemoteHarvester from "./adv/RoleAdvRemoteHarvester"
+import RoleAdvReserver from "./adv/RoleAdvReserver"
+import RoleBaseBuilder from "./base/RoleBaseBuilder"
+import RoleBaseFiller from "./base/RoleBaseFiller"
+import RoleBaseHarvester from "./base/RoleBaseHarvester"
+import RoleBaseMiner from "./base/RoleBaseMiner"
+import RoleBaseRepairer from "./base/RoleBaseRepairer"
+import RoleBaseUpgrader from "./base/RoleBaseUpgrader"
+import RoleWarAttacker from "./war/RoleWarAttacker"
+import RoleWarIntegrate from "./war/RoleWarIntegrate"
 
 const notImplemented = function (data: CreepData): ICreepConfig {
     throw new Error("Function not implemented.")
 }
 
 const creepWork: CreepWork = {
-    harvester: BaseRoleHarvester,
-    filler: BaseRoleFiller,
-    upgrader: BaseRoleUpgrader,
-    builder: BaseRoleBuilder,
-    repairer: BaseRoleRepairer,
-    miner: BaseRoleMiner,
+    harvester: RoleBaseHarvester,
+    filler: RoleBaseFiller,
+    upgrader: RoleBaseUpgrader,
+    builder: RoleBaseBuilder,
+    repairer: RoleBaseRepairer,
+    miner: RoleBaseMiner,
 
-    manager: AdvRoleManager,
-    processer: AdvRoleProcesser,
+    manager: RoleAdvManager,
+    processer: RoleAdvProcesser,
     claimer: notImplemented,
-    reserver: notImplemented,
-    remoteHarvester: notImplemented,
-    remoteFiller: notImplemented,
+    reserver: RoleAdvReserver,
+    remoteHarvester: RoleAdvRemoteHarvester,
+    remoteFiller: RoleAdvRemoteFiller,
 
-    attacker: notImplemented,
+    attacker: RoleWarAttacker,
     healer: notImplemented,
     rangedAttacker: notImplemented,
     dismantler: notImplemented,
-    integrate: notImplemented,
+    integrate: RoleWarIntegrate,
 }
 
 export default creepWork

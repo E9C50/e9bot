@@ -1,5 +1,3 @@
-import { roleBaseEnum } from "constant"
-
 export default (data: CreepData): ICreepConfig => ({
     isNeed: (room: Room, creepName: string) => {
         // // 如果当前房间的harvester数量等于1，并且filler数量等于0，则返回true

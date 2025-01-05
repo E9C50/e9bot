@@ -7,17 +7,19 @@ import SpawnExtension from "./structure/SpawnExtension"
 import LinkExtension from "./structure/LinkExtension"
 import TowerExtension from "./structure/TowerExtension"
 import LabExtension from "./structure/LabExtension"
+import PowerSpawnExtension from "./structure/PowerSpawnExtension"
 
 function processFlagPos(flagName: string, memoryKey: string): void {
     if (Game.flags[flagName] != undefined) {
         const roomName = Game.flags[flagName].pos.roomName;
-        Game.rooms[roomName].memory[memoryKey] = Game.flags[flagName].pos;
+        Game.rooms[roomName].memory.roomPosition[memoryKey] = Game.flags[flagName].pos;
         Game.flags[flagName].remove();
     }
 
     if (Game.time % 100 == 0) {
         for (let roomName in Game.rooms) {
-            if (Game.flags[flagName] == undefined && Game.rooms[roomName].memory[memoryKey] == undefined) {
+            if (!Game.rooms[roomName].my) return
+            if (Game.flags[flagName] == undefined && Game.rooms[roomName].memory.roomPosition[memoryKey] == undefined) {
                 console.log(`房间 [${roomName}] 请放置旗帜 ${flagName} 用于设置 ${memoryKey} 位置`)
             }
         }
@@ -27,12 +29,13 @@ function processFlagPos(flagName: string, memoryKey: string): void {
 function processFlagStructure(flagName: string, memoryKey: string): void {
     if (Game.flags[flagName] != undefined) {
         const roomName = Game.flags[flagName].pos.roomName;
-        Game.rooms[roomName].memory[memoryKey] = Game.flags[flagName].pos.lookFor(LOOK_STRUCTURES)[0].id;
+        Game.rooms[roomName].memory.structureIdList[memoryKey] = Game.flags[flagName].pos.lookFor(LOOK_STRUCTURES)[0].id;
         Game.flags[flagName].remove();
     }
     if (Game.time % 10 == 0) {
         for (let roomName in Game.rooms) {
-            if (Game.flags[flagName] == undefined && Game.rooms[roomName].memory[memoryKey] == undefined) {
+            if (!Game.rooms[roomName].my) return
+            if (Game.flags[flagName] == undefined && Game.rooms[roomName].memory.structureIdList[memoryKey] == undefined) {
                 console.log(`房间 [${roomName}] 请放置旗帜 ${flagName} 用于设置 ${memoryKey} 建筑`)
             }
         }
@@ -40,19 +43,20 @@ function processFlagStructure(flagName: string, memoryKey: string): void {
 }
 
 export function mountWork() {
-    assignPrototype(Creep, CreepExtension)
     assignPrototype(Room, RoomExtension)
+    assignPrototype(Creep, CreepExtension)
     assignPrototype(Source, SourceExtension)
     assignPrototype(Mineral, MineralExtension)
 
-    assignPrototype(StructureSpawn, SpawnExtension)
-    assignPrototype(StructureLink, LinkExtension)
-    assignPrototype(StructureTower, TowerExtension)
     assignPrototype(StructureLab, LabExtension)
+    assignPrototype(StructureLink, LinkExtension)
+    assignPrototype(StructureSpawn, SpawnExtension)
+    assignPrototype(StructureTower, TowerExtension)
+    assignPrototype(StructurePowerSpawn, PowerSpawnExtension)
 
     processFlagPos('infoPos', 'infoPos')
-    // processFlagPos('centerPos', 'centerPos')
     processFlagPos('managerPos', 'managerPos')
+    // processFlagPos('centerPos', 'centerPos')
 
     processFlagStructure('lab1', 'sourceLab1')
     processFlagStructure('lab2', 'sourceLab2')

@@ -1,4 +1,4 @@
-import BaseRoleUpgrader from "./BaseRoleUpgrader"
+import BaseRoleUpgrader from "./RoleBaseUpgrader"
 
 export default (data: CreepData): ICreepConfig => ({
     isNeed: (room: Room, creepName: string) => {

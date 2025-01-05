@@ -2,7 +2,41 @@
 export const STRUCTURE_PRIVATEKEY_PERFIX = '_'
 export const STRUCTURE_MEMORYKEY_PERFIX = 'IDOF_'
 
-export const defaultConrtollerSign = 'I am a novice and a peaceful player. Please do not attack me!!!'
+export const defaultReserverSign = 'Reserved by E9C50.'
+export const defaultConrtollerSign = 'Controlled by E9C50.'
+
+export enum roleBaseEnum {
+    HARVESTER = 'harvester',
+    FILLER = 'filler',
+    UPGRADER = 'upgrader',
+    BUILDER = 'builder',
+    REPAIRER = 'repairer',
+    MINER = 'miner',
+}
+
+export enum roleAdvEnum {
+    MANAGER = "manager",
+    PROCESSER = "processer",
+    CLAIMER = "claimer",
+    RESERVER = "reserver",
+    RHARVESTER = "remoteHarvester",
+    RFILLER = "remoteFiller",
+}
+
+export enum roleWarEnum {
+    ATTACKER = 'attacker',
+    HEALER = 'healer',
+    RANGED_ATTACKER = 'rangedAttacker',
+    DISMANTLER = 'dismantler',
+    INTEGRATE = 'integrate',
+}
+
+export enum colorEnum {
+    RED = '#ef9a9a',
+    GREEN = '#6b9955',
+    YELLOW = '#c5c599',
+    BLUE = '#8dc5e3'
+}
 
 // TODO 重新配置！！！
 const workerBodyConfigs = [
@@ -27,13 +61,14 @@ const carryBodyConfigs = [
     { [CARRY]: 32, [MOVE]: 16 }
 ]
 
-export const bodyConfigs = {
+export const bodyConfigs: { [role in CreepRoleConstant]: BodySet[] } = {
     upgrader: workerBodyConfigs,
     builder: workerBodyConfigs,
     repairer: workerBodyConfigs,
     miner: workerBodyConfigs,
     filler: carryBodyConfigs,
     processer: carryBodyConfigs,
+    remoteFiller: carryBodyConfigs,
     harvester: [
         { [WORK]: 2, [CARRY]: 1, [MOVE]: 1 },
         { [WORK]: 4, [CARRY]: 1, [MOVE]: 2 },
@@ -74,17 +109,30 @@ export const bodyConfigs = {
         { [MOVE]: 3, [CLAIM]: 3 },
         { [MOVE]: 5, [CLAIM]: 5 }
     ],
-    rHarvester: [
-        { [WORK]: 1, [CARRY]: 1, [MOVE]: 1 },
-        { [WORK]: 2, [CARRY]: 2, [MOVE]: 2 },
-        { [WORK]: 3, [CARRY]: 3, [MOVE]: 3 },
-        { [WORK]: 4, [CARRY]: 6, [MOVE]: 5 },
-        { [WORK]: 5, [CARRY]: 9, [MOVE]: 7 },
-        { [WORK]: 6, [CARRY]: 10, [MOVE]: 8 },
-        { [WORK]: 7, [CARRY]: 15, [MOVE]: 11 },
-        { [WORK]: 11, [CARRY]: 15, [MOVE]: 19 }
+    remoteHarvester: [
+        { [WORK]: 2, [CARRY]: 1, [MOVE]: 1 },
+        { [WORK]: 4, [CARRY]: 1, [MOVE]: 2 },
+        { [WORK]: 6, [CARRY]: 1, [MOVE]: 3 },
+        { [WORK]: 7, [CARRY]: 1, [MOVE]: 4 },
+        { [WORK]: 8, [CARRY]: 1, [MOVE]: 5 },
+        { [WORK]: 8, [CARRY]: 1, [MOVE]: 5 },
+        { [WORK]: 8, [CARRY]: 1, [MOVE]: 5 },
+        { [WORK]: 8, [CARRY]: 1, [MOVE]: 5 },
     ],
-    oneWar: [
+    attacker: [
+        { [MOVE]: 2, [ATTACK]: 2 },
+        { [MOVE]: 3, [ATTACK]: 3 },
+        { [MOVE]: 4, [ATTACK]: 4 },
+        { [MOVE]: 5, [ATTACK]: 5 },
+        { [MOVE]: 6, [ATTACK]: 6 },
+        { [MOVE]: 7, [ATTACK]: 7 },
+        { [MOVE]: 8, [ATTACK]: 8 },
+        { [MOVE]: 25, [ATTACK]: 25 }
+    ],
+    healer: [],
+    rangedAttacker: [],
+    dismantler: [],
+    integrate: [
         { [TOUGH]: 0, [RANGED_ATTACK]: 15, [MOVE]: 6, [HEAL]: 3 },
         { [TOUGH]: 0, [RANGED_ATTACK]: 15, [MOVE]: 6, [HEAL]: 3 },
         { [TOUGH]: 2, [RANGED_ATTACK]: 15, [MOVE]: 6, [HEAL]: 5 },
@@ -205,4 +253,47 @@ export const reactionConfig = {
     // [RESOURCE_ZYNTHIUM_KEANITE]: 3000,
     // [RESOURCE_UTRIUM_LEMERGITE]: 3000,
     // [RESOURCE_HYDROXIDE]: 3000,
+}
+
+
+// 从反应目标产物获取其底物的对应表
+export const reactionSource: IReactionSource = {
+    // 三级化合物
+    [RESOURCE_CATALYZED_GHODIUM_ACID]: [RESOURCE_GHODIUM_ACID, RESOURCE_CATALYST],
+    [RESOURCE_CATALYZED_GHODIUM_ALKALIDE]: [RESOURCE_GHODIUM_ALKALIDE, RESOURCE_CATALYST],
+    [RESOURCE_CATALYZED_KEANIUM_ACID]: [RESOURCE_KEANIUM_ACID, RESOURCE_CATALYST],
+    [RESOURCE_CATALYZED_KEANIUM_ALKALIDE]: [RESOURCE_KEANIUM_ALKALIDE, RESOURCE_CATALYST],
+    [RESOURCE_CATALYZED_LEMERGIUM_ACID]: [RESOURCE_LEMERGIUM_ACID, RESOURCE_CATALYST],
+    [RESOURCE_CATALYZED_LEMERGIUM_ALKALIDE]: [RESOURCE_LEMERGIUM_ALKALIDE, RESOURCE_CATALYST],
+    [RESOURCE_CATALYZED_UTRIUM_ACID]: [RESOURCE_UTRIUM_ACID, RESOURCE_CATALYST],
+    [RESOURCE_CATALYZED_UTRIUM_ALKALIDE]: [RESOURCE_UTRIUM_ALKALIDE, RESOURCE_CATALYST],
+    [RESOURCE_CATALYZED_ZYNTHIUM_ACID]: [RESOURCE_ZYNTHIUM_ACID, RESOURCE_CATALYST],
+    [RESOURCE_CATALYZED_ZYNTHIUM_ALKALIDE]: [RESOURCE_ZYNTHIUM_ALKALIDE, RESOURCE_CATALYST],
+    // 二级化合物
+    [RESOURCE_GHODIUM_ACID]: [RESOURCE_GHODIUM_HYDRIDE, RESOURCE_HYDROXIDE],
+    [RESOURCE_GHODIUM_ALKALIDE]: [RESOURCE_GHODIUM_OXIDE, RESOURCE_HYDROXIDE],
+    [RESOURCE_KEANIUM_ACID]: [RESOURCE_KEANIUM_HYDRIDE, RESOURCE_HYDROXIDE],
+    [RESOURCE_KEANIUM_ALKALIDE]: [RESOURCE_KEANIUM_OXIDE, RESOURCE_HYDROXIDE],
+    [RESOURCE_LEMERGIUM_ACID]: [RESOURCE_LEMERGIUM_HYDRIDE, RESOURCE_HYDROXIDE],
+    [RESOURCE_LEMERGIUM_ALKALIDE]: [RESOURCE_LEMERGIUM_OXIDE, RESOURCE_HYDROXIDE],
+    [RESOURCE_UTRIUM_ACID]: [RESOURCE_UTRIUM_HYDRIDE, RESOURCE_HYDROXIDE],
+    [RESOURCE_UTRIUM_ALKALIDE]: [RESOURCE_UTRIUM_OXIDE, RESOURCE_HYDROXIDE],
+    [RESOURCE_ZYNTHIUM_ACID]: [RESOURCE_ZYNTHIUM_HYDRIDE, RESOURCE_HYDROXIDE],
+    [RESOURCE_ZYNTHIUM_ALKALIDE]: [RESOURCE_ZYNTHIUM_OXIDE, RESOURCE_HYDROXIDE],
+    // 一级化合物
+    [RESOURCE_GHODIUM_HYDRIDE]: [RESOURCE_GHODIUM, RESOURCE_HYDROGEN],
+    [RESOURCE_GHODIUM_OXIDE]: [RESOURCE_GHODIUM, RESOURCE_OXYGEN],
+    [RESOURCE_KEANIUM_HYDRIDE]: [RESOURCE_KEANIUM, RESOURCE_HYDROGEN],
+    [RESOURCE_KEANIUM_OXIDE]: [RESOURCE_KEANIUM, RESOURCE_OXYGEN],
+    [RESOURCE_LEMERGIUM_HYDRIDE]: [RESOURCE_LEMERGIUM, RESOURCE_HYDROGEN],
+    [RESOURCE_LEMERGIUM_OXIDE]: [RESOURCE_LEMERGIUM, RESOURCE_OXYGEN],
+    [RESOURCE_UTRIUM_HYDRIDE]: [RESOURCE_UTRIUM, RESOURCE_HYDROGEN],
+    [RESOURCE_UTRIUM_OXIDE]: [RESOURCE_UTRIUM, RESOURCE_OXYGEN],
+    [RESOURCE_ZYNTHIUM_HYDRIDE]: [RESOURCE_ZYNTHIUM, RESOURCE_HYDROGEN],
+    [RESOURCE_ZYNTHIUM_OXIDE]: [RESOURCE_ZYNTHIUM, RESOURCE_OXYGEN],
+    [RESOURCE_GHODIUM]: [RESOURCE_ZYNTHIUM_KEANITE, RESOURCE_UTRIUM_LEMERGITE],
+    // 基础化合物
+    [RESOURCE_ZYNTHIUM_KEANITE]: [RESOURCE_ZYNTHIUM, RESOURCE_KEANIUM],
+    [RESOURCE_UTRIUM_LEMERGITE]: [RESOURCE_UTRIUM, RESOURCE_LEMERGIUM],
+    [RESOURCE_HYDROXIDE]: [RESOURCE_HYDROGEN, RESOURCE_OXYGEN],
 }

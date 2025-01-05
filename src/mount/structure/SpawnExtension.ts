@@ -1,9 +1,9 @@
-import { roleAdvEnum, roleBaseEnum } from "constant"
-import { bodyConfigs } from "settings"
+import { bodyConfigs, roleAdvEnum, roleBaseEnum } from "settings"
 import { getBodyConfig } from "utils"
 
 export default class SpawnExtension extends StructureSpawn {
     public doWork(): void {
+        if (this.spawning) return
         // 循环creepConfig，筛选出未孵化的creep，并按照优先级排序
         const creepConfigCache = this.room.memory.creepConfig
         var creepSpawnQueue = Object.keys(creepConfigCache)
