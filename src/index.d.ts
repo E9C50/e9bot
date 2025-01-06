@@ -90,7 +90,15 @@ interface ICreepConfig {
     // 每次死后都会进行判断，只有返回 true 时才会重新发布孵化任务
     isNeed: (room: Room, creepName: string) => boolean
     // 准备阶段执行的方法, 返回 true 时代表准备完成
-    doWork: (creep: Creep) => void
+    // doWork: (creep: Creep) => void
+    // 准备阶段执行的方法, 返回 true 时代表准备完成
+    prepare: (creep: Creep) => boolean
+    // creep 获取工作所需资源时执行的方法
+    // 返回 true 则执行 target 阶段，返回其他将继续执行该方法
+    source: (creep: Creep) => boolean
+    // creep 工作时执行的方法,
+    // 返回 true 则执行 source 阶段，返回其他将继续执行该方法
+    target: (creep: Creep) => boolean
 }
 
 // Creep通用函数定义

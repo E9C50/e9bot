@@ -1,4 +1,5 @@
 import jsSHA from "jssha";
+import { min } from "lodash";
 import { colorEnum, roleAdvEnum } from "settings";
 
 /**
@@ -26,10 +27,12 @@ export const assignPrototype = function (obj1: { [key: string]: any }, obj2: { [
 }
 
 /**
-     * 构建BodyPart
-     * @param {*} bodySets
-     * @returns
-     */
+ * 构建BodyPart
+ * @param room
+ * @param bodyConfigs
+ * @param forceSpawn
+ * @returns
+ */
 export const getBodyConfig = function (room: Room, bodyConfigs: BodySet[], forceSpawn: boolean = false): BodyPartConstant[] {
     const energy = forceSpawn ? room.energyAvailable : room.energyCapacityAvailable;
 
@@ -51,6 +54,37 @@ export const getBodyConfig = function (room: Room, bodyConfigs: BodySet[], force
     }
 
     return bodyConfig;
+}
+
+/**
+ * 获取两个Position的距离
+ * @param pos1
+ * @param pos2
+ * @returns
+ */
+export const getDistance = function (pos1: RoomPosition, pos2: RoomPosition): number {
+    return Math.max(Math.abs(pos1.x - pos2.x), Math.abs(pos1.y - pos2.y))
+}
+
+/**
+ * 寻找最近的目标
+ * @param source
+ * @param targetList
+ * @returns
+ */
+export const getClosestTarget = function <T extends Creep | Structure | ConstructionSite>(source: RoomPosition, targetList: T[]): T {
+    let closest: T = targetList[0]
+    let minRange: number = Infinity
+
+    for (let index in targetList) {
+        let targetRange = getDistance(source, targetList[index].pos)
+        if (targetRange < minRange) {
+            minRange = targetRange
+            closest = targetList[index]
+        }
+    }
+
+    return closest
 }
 
 /**

@@ -13,9 +13,8 @@ import { creepNumberController, creepWorkController } from "./module/CreepContro
 profile.profileEnable();
 
 export const loop = ErrorMapper.wrapLoop(() => {
-
   profile.profileWrap(function () {
-    const debug = false
+    const debug = true
     const cpuInit = Game.cpu.getUsed()
     var cpu = Game.cpu.getUsed()
     // 挂载原型
@@ -35,7 +34,6 @@ export const loop = ErrorMapper.wrapLoop(() => {
 
     if (debug) console.log(`资源控制器 CPU 使用量：${(Game.cpu.getUsed() - cpu).toFixed(2)}`)
     cpu = Game.cpu.getUsed()
-
     // Creep 数量控制
     creepNumberController()
 
@@ -68,5 +66,6 @@ export const loop = ErrorMapper.wrapLoop(() => {
 
     if (debug) console.log(`总 CPU 使用量：${(Game.cpu.getUsed() - cpuInit).toFixed(2)}`)
     if (debug) console.log('-----------------------------')
+
   });
 })

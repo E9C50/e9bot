@@ -7,7 +7,14 @@ export default (data: CreepData): ICreepConfig => ({
             && room.memory.labReactionQueue.length > 0
         return reactionCheck || processTask
     },
-    doWork: (creep: Creep) => {
+    prepare(creep) {
+        return true
+    },
+    source(creep) {
+        creep.memory.working = true
+        return true
+    },
+    target(creep) {
         const debug = false
         var result: ScreepsReturnCode = OK
         const room = creep.room
@@ -21,19 +28,19 @@ export default (data: CreepData): ICreepConfig => ({
             if (debug) console.log('核弹G元素不足')
             if (creep.store[RESOURCE_GHODIUM] > 0) {
                 result = creep.transfer(room.nuker, RESOURCE_GHODIUM)
-                if (result == OK) return
+                if (result == OK) return true
                 if (result == ERR_NOT_IN_RANGE) {
                     creep.moveTo(room.nuker)
                     if (debug) console.log('放入核弹G元素')
-                    return
+                    return true
                 }
             } else {
                 result = creep.withdraw(room.storage, RESOURCE_GHODIUM)
-                if (result == OK) return
+                if (result == OK) return true
                 if (result == ERR_NOT_IN_RANGE) {
                     creep.moveTo(room.storage)
                     if (debug) console.log('从仓库取出G元素')
-                    return
+                    return true
                 }
             }
         }
@@ -44,19 +51,19 @@ export default (data: CreepData): ICreepConfig => ({
             if (debug) console.log('补充Power')
             if (creep.store[RESOURCE_POWER] > 0) {
                 result = creep.transfer(room.powerSpawn, RESOURCE_POWER)
-                if (result == OK) return
+                if (result == OK) return true
                 if (result == ERR_NOT_IN_RANGE) {
                     creep.moveTo(room.powerSpawn)
                     if (debug) console.log('搬运Power中')
-                    return
+                    return true
                 }
             } else {
                 result = creep.withdraw(room.storage, RESOURCE_POWER, 100)
-                if (result == OK) return
+                if (result == OK) return true
                 if (result == ERR_NOT_IN_RANGE) {
                     creep.moveTo(room.storage)
                     if (debug) console.log('取出Power中')
-                    return
+                    return true
                 }
             }
         }
@@ -84,20 +91,20 @@ export default (data: CreepData): ICreepConfig => ({
             // 检查两个SourceLab的资源是否符合反应配置，如果不符合就清空
             if (lab1MineralType != undefined && lab1MineralType != reactionConfig1) {
                 result = creep.withdraw(lab1, lab1MineralType)
-                if (result == OK) return
+                if (result == OK) return true
                 if (creep.store.getFreeCapacity() > 0 && result == ERR_NOT_IN_RANGE) {
                     creep.moveTo(lab1)
                     if (debug) console.log('清空SourceLab1')
-                    return
+                    return true
                 }
             }
             if (lab2MineralType != undefined && lab2MineralType != reactionConfig2) {
                 result = creep.withdraw(lab2, lab2MineralType)
-                if (result == OK) return
+                if (result == OK) return true
                 if (creep.store.getFreeCapacity() > 0 && result == ERR_NOT_IN_RANGE) {
                     creep.moveTo(lab2)
                     if (debug) console.log('清空SourceLab2')
-                    return
+                    return true
                 }
             }
 
@@ -110,18 +117,18 @@ export default (data: CreepData): ICreepConfig => ({
             if (lab) {
                 const mineralType = lab.mineralType as ResourceConstant
                 result = creep.withdraw(lab, mineralType)
-                if (result == OK) return
+                if (result == OK) return true
                 if (room.storage && creep.store.getFreeCapacity() > 0 && result == ERR_NOT_IN_RANGE) {
                     creep.moveTo(lab)
                     if (debug) console.log('从产出Lab取出资源')
-                    return
+                    return true
                 }
                 result = room.storage != undefined ? creep.transfer(room.storage, mineralType) : ERR_NOT_FOUND
-                if (result == OK) return
+                if (result == OK) return true
                 if (room.storage && creep.store.getFreeCapacity() == 0 && result == ERR_NOT_IN_RANGE) {
                     creep.moveTo(room.storage)
                     if (debug) console.log('放入仓库')
-                    return
+                    return true
                 }
             }
 
@@ -129,65 +136,65 @@ export default (data: CreepData): ICreepConfig => ({
             if (lab1FreeCapacity > 1600 && lab1FreeCapacity >= lab2FreeCapacity && ((reactionConfig1 == lab1MineralType && lab1FreeCapacity > 0) || lab1MineralType == undefined)) {
                 if (creep.store.getUsedCapacity() > 0 && creepStore0 != reactionConfig1 && room.storage != undefined) {
                     result = room.storage != undefined ? creep.transfer(room.storage, creepStore0) : ERR_NOT_FOUND
-                    if (result == OK) return
+                    if (result == OK) return true
                     if (result == ERR_NOT_IN_RANGE) {
                         creep.moveTo(room.storage)
                         if (debug) console.log('从仓库取出底物1前 清空身上的资源')
-                        return
+                        return true
                     }
                 }
 
                 result = room.storage != undefined ? creep.withdraw(room.storage, reactionConfig1) : ERR_NOT_FOUND
-                if (result == OK) return
+                if (result == OK) return true
                 if (room.storage && room.storage.store[reactionConfig1] > 0 && creep.store.getFreeCapacity() > 0 && result == ERR_NOT_IN_RANGE) {
                     creep.moveTo(room.storage)
                     if (debug) console.log('从仓库取出底物1')
-                    return
+                    return true
                 }
                 result = creep.transfer(lab1, reactionConfig1)
-                if (result == OK) return
+                if (result == OK) return true
                 if (room.storage && lab1FreeCapacity > 0 && creep.store[reactionConfig1] > 0 && result == ERR_NOT_IN_RANGE) {
                     creep.moveTo(lab1)
                     if (debug) console.log('放入SourceLab1')
-                    return
+                    return true
                 }
             }
 
             if (lab2FreeCapacity > 1600 && lab2FreeCapacity >= lab1FreeCapacity && ((reactionConfig2 == lab2MineralType && lab2FreeCapacity > 0) || lab2MineralType == undefined)) {
                 if (creep.store.getUsedCapacity() > 0 && creepStore0 != reactionConfig2 && room.storage != undefined) {
                     result = room.storage != undefined ? creep.transfer(room.storage, creepStore0) : ERR_NOT_FOUND
-                    if (result == OK) return
+                    if (result == OK) return true
                     if (result == ERR_NOT_IN_RANGE) {
                         creep.moveTo(room.storage)
                         if (debug) console.log('从仓库取出底物2前 清空身上的资源')
-                        return
+                        return true
                     }
                 }
 
                 result = room.storage != undefined ? creep.withdraw(room.storage, reactionConfig2) : ERR_NOT_FOUND
-                if (result == OK) return
+                if (result == OK) return true
                 if (room.storage && room.storage.store[reactionConfig2] > 0 && creep.store.getFreeCapacity() > 0 && result == ERR_NOT_IN_RANGE) {
                     creep.moveTo(room.storage)
                     if (debug) console.log('从仓库取出底物2')
-                    return
+                    return true
                 }
                 result = creep.transfer(lab2, reactionConfig2)
-                if (result == OK) return
+                if (result == OK) return true
                 if (room.storage && lab2FreeCapacity > 0 && creep.store[reactionConfig2] > 0 && result == ERR_NOT_IN_RANGE) {
                     creep.moveTo(lab2)
                     if (debug) console.log('放入SourceLab2')
-                    return
+                    return true
                 }
             }
         }
 
         const carryMineralType = Object.keys(creep.store)[0] as ResourceConstant
         result = room.storage != undefined ? creep.transfer(room.storage, carryMineralType) : ERR_NOT_FOUND
-        if (result == OK) return
+        if (result == OK) return true
         if (creepData.waiting == 1 && room.storage && creep.store.getUsedCapacity() > 0 && result == ERR_NOT_IN_RANGE) {
             creep.moveTo(room.storage)
             if (debug) console.log('存放身上的资源')
-            return
+            return true
         }
 
         // 没有工作就就去SourceLab1和SourceLab2旁边待命
@@ -197,18 +204,18 @@ export default (data: CreepData): ICreepConfig => ({
             if (!creep.pos.isNearTo(sourceLab1)) {
                 creep.moveTo(sourceLab1)
                 if (debug) console.log('待命 移动到SourceLab1')
-                return
+                return true
             }
             if (!creep.pos.isNearTo(sourceLab2)) {
                 creep.moveTo(sourceLab2)
                 if (debug) console.log('待命 移动到SourceLab2')
-                return
+                return true
             }
         } else {
             if (room.storage && !creep.pos.isNearTo(room.storage)) {
                 creep.moveTo(room.storage)
                 if (debug) console.log('待命 移动到仓库')
-                return
+                return true
             }
         }
 
@@ -216,5 +223,7 @@ export default (data: CreepData): ICreepConfig => ({
         if (creepData.waiting <= 0) {
             creepData.waiting = 10
         }
+
+        return true
     },
 })

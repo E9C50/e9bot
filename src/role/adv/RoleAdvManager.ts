@@ -1,12 +1,13 @@
+import { getDistance } from "utils"
+
 export default (data: CreepData): ICreepConfig => ({
     isNeed: (room: Room, creepName: string) => {
         return room.centerLink != undefined && room.storage != undefined
     },
-    doWork: (creep: Creep) => {
+    prepare(creep) {
         if (creep.room.centerLink == undefined || creep.room.storage == undefined) {
-            return
+            return false
         }
-        creep.memory.dontPullMe = true;
 
         // 如果不在目标位置则移动
         if (!creep.memory.ready) {
@@ -15,46 +16,57 @@ export default (data: CreepData): ICreepConfig => ({
                 managerPos = new RoomPosition(managerPos.x, managerPos.y, managerPos.roomName)
                 if (!creep.pos.isEqualTo(managerPos)) {
                     creep.moveTo(managerPos)
-                    return
+                    return false
                 } else {
                     creep.memory.ready = true
+                    return true
                 }
             } else {
-                if (!creep.pos.isNearTo(creep.room.storage)) {
+                if (getDistance(creep.pos, creep.room.storage.pos) > 1) {
                     creep.moveTo(creep.room.storage)
-                    return
-                } else if (!creep.pos.isNearTo(creep.room.centerLink)) {
+                    return false
+                } else if (getDistance(creep.pos, creep.room.centerLink.pos) > 1) {
                     creep.moveTo(creep.room.centerLink)
-                    return
+                    return false
                 } else {
                     creep.memory.ready = true
+                    return true
                 }
-            }
-        }
-
-        // 把终端的资源搬回仓库
-        if (creep.room.terminal && creep.room.terminal.store.getUsedCapacity() > 0) {
-            const resourceType = Object.keys(creep.room.terminal.store)[0] as ResourceConstant
-            if (creep.store[resourceType] > 0) {
-                creep.transfer(creep.room.storage, resourceType);
-            } else {
-                creep.withdraw(creep.room.terminal, resourceType);
-            }
-        }
-
-        // 能量搬运任务
-        if (creep.room.memory.centerLinkSentMode) {
-            if (creep.store[RESOURCE_ENERGY] > 0) {
-                creep.transfer(creep.room.centerLink, RESOURCE_ENERGY);
-            } else {
-                creep.withdraw(creep.room.storage, RESOURCE_ENERGY);
             }
         } else {
-            if (creep.store[RESOURCE_ENERGY] > 0) {
-                creep.transfer(creep.room.storage, RESOURCE_ENERGY);
-            } else {
-                creep.withdraw(creep.room.centerLink, RESOURCE_ENERGY);
-            }
+            return true
         }
+    },
+    source(creep) {
+        creep.memory.working = true
+        return true
+    },
+    target(creep) {
+        creep.memory.dontPullMe = true;
+        if (creep.room.centerLink == undefined || creep.room.storage == undefined) {
+            return false
+        }
+
+        // 身上有东西就放到Storage
+        if (creep.store.getUsedCapacity() > 0) {
+            const resourceType = Object.keys(creep.store)[0] as ResourceConstant
+            creep.transfer(creep.room.storage, resourceType);
+            return true
+        }
+
+        // CenterLink有东西就拿起来
+        if (creep.room.centerLink.store[RESOURCE_ENERGY] > 0) {
+            creep.withdraw(creep.room.centerLink, RESOURCE_ENERGY);
+            return true
+        }
+
+        // 终端有东西就拿起来
+        if (creep.room.terminal != undefined && creep.room.terminal.store.getUsedCapacity() > 0) {
+            const resourceType = Object.keys(creep.room.terminal.store)[0] as ResourceConstant
+            creep.withdraw(creep.room.terminal, resourceType);
+            return true
+        }
+
+        return true
     },
 })

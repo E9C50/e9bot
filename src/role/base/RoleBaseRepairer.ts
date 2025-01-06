@@ -1,3 +1,4 @@
+import { getDistance } from "utils"
 import BaseRoleUpgrader from "./RoleBaseUpgrader"
 
 export default (data: CreepData): ICreepConfig => ({
@@ -5,39 +6,59 @@ export default (data: CreepData): ICreepConfig => ({
         return room.storage != undefined && room.storage.store[RESOURCE_ENERGY] > 50000
             && [...room.walls, ...room.ramparts].filter(structure => structure.hits / structure.hitsMax < 0.5).length > 0
     },
-    doWork: (creep: Creep) => {
+    prepare(creep) {
+        return true
+    },
+    source(creep) {
+        // 如果没有空余容量了，就开始工作
+        if (creep.store.getFreeCapacity() == 0) {
+            creep.memory.working = true
+            return false
+        }
+
         const creepData: RepairerData = data as RepairerData
         const sourceTarget: Structure = Game.getObjectById(creepData.sourceId) as Structure
 
-        if (!creep.memory.working && creep.withdraw(sourceTarget, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-            creep.moveTo(sourceTarget);
+        if (getDistance(creep.pos, sourceTarget.pos) <= 1) {
+            creep.withdraw(sourceTarget, RESOURCE_ENERGY)
+        } else {
+            creep.moveTo(sourceTarget)
         }
 
-        if (creep.store.getFreeCapacity() == 0) {
-            creep.memory.working = true
+        return true
+    },
+    target(creep) {
+        const creepData: RepairerData = data as RepairerData
+
+        // 如果没有能量了，就切换为采集状态
+        if (creep.store[RESOURCE_ENERGY] == 0) {
+            creep.memory.working = false
+            creepData.repairTarget = ''
+            return false
         }
 
+        // 找到要修复的建筑
         var repairTarget = Game.getObjectById<Structure>(creepData.repairTarget || '');
         if (!repairTarget || repairTarget.hits == repairTarget.hitsMax) {
-            repairTarget = creep.room.structures
+            repairTarget = [...creep.room.walls, ...creep.room.ramparts]
                 .filter(structure => structure.hits < structure.hitsMax)
                 .sort((a, b) => a.hits - b.hits)[0]
 
             if (repairTarget) creepData.repairTarget = repairTarget.id
         }
 
-        if (!repairTarget) {
-            BaseRoleUpgrader(creep.memory.data).doWork(creep)
-            return
+        // 如果没有就去升级
+        if (repairTarget == undefined) {
+            return BaseRoleUpgrader(creep.memory.data).target(creep)
         }
 
-        if (creep.memory.working && creep.repair(repairTarget) == ERR_NOT_IN_RANGE) {
-            creep.moveTo(repairTarget);
+        // 过去维修
+        if (getDistance(creep.pos, repairTarget.pos) <= 3) {
+            creep.repair(repairTarget)
+        } else {
+            creep.moveTo(repairTarget)
         }
 
-        if (creep.store[RESOURCE_ENERGY] == 0) {
-            creep.memory.working = false
-            creepData.repairTarget = ''
-        }
+        return true
     },
 })

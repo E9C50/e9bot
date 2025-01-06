@@ -3,10 +3,28 @@ export default (data: CreepData): ICreepConfig => ({
         const creepData: AttackerData = data as AttackerData
         return Game.flags[creepData.targetFlag] != undefined
     },
-    doWork: (creep: Creep) => {
+    prepare(creep) {
+        const creepData: AttackerData = data as AttackerData
+        if (creepData.needBoost) {
+            // 处理boost
+            return true
+        }
+
+        if (creepData.team != undefined) {
+            // 处理组队逻辑
+            return true
+        }
+
+        return true
+    },
+    source(creep) {
+        creep.memory.working = true
+        return true
+    },
+    target(creep) {
         const creepData: AttackerData = data as AttackerData
         const targetFlag: Flag = Game.flags[creepData.targetFlag]
-        if (targetFlag == undefined) return
+        if (targetFlag == undefined) return false
 
         const enemies = creep.room.enemies.filter(enemy => !enemy.my && enemy.pos.inRangeTo(creep, 3))
             .sort((a, b) => a.pos.getRangeTo(creep) - b.pos.getRangeTo(creep))
@@ -27,5 +45,6 @@ export default (data: CreepData): ICreepConfig => ({
         } else if (structure != undefined && creep.pos.isNearTo(structure)) {
             creep.attack(structure)
         }
+        return true
     },
 })

@@ -236,8 +236,26 @@ export const creepNumberController = function (): void {
  */
 export const creepWorkController = function (): void {
     // 执行工作
+    var workCpu: [CreepRoleConstant, number][] = []
     Object.values(Game.creeps).forEach(creep => {
         if (creep.spawning) return
-        roles[creep.memory.role](creep.memory.data).doWork(creep)
+        const cpu = Game.cpu.getUsed()
+
+        if (roles[creep.memory.role](creep.memory.data).prepare(creep)) {
+            if (creep.memory.working) {
+                roles[creep.memory.role](creep.memory.data).target(creep)
+            } else {
+                roles[creep.memory.role](creep.memory.data).source(creep)
+            }
+        }
+
+        workCpu.push([creep.memory.role, (Game.cpu.getUsed() - cpu)])
     });
+
+    // workCpu = workCpu.sort((a, b) => b[1] - a[1])
+    // for (let role in Object.keys(workCpu)) {
+    //     console.log(workCpu[role][1], workCpu[role][0])
+    // }
+
+    // console.log('------------------------------------------------')
 }

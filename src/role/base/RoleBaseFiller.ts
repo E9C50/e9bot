@@ -1,26 +1,45 @@
+import { getClosestTarget, getDistance } from "utils"
+
 export default (data: CreepData): ICreepConfig => ({
     isNeed: (room: Room, creepName: string) => {
         return true
     },
-    doWork: (creep: Creep) => {
-        if (creep.pickupDroppedResource(true, 20)) return
-
-        const creepData: FillerData = data as FillerData
-        const sourceTarget = Game.getObjectById<Structure>(creepData.sourceId)
-
-        if (!sourceTarget) {
-            return
-        }
-
-        // 如果不是工作状态，就去采集
-        if (!creep.memory.working && creep.withdraw(sourceTarget, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-            creep.moveTo(sourceTarget);
+    prepare: function (creep: Creep): boolean {
+        return true
+    },
+    source(creep) {
+        // 如果携带了除了能量之外的资源，就把它们都放到Storage里
+        if (creep.room.storage && creep.store.getUsedCapacity() > creep.store[RESOURCE_ENERGY]) {
+            if (creep.transfer(creep.room.storage, Object.keys(creep.store).filter(item => item != RESOURCE_ENERGY)[0] as ResourceConstant) == ERR_NOT_IN_RANGE) {
+                creep.moveTo(creep.room.storage)
+            }
         }
 
         // 如果没有空余容量了，就开始工作
         if (creep.store.getFreeCapacity() == 0) {
             creep.memory.working = true
+            return false
         }
+
+        const creepData: FillerData = data as FillerData
+        const sourceTarget: Structure = Game.getObjectById(creepData.sourceId) as Structure
+
+        if (getDistance(creep.pos, sourceTarget.pos) <= 1) {
+            creep.withdraw(sourceTarget, RESOURCE_ENERGY)
+        } else {
+            creep.moveTo(sourceTarget)
+        }
+
+        return true
+    },
+    target(creep) {
+        // 如果没有能量了，就切换为采集状态
+        if (creep.store[RESOURCE_ENERGY] == 0) {
+            creep.memory.working = false
+            return false
+        }
+
+        const creepData: FillerData = data as FillerData
 
         // 优先填充Spawn和Extension
         var targets: Structure[] = []
@@ -52,27 +71,18 @@ export default (data: CreepData): ICreepConfig => ({
         }
 
         // 如果有需要填充的目标 就填充
-        var transferTarget: Structure = targets.sort((a, b) => creep.pos.getRangeTo(a) - creep.pos.getRangeTo(b))[0];
-        const transferResult = creep.transfer(transferTarget, RESOURCE_ENERGY)
-        if (creep.memory.working && transferResult == ERR_NOT_IN_RANGE) {
-            creep.moveTo(transferTarget);
+        const transferTarget: Structure = getClosestTarget(creep.pos, targets)
+        // const transferTarget: Structure = targets.sort((a, b) => a.pos.getRangeTo(creep) - b.pos.getRangeTo(creep))[0]
+        if (transferTarget == undefined) {
+            creep.moveTo(creep.room.spawns[0])
+            return true
         }
 
-        // // 如果所有的都满了，就移动到Spawn等待
-        // if (creep.memory.working && transferResult != OK && transferResult != ERR_NOT_IN_RANGE) {
-        //     creep.moveTo(creep.room.spawns[0])
-        // }
-
-        // 如果携带了除了能量之外的资源，就把它们都放到Storage里
-        if (creep.room.storage && creep.store.getUsedCapacity() > creep.store.getUsedCapacity(RESOURCE_ENERGY)) {
-            if (creep.transfer(creep.room.storage, Object.keys(creep.store).filter(item => item != RESOURCE_ENERGY)[0] as ResourceConstant) == ERR_NOT_IN_RANGE) {
-                creep.moveTo(creep.room.storage)
-            }
+        if (creep.pos.isNearTo(transferTarget)) {
+            creep.transfer(transferTarget, RESOURCE_ENERGY)
+        } else {
+            creep.moveTo(transferTarget)
         }
-
-        // 如果是工作状态，但是没有能量了，就切换为采集状态
-        if (creep.store[RESOURCE_ENERGY] == 0) {
-            creep.memory.working = false
-        }
+        return true
     },
 })
