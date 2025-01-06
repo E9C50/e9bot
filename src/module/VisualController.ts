@@ -37,12 +37,12 @@ function showCreepCountInfo(room: Room): void {
         index = infoPos.y
         for (let role in roleCounts) {
             if (roleMaxCounts[role] == undefined) roleMaxCounts[role] = 0
-            const checkText = (roleCounts[role] == roleMaxCounts[role]) ? ' ✅' : (roleCounts[role] > roleMaxCounts[role]) ? ' ⏳' : ' ❌';
-            const countText = roleCounts[role] + '/' + roleMaxCounts[role] + checkText;
+            const checkText = (roleCounts[role] == roleMaxCounts[role]) ? '✅ ' : (roleCounts[role] > roleMaxCounts[role]) ? '⏳ ' : '❌ ';
+            const countText = checkText + roleCounts[role] + '/' + roleMaxCounts[role];
 
             if (roleCounts[role] > 0 || roleMaxCounts[role] > 0) {
-                room.visual.text(role, infoPos.x, index, { align: 'left' });
-                room.visual.text(countText, infoPos.x + 8, index, { align: 'right' });
+                room.visual.text(countText + '  ' + role, infoPos.x, index, { align: 'left' });
+                // room.visual.text(countText, infoPos.x + 8, index, { align: 'right' });
                 index++;
             }
         }
@@ -59,6 +59,7 @@ export const visualController = function (): void {
     for (const roomName in Game.rooms) {
         const room: Room = Game.rooms[roomName];
         if (!room.my) continue;
+        if (!room.memory.roomCustom.showVisual) continue;
 
         // 显示Spawn孵化进度
         room.spawns.forEach(spawn => {
@@ -89,9 +90,11 @@ export const visualController = function (): void {
         // }
 
         // 显示Lab合成配置
-        if (room.memory.structureIdList['sourceLab1'] && room.memory.structureIdList['sourceLab2'] && room.memory.labReactionQueue[0]) {
-            const lab1 = Game.getObjectById<StructureLab>(room.memory.structureIdList['sourceLab1'])
-            const lab2 = Game.getObjectById<StructureLab>(room.memory.structureIdList['sourceLab2'])
+        const sourceLab1 = room.memory.structureIdList.sourceLab1
+        const sourceLab2 = room.memory.structureIdList.sourceLab2
+        if (sourceLab1 != undefined && sourceLab2 != undefined && room.memory.labReactionQueue[0]) {
+            const lab1 = Game.getObjectById<StructureLab>(sourceLab1)
+            const lab2 = Game.getObjectById<StructureLab>(sourceLab2)
 
             const source = reactionSource[room.memory.labReactionQueue[0]]
 

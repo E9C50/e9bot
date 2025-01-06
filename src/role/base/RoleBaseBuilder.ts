@@ -38,10 +38,7 @@ export default (data: CreepData): ICreepConfig => ({
         // 如果有正在修建的建筑，但是现在找不到了，说明修好了，然后更新缓存
         if (creepData.buildTarget != undefined) {
             if (Game.getObjectById(creepData.buildTarget) == undefined) {
-                creep.room.memory['IDOF_STRUCTURE'] = []
-                creep.room.memory['IDOF_CONSTRUCTION_SITE'] = []
-                creep.room['_STRUCTURE'] = []
-                creep.room['_CONSTRUCTION_SITE'] = []
+                creep.room.memory.needUpdateCache = true
                 creepData.buildTarget = undefined
             }
         }

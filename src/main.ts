@@ -14,7 +14,7 @@ profile.profileEnable();
 
 export const loop = ErrorMapper.wrapLoop(() => {
   profile.profileWrap(function () {
-    const debug = true
+    const debug = false
     const cpuInit = Game.cpu.getUsed()
     var cpu = Game.cpu.getUsed()
     // 挂载原型
@@ -64,6 +64,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
     if (debug) console.log(`导出统计数据 CPU 使用量：${(Game.cpu.getUsed() - cpu).toFixed(2)}`)
     cpu = Game.cpu.getUsed()
 
+    if (debug) console.log(`Creeps 数量：${Object.keys(Game.creeps).length}`)
     if (debug) console.log(`总 CPU 使用量：${(Game.cpu.getUsed() - cpuInit).toFixed(2)}`)
     if (debug) console.log('-----------------------------')
 

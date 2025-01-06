@@ -3,8 +3,7 @@ import BaseRoleUpgrader from "./RoleBaseUpgrader"
 
 export default (data: CreepData): ICreepConfig => ({
     isNeed: (room: Room, creepName: string) => {
-        return room.storage != undefined && room.storage.store[RESOURCE_ENERGY] > 50000
-            && [...room.walls, ...room.ramparts].filter(structure => structure.hits / structure.hitsMax < 0.5).length > 0
+        return room.storage != undefined && room.storage.store[RESOURCE_ENERGY] > 10000 && room.wallsNeedRepair.length > 0
     },
     prepare(creep) {
         return true

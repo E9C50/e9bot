@@ -2,11 +2,6 @@ import { getClosestTarget, getDistance } from "utils"
 
 export default (data: CreepData): ICreepConfig => ({
     isNeed: (room: Room, creepName: string) => {
-        // // 如果当前房间的harvester数量等于1，并且filler数量等于0，则返回true
-        // const harvesters = Object.values(Game.creeps).filter(creep => creep.memory.role === roleBaseEnum.HARVESTER)
-        // const fillers = Object.values(Game.creeps).filter(creep => creep.memory.role === roleBaseEnum.FILLER)
-
-        // if (harvesters.length > 0 && fillers.length == 0 && room.containers.length > 0) return false
         return true
     },
     prepare(creep) {
@@ -28,7 +23,7 @@ export default (data: CreepData): ICreepConfig => ({
     },
     source(creep) {
         // 如果没有空余容量了，就开始工作
-        if (creep.store.getFreeCapacity() == 0) {
+        if (creep.store.getFreeCapacity() <= 20) {
             creep.memory.working = true
             return false
         }
@@ -43,6 +38,16 @@ export default (data: CreepData): ICreepConfig => ({
         if (creep.store[RESOURCE_ENERGY] == 0) {
             creep.memory.working = false
             return false
+        }
+
+        const creepData: HarvesterData = data as HarvesterData
+
+        // 如果有正在修建的建筑，但是现在找不到了，说明修好了，然后更新缓存
+        if (creepData.buildTarget != undefined) {
+            if (Game.getObjectById(creepData.buildTarget) == undefined) {
+                creep.room.memory.needUpdateCache = true
+                creepData.buildTarget = undefined
+            }
         }
 
         // 如果有link则存放
@@ -66,6 +71,7 @@ export default (data: CreepData): ICreepConfig => ({
         // 如果有工地则建造
         const constructionSite = getClosestTarget(creep.pos, creep.room.constructionSites)
         if (constructionSite != undefined) {
+            creepData.buildTarget = constructionSite.id
             creep.build(constructionSite)
             return true
         }

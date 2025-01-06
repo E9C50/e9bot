@@ -12,13 +12,13 @@ type AdvancedRoleManager = 'manager'
 type AdvancedRoleProcesser = 'processer'
 type AdvancedRoleClaimer = 'claimer'
 type AdvancedRoleReserver = 'reserver'
-type AdvancedRoleRemoteHarvester = 'remoteHarvester'
-type AdvancedRoleRemoteFiller = 'remoteFiller'
+type AdvancedRoleRemoteHarvester = 'rHarvester'
+type AdvancedRoleRemoteFiller = 'rFiller'
 
 // 战争角色
 type WarRoleAttacker = 'attacker'
 type WarRoleHealer = 'healer'
-type WarRoleRangedAttacker = 'rangedAttacker'
+type WarRoleRangedAttacker = 'rAttacker'
 type WarRoleDismantler = 'dismantler'
 type WarRoleIntegrate = 'integrate'
 
@@ -123,17 +123,20 @@ interface IReactionSource {
     [targetResourceName: string]: ResourceConstant[]
 }
 
-interface JobMemory {
-    reserving: string[]
-    remoteHarvester: string[]
-    remoteFiller: { [roomName: string]: number }
+interface RoomCustomMemory {
+    reserving?: string[]
+    remoteHarvester?: string[]
+    remoteFiller?: { [roomName: string]: number }
 
-    reserver: string[]
-    dismantle: string[]
-    attacker: string[]
-    integrate: string[]
+    reserver?: string[]
+    dismantle?: string[]
+    attacker?: string[]
+    integrate?: string[]
 
-    processTaksQueue: string[]
+    processTaksQueue?: string[]
+
+    repairerCount?: number
+    showVisual?: boolean
 }
 
 interface IRoomPositionList {
@@ -143,14 +146,20 @@ interface IRoomPositionList {
 }
 
 interface RoomMemory {
-    structureIdList: {}
+    structureIdList: {
+        sourceLab1?: string
+        sourceLab2?: string
+        towerAllowRepair?: string
+    }
 
-    roomJobs: JobMemory
+    roomCustom: RoomCustomMemory
     roomPosition: IRoomPositionList
 
     autoLaylout?: boolean
     centerLinkSentMode?: boolean
     enableTowerRepairWall?: boolean
+
+    needUpdateCache?: boolean
 
     creepSpawnQueue: string[]
     labReactionQueue: ResourceConstant[]
@@ -160,6 +169,8 @@ interface RoomMemory {
 }
 
 interface CreepMemory {
+    displayName: string
+    name: string
     role: CreepRoleConstant
     ready: boolean
     working: boolean
@@ -171,7 +182,7 @@ interface CreepMemory {
 
 interface EmptyData { }
 
-interface HarvesterData { sourceId: string }
+interface HarvesterData { sourceId: string, buildTarget?: string }
 interface MineralData { sourceId: string }
 interface FillerData { sourceId: string }
 
@@ -184,8 +195,8 @@ interface RepairerData { sourceId: string, repairTarget?: string }
 
 interface ReserverData { targetRoom: string }
 
-interface RemoteHarvesterData { sourceId: string, targetRoom: string }
-interface RemoteFillerData { targetRoom: string }
+interface RemoteHarvesterData { sourceId: string, targetRoom: string, buildTarget?: string }
+interface RemoteFillerData { sourceId?: string, withdrawTarget?: string, targetRoom: string }
 
 interface AttackerData { needBoost: boolean, targetFlag: string, team?: string }
 interface IntegrateData { needBoost: boolean, targetFlag: string, team?: string, attackEnemy?: string }

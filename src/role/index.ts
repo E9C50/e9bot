@@ -28,12 +28,12 @@ const creepWork: CreepWork = {
     processer: RoleAdvProcesser,
     claimer: notImplemented,
     reserver: RoleAdvReserver,
-    remoteHarvester: RoleAdvRemoteHarvester,
-    remoteFiller: RoleAdvRemoteFiller,
+    rHarvester: RoleAdvRemoteHarvester,
+    rFiller: RoleAdvRemoteFiller,
 
     attacker: RoleWarAttacker,
     healer: notImplemented,
-    rangedAttacker: notImplemented,
+    rAttacker: notImplemented,
     dismantler: notImplemented,
     integrate: RoleWarIntegrate,
 }

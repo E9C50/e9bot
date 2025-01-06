@@ -21,56 +21,86 @@ export default (data: CreepData): ICreepConfig => ({
             return true
         }
 
-        // 如果有Storage并且有资源就去捡
-        if (creep.room.storage != undefined && creep.room.storage.store.getUsedCapacity() > 0) {
-            const firstResourceType = Object.keys(creep.room.storage.store)[0] as ResourceConstant
-            if (getDistance(creep.pos, creep.room.storage.pos) > 1) {
-                creep.moveTo(creep.room.storage)
-            } else {
-                creep.withdraw(creep.room.storage, RESOURCE_ENERGY)
+        var withdrawTarget: Structure | undefined = undefined
+        var withdrawResource: ResourceConstant | undefined = undefined
+
+        if (creep.pickupDroppedResource(true, 10)) return true
+
+        // 如果是外矿专属搬运，就去矿点
+        if (creepData.sourceId != undefined) {
+            const sourceTarget = Game.getObjectById(creepData.sourceId) as Source
+            if (getDistance(creep.pos, sourceTarget.pos) > 3) {
+                creep.moveTo(sourceTarget)
+                return true
             }
-            return true
+        }
+
+        // 如果有缓存建筑，就去拿缓存
+        if (creepData.withdrawTarget != undefined) {
+            withdrawTarget = Game.getObjectById(creepData.withdrawTarget) as Structure
+            withdrawResource = Object.keys(withdrawTarget['store'])[0] as ResourceConstant
+        }
+
+        // 如果外矿专属搬运，且没有缓存目标，就添加缓存
+        if (creepData.sourceId != undefined && creepData.withdrawTarget == undefined) {
+            withdrawTarget = getClosestTarget(creep.pos, creep.room.containers)
+            withdrawResource = Object.keys(withdrawTarget['store'])[0] as ResourceConstant
+        }
+
+        // 如果有Storage并且有资源就去捡
+        if (creepData.sourceId == undefined && withdrawTarget == undefined && creep.room.storage != undefined && creep.room.storage.store.getUsedCapacity() > 0) {
+            const firstResourceType = Object.keys(creep.room.storage.store)[0] as ResourceConstant
+            withdrawTarget = creep.room.storage
+            withdrawResource = firstResourceType
         }
 
         // 如果有Spawns并且有资源就去捡
-        const spawns = creep.room.spawns.filter(spawn => spawn.store[RESOURCE_ENERGY] > 0)
-        if (spawns.length > 0) {
-            const withdrawTarget = getClosestTarget(creep.pos, spawns)
-            if (getDistance(creep.pos, withdrawTarget.pos) > 1) {
-                creep.moveTo(withdrawTarget)
-            } else {
-                creep.withdraw(withdrawTarget, RESOURCE_ENERGY)
+        if (creepData.sourceId == undefined && withdrawTarget == undefined) {
+            const spawns = creep.room.spawns.filter(spawn => spawn.store[RESOURCE_ENERGY] > 0)
+            if (spawns.length > 0) {
+                withdrawTarget = getClosestTarget(creep.pos, spawns)
+                withdrawResource = RESOURCE_ENERGY
             }
-            return true
         }
 
         // 如果有Extensions并且有资源就去捡
-        const extensions = creep.room.extensions.filter(extension => extension.store[RESOURCE_ENERGY] > 0)
-        if (extensions.length > 0) {
-            const withdrawTarget = getClosestTarget(creep.pos, extensions)
-            if (getDistance(creep.pos, withdrawTarget.pos) > 1) {
-                creep.moveTo(withdrawTarget)
-            } else {
-                creep.withdraw(withdrawTarget, RESOURCE_ENERGY)
+        if (creepData.sourceId == undefined && withdrawTarget == undefined) {
+            const extensions = creep.room.extensions.filter(extension => extension.store[RESOURCE_ENERGY] > 0)
+            if (extensions.length > 0) {
+                withdrawTarget = getClosestTarget(creep.pos, extensions)
+                withdrawResource = RESOURCE_ENERGY
             }
-            return true
         }
 
         // 如果有Containers并且有资源就去捡
-        const containers = creep.room.containers.filter(container => container.store[RESOURCE_ENERGY] > 0)
-        if (containers.length > 0) {
-            const withdrawTarget = containers.sort((a, b) => b.store[RESOURCE_ENERGY] - a.store[RESOURCE_ENERGY])[0]
+        if (withdrawTarget == undefined) {
+            const containers = creep.room.containers.filter(container => container.store[RESOURCE_ENERGY] > 0)
+            if (containers.length > 0) {
+                withdrawTarget = getClosestTarget(creep.pos, containers)
+                withdrawResource = RESOURCE_ENERGY
+            }
+        }
+
+        if (withdrawTarget != undefined && withdrawResource != undefined) {
             if (getDistance(creep.pos, withdrawTarget.pos) > 1) {
                 creep.moveTo(withdrawTarget)
+                creepData.withdrawTarget = withdrawTarget.id
             } else {
-                creep.withdraw(withdrawTarget, RESOURCE_ENERGY)
+                creep.withdraw(withdrawTarget, withdrawResource)
+                if (creepData.sourceId == undefined) {
+                    creepData.withdrawTarget = undefined
+                }
             }
             return true
         }
 
         // 啥都没有就去source待命
-        if (getDistance(creep.pos, creep.room.sources[0].pos) > 3) {
-            creep.moveTo(creep.room.sources[0])
+        if (creepData.sourceId != undefined) {
+            const sourceTarget = Game.getObjectById(creepData.sourceId) as Source
+            if (getDistance(creep.pos, sourceTarget.pos) > 3) {
+                console.log('啥都没有就去source待命')
+                creep.moveTo(sourceTarget)
+            }
         }
 
         return true
@@ -99,7 +129,8 @@ export default (data: CreepData): ICreepConfig => ({
         }
 
         // 搬运到最近的storage、link、container
-        const structureList: Structure[] = [...[creep.room.storage], ...creep.room.links, ...creep.room.containers].filter(item => item != undefined) as Structure[]
+        const structureList: Structure[] = [creep.room.storage, ...creep.room.links, ...creep.room.containers]
+            .filter(item => item != undefined && item.store.getFreeCapacity(RESOURCE_ENERGY) > 0) as Structure[]
         const structure = getClosestTarget(creep.pos, structureList)
         if (getDistance(creep.pos, structure.pos) > 1) {
             creep.moveTo(structure)

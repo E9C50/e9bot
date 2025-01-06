@@ -30,7 +30,7 @@ export default (data: CreepData): ICreepConfig => ({
     },
     source(creep) {
         // 如果没有空余容量了，就开始工作
-        if (creep.store.getFreeCapacity() == 0) {
+        if (creep.store.getFreeCapacity() <= 0) {
             creep.memory.working = true
             return false
         }
@@ -47,6 +47,16 @@ export default (data: CreepData): ICreepConfig => ({
             return false
         }
 
+        const creepData: RemoteHarvesterData = data as RemoteHarvesterData
+
+        // 如果有正在修建的建筑，但是现在找不到了，说明修好了，然后更新缓存
+        if (creepData.buildTarget != undefined) {
+            if (Game.getObjectById(creepData.buildTarget) == undefined) {
+                creep.room.memory.needUpdateCache = true
+                creepData.buildTarget = undefined
+            }
+        }
+
         // 如果有container，如果生命值不够，则维修，要么就存放
         const container = creep.room.containers.filter(item => creep.pos.isNearTo(item))[0]
         if (container != undefined && container.hits < container.hitsMax) {
@@ -61,6 +71,7 @@ export default (data: CreepData): ICreepConfig => ({
         // 如果有工地则建造
         const constructionSite = getClosestTarget(creep.pos, creep.room.constructionSites)
         if (constructionSite != undefined) {
+            creepData.buildTarget = constructionSite.id
             creep.build(constructionSite)
             return true
         }

@@ -6,12 +6,14 @@ export default class LabExtension extends StructureLab {
         if (this.cooldown != 0) return
 
         // 如果房间没有配置好两个sourceLab，就跳过
-        if (!this.room.memory.structureIdList['sourceLab1'] || !this.room.memory.structureIdList['sourceLab2']) return
-        if (this.id == this.room.memory.structureIdList['sourceLab1'] || this.id == this.room.memory.structureIdList['sourceLab2']) return
+        const sourceLab1 = this.room.memory.structureIdList.sourceLab1
+        const sourceLab2 = this.room.memory.structureIdList.sourceLab2
+        if (sourceLab1 == undefined || sourceLab2 == undefined) return
+        if (this.id == sourceLab1 || this.id == sourceLab2) return
 
         // 获取两个lab
-        const lab1 = Game.getObjectById(this.room.memory.structureIdList['sourceLab1']) as StructureLab;
-        const lab2 = Game.getObjectById(this.room.memory.structureIdList['sourceLab2']) as StructureLab;
+        const lab1 = Game.getObjectById(sourceLab1) as StructureLab;
+        const lab2 = Game.getObjectById(sourceLab2) as StructureLab;
 
         // 如果Lab有物质，但是两个SourceLab的物质不匹配，就跳过
         const reactionSourceList = this.mineralType ? reactionSource[this.mineralType] : []

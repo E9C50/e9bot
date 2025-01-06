@@ -2,8 +2,11 @@ import { reactionSource } from "settings"
 
 export default (data: CreepData): ICreepConfig => ({
     isNeed: (room: Room, creepName: string) => {
-        const processTask = room.memory.roomJobs.processTaksQueue.length > 0
-        const reactionCheck = room.memory.structureIdList['sourceLab1'] != undefined && room.memory.structureIdList['sourceLab2'] != undefined
+        const processTask = room.memory.roomCustom.processTaksQueue != undefined
+            && room.memory.roomCustom.processTaksQueue.length > 0
+
+        const reactionCheck = room.memory.structureIdList.sourceLab1 != undefined
+            && room.memory.structureIdList.sourceLab2 != undefined
             && room.memory.labReactionQueue.length > 0
         return reactionCheck || processTask
     },
@@ -68,11 +71,14 @@ export default (data: CreepData): ICreepConfig => ({
             }
         }
 
-        // 处理Lab相关物流工作
-        if (creep.room.memory.structureIdList['sourceLab1'] != undefined && creep.room.memory.structureIdList['sourceLab2'] != undefined) {
+        const sourceLab1Id = creep.room.memory.structureIdList.sourceLab1
+        const sourceLab2Id = creep.room.memory.structureIdList.sourceLab2
 
-            const lab1 = Game.getObjectById(creep.room.memory.structureIdList['sourceLab1']) as StructureLab;
-            const lab2 = Game.getObjectById(creep.room.memory.structureIdList['sourceLab2']) as StructureLab;
+        // 处理Lab相关物流工作
+        if (sourceLab1Id != undefined && sourceLab2Id != undefined) {
+
+            const lab1 = Game.getObjectById(sourceLab1Id) as StructureLab;
+            const lab2 = Game.getObjectById(sourceLab2Id) as StructureLab;
 
             const lab1MineralType = lab1.mineralType as ResourceConstant
             const lab2MineralType = lab2.mineralType as ResourceConstant
@@ -198,9 +204,9 @@ export default (data: CreepData): ICreepConfig => ({
         }
 
         // 没有工作就就去SourceLab1和SourceLab2旁边待命
-        if (creep.room.memory.structureIdList['sourceLab1'] && creep.room.memory.structureIdList['sourceLab2']) {
-            const sourceLab1 = Game.getObjectById(creep.room.memory.structureIdList['sourceLab1']) as StructureLab
-            const sourceLab2 = Game.getObjectById(creep.room.memory.structureIdList['sourceLab2']) as StructureLab
+        if (sourceLab1Id && sourceLab2Id) {
+            const sourceLab1 = Game.getObjectById(sourceLab1Id) as StructureLab
+            const sourceLab2 = Game.getObjectById(sourceLab2Id) as StructureLab
             if (!creep.pos.isNearTo(sourceLab1)) {
                 creep.moveTo(sourceLab1)
                 if (debug) console.log('待命 移动到SourceLab1')

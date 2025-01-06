@@ -24,6 +24,8 @@ export default (data: CreepData): ICreepConfig => ({
         const creepData: FillerData = data as FillerData
         const sourceTarget: Structure = Game.getObjectById(creepData.sourceId) as Structure
 
+        if (creep.pickupDroppedResource(true, 10)) return true
+
         if (getDistance(creep.pos, sourceTarget.pos) <= 1) {
             creep.withdraw(sourceTarget, RESOURCE_ENERGY)
         } else {

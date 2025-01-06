@@ -46,8 +46,9 @@ function checkReactionReady(room: Room, reactionTarget: ResourceConstant): boole
  * @returns
  */
 function updateReactionConfig(room: Room): void {
+    if (Game.time % 100 != 0) return
     // 如果房间没有配置好两个sourceLab，就跳过
-    if (!room.memory.structureIdList['sourceLab1'] || !room.memory.structureIdList['sourceLab2']) return
+    if (room.memory.structureIdList.sourceLab1 == undefined || !room.memory.structureIdList.sourceLab2 == undefined) return
 
     if (room.memory.labReactionQueue.length > 0 && !checkReactionReady(room, room.memory.labReactionQueue[0])) {
         console.log(`Lab合成配置更新前：${room.memory.labReactionQueue}`)
@@ -65,6 +66,7 @@ function updateReactionConfig(room: Room): void {
         console.log(`Lab合成配置更新前：${room.memory.labReactionQueue}`)
         room.memory.labReactionQueue = readyReactionList
         console.log(`Lab合成配置更新后：${room.memory.labReactionQueue}`)
+        console.log(`notify_Lab合成配置更新：${room.memory.labReactionQueue}`)
         return
     }
 }
@@ -73,10 +75,18 @@ export const roomController = function (): void {
     for (const roomName in Game.rooms) {
         const room: Room = Game.rooms[roomName];
 
+        // 更新缓存
+        if (room.memory.needUpdateCache) {
+            room.memory.structureIdList = {}
+            room.memory.needUpdateCache = false
+            console.log('更新建筑缓存', roomName)
+        }
+
         if (room.memory.labReactionQueue == undefined) room.memory.labReactionQueue = []
         if (room.memory.structureIdList == undefined) room.memory.structureIdList = {}
         if (room.memory.freeSpaceCount == undefined) room.memory.freeSpaceCount = {}
         if (room.memory.roomPosition == undefined) room.memory.roomPosition = {}
+        if (room.memory.roomCustom == undefined) room.memory.roomCustom = {}
 
         if (!room.my) continue;
 

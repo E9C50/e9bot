@@ -19,14 +19,14 @@ export enum roleAdvEnum {
     PROCESSER = "processer",
     CLAIMER = "claimer",
     RESERVER = "reserver",
-    RHARVESTER = "remoteHarvester",
-    RFILLER = "remoteFiller",
+    RHARVESTER = "rHarvester",
+    RFILLER = "rFiller",
 }
 
 export enum roleWarEnum {
     ATTACKER = 'attacker',
     HEALER = 'healer',
-    RANGED_ATTACKER = 'rangedAttacker',
+    RANGED_ATTACKER = 'rAttacker',
     DISMANTLER = 'dismantler',
     INTEGRATE = 'integrate',
 }
@@ -68,7 +68,7 @@ export const bodyConfigs: { [role in CreepRoleConstant]: BodySet[] } = {
     miner: workerBodyConfigs,
     filler: carryBodyConfigs,
     processer: carryBodyConfigs,
-    remoteFiller: carryBodyConfigs,
+    rFiller: carryBodyConfigs,
     harvester: [
         { [WORK]: 2, [CARRY]: 1, [MOVE]: 1 },
         { [WORK]: 4, [CARRY]: 1, [MOVE]: 2 },
@@ -109,7 +109,7 @@ export const bodyConfigs: { [role in CreepRoleConstant]: BodySet[] } = {
         { [MOVE]: 3, [CLAIM]: 3 },
         { [MOVE]: 5, [CLAIM]: 5 }
     ],
-    remoteHarvester: [
+    rHarvester: [
         { [WORK]: 2, [CARRY]: 1, [MOVE]: 1 },
         { [WORK]: 4, [CARRY]: 1, [MOVE]: 2 },
         { [WORK]: 6, [CARRY]: 1, [MOVE]: 3 },
@@ -130,7 +130,7 @@ export const bodyConfigs: { [role in CreepRoleConstant]: BodySet[] } = {
         { [MOVE]: 25, [ATTACK]: 25 }
     ],
     healer: [],
-    rangedAttacker: [],
+    rAttacker: [],
     dismantler: [],
     integrate: [
         { [TOUGH]: 0, [RANGED_ATTACK]: 15, [MOVE]: 6, [HEAL]: 3 },

@@ -8,6 +8,7 @@ if (!Memory.stats.rooms) Memory.stats.rooms = {};
 
 // 在主循环的末尾调用此函数
 export const exportStats = function () {
+    if (Memory.stats == undefined) Memory.stats = { gcl: {}, cpu: {} }
     Memory.stats.time = Game.time;
     Memory.stats.sysTime = new Date().getTime();
 
@@ -16,7 +17,8 @@ export const exportStats = function () {
         let room = Game.rooms[roomName];
         let isMyRoom = (room.controller ? room.controller.my : false);
         if (isMyRoom) {
-            if (!Memory.stats.rooms[roomName]) Memory.stats.rooms[roomName] = {};
+            if (Memory.stats.rooms == undefined) Memory.stats.rooms = {}
+            if (Memory.stats.rooms[roomName] == undefined) Memory.stats.rooms[roomName] = {};
             Memory.stats.rooms[roomName].storageEnergy = (room.storage ? room.storage.store.energy : 0);
             Memory.stats.rooms[roomName].terminalEnergy = (room.terminal ? room.terminal.store.energy : 0);
             Memory.stats.rooms[roomName].energyAvailable = room.energyAvailable;
