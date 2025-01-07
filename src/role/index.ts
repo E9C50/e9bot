@@ -1,6 +1,7 @@
 import RoleAdvClaimer from "./adv/RoleAdvClaimer"
 import RoleAdvManager from "./adv/RoleAdvManager"
 import RoleAdvProcesser from "./adv/RoleAdvProcesser"
+import RoleAdvRemoteBuilder from "./adv/RoleAdvRemoteBuilder"
 import RoleAdvRemoteFiller from "./adv/RoleAdvRemoteFiller"
 import RoleAdvRemoteHarvester from "./adv/RoleAdvRemoteHarvester"
 import RoleAdvReserver from "./adv/RoleAdvReserver"
@@ -31,6 +32,7 @@ const creepWork: CreepWork = {
     reserver: RoleAdvReserver,
     rHarvester: RoleAdvRemoteHarvester,
     rFiller: RoleAdvRemoteFiller,
+    rBuilder: RoleAdvRemoteBuilder,
 
     attacker: RoleWarAttacker,
     healer: notImplemented,

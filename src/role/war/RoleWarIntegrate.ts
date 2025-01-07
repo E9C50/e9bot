@@ -30,18 +30,17 @@ export default (data: CreepData): ICreepConfig => ({
             creep.heal(creep)
         }
 
-        // 不在目标房那就过去
-        const structure = creep.room.name == targetFlag.pos.roomName ?
-            targetFlag.pos.lookFor(LOOK_STRUCTURES)[0] : undefined
-
-        if (creep.room.name != targetFlag.pos.roomName) {
-            creep.moveTo(targetFlag)
-            return true
+        const myCreeps = creep.pos.findInRange(FIND_MY_CREEPS, 3, { filter: x => x.hits < x.hitsMax })
+        if (myCreeps.length > 0) {
+            if (creep.pos.isNearTo(myCreeps[0])) {
+                creep.heal(myCreeps[0])
+            } else {
+                creep.rangedHeal(myCreeps[0])
+            }
         }
 
         // 获取敌人信息
         var enemyTarget: Creep | undefined = undefined
-
         const lastEnemy: Creep = Game.getObjectById(creepData.attackEnemy || '') as Creep
         if (lastEnemy != undefined && lastEnemy.pos.getRangeTo(creep) < 10) {
             enemyTarget = lastEnemy
@@ -49,6 +48,21 @@ export default (data: CreepData): ICreepConfig => ({
             enemyTarget = creep.room.enemies
                 .filter(enemy => !enemy.my && enemy.pos.inRangeTo(creep, 3))
                 .sort((a, b) => a.pos.getRangeTo(creep) - b.pos.getRangeTo(creep))[0]
+        }
+
+        // 敌人在范围内就攻击
+        if (enemyTarget != undefined && creep.pos.inRangeTo(enemyTarget, 3)) {
+            creep.rangedAttack(enemyTarget)
+            creepData.attackEnemy = enemyTarget.id
+        }
+
+        // 不在目标房那就过去
+        const structure = creep.room.name == targetFlag.pos.roomName ?
+            targetFlag.pos.lookFor(LOOK_STRUCTURES)[0] : undefined
+
+        if (creep.room.name != targetFlag.pos.roomName) {
+            creep.moveTo(targetFlag)
+            return true
         }
 
         var moveTarget: RoomPosition | undefined = undefined
@@ -70,12 +84,6 @@ export default (data: CreepData): ICreepConfig => ({
         // 向目标移动
         if (moveTarget != undefined) creep.moveTo(moveTarget)
 
-        // 敌人在范围内就攻击
-        if (enemyTarget != undefined && creep.pos.inRangeTo(enemyTarget, 3)) {
-            creep.rangedAttack(enemyTarget)
-            creepData.attackEnemy = enemyTarget.id
-            return true
-        }
 
         // 建筑在范围内就攻击
         if (structure != undefined && creep.pos.inRangeTo(structure, 3)) {

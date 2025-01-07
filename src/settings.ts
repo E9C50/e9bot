@@ -21,6 +21,7 @@ export enum roleAdvEnum {
     RESERVER = "reserver",
     RHARVESTER = "rHarvester",
     RFILLER = "rFiller",
+    RBUILDER = "rBuilder",
 }
 
 export enum roleWarEnum {
@@ -119,6 +120,16 @@ export const bodyConfigs: { [role in CreepRoleConstant]: BodySet[] } = {
         { [WORK]: 8, [CARRY]: 1, [MOVE]: 5 },
         { [WORK]: 8, [CARRY]: 1, [MOVE]: 5 },
     ],
+    rBuilder: [
+        { [WORK]: 1, [CARRY]: 1, [MOVE]: 3, },
+        { [WORK]: 1, [CARRY]: 1, [MOVE]: 3, },
+        { [WORK]: 1, [CARRY]: 1, [MOVE]: 3, },
+        { [WORK]: 2, [CARRY]: 3, [MOVE]: 6, },
+        { [WORK]: 15, [CARRY]: 10, [MOVE]: 25, },
+        { [WORK]: 15, [CARRY]: 10, [MOVE]: 25, },
+        { [WORK]: 15, [CARRY]: 10, [MOVE]: 25, },
+        { [WORK]: 15, [CARRY]: 10, [MOVE]: 25, }
+    ],
     attacker: [
         { [MOVE]: 2, [ATTACK]: 2 },
         { [MOVE]: 3, [ATTACK]: 3 },
@@ -141,7 +152,7 @@ export const bodyConfigs: { [role in CreepRoleConstant]: BodySet[] } = {
         { [TOUGH]: 8, [RANGED_ATTACK]: 15, [MOVE]: 10, [HEAL]: 17 },
         { [TOUGH]: 10, [RANGED_ATTACK]: 9, [MOVE]: 10, [HEAL]: 21 },
         { [TOUGH]: 12, [RANGED_ATTACK]: 5, [MOVE]: 10, [HEAL]: 23 }
-    ]
+    ],
 }
 
 export const baseLayout: { [level: number]: {} } = {
@@ -216,16 +227,16 @@ export const baseLayout: { [level: number]: {} } = {
 }
 
 export const reactionConfig = {
-    [RESOURCE_CATALYZED_GHODIUM_ACID]: 3000,        // WORK     +100% upgradeController 效率但不增加其能量消耗
-    [RESOURCE_CATALYZED_GHODIUM_ALKALIDE]: 3000,    // TOUGH    70% 伤害减免
-    [RESOURCE_CATALYZED_KEANIUM_ACID]: 3000,        // CARRY    +150 容量
-    [RESOURCE_CATALYZED_KEANIUM_ALKALIDE]: 3000,    // R_A      +300% rangedAttack 和 rangedMassAttack 效率
-    [RESOURCE_CATALYZED_LEMERGIUM_ACID]: 3000,      // WORK     +100% repair 和 build 效率但不增加其能量消耗
-    [RESOURCE_CATALYZED_LEMERGIUM_ALKALIDE]: 3000,  // HEAL     +300% heal and rangedHeal 效率
-    [RESOURCE_CATALYZED_UTRIUM_ACID]: 3000,         // ATTACK   +300% attack 效率
-    [RESOURCE_CATALYZED_UTRIUM_ALKALIDE]: 3000,     // WORK     +600% harvest 效率
-    [RESOURCE_CATALYZED_ZYNTHIUM_ACID]: 3000,       // WORK     +300% dismantle 效率
-    [RESOURCE_CATALYZED_ZYNTHIUM_ALKALIDE]: 3000,   // MOVE     +300% fatigue(疲劳值) 减低速度
+    // [RESOURCE_CATALYZED_GHODIUM_ACID]: 3000,        // WORK     +100% upgradeController 效率但不增加其能量消耗
+    // [RESOURCE_CATALYZED_GHODIUM_ALKALIDE]: 3000,    // TOUGH    70% 伤害减免
+    // [RESOURCE_CATALYZED_KEANIUM_ACID]: 3000,        // CARRY    +150 容量
+    // [RESOURCE_CATALYZED_KEANIUM_ALKALIDE]: 3000,    // R_A      +300% rangedAttack 和 rangedMassAttack 效率
+    // [RESOURCE_CATALYZED_LEMERGIUM_ACID]: 3000,      // WORK     +100% repair 和 build 效率但不增加其能量消耗
+    // [RESOURCE_CATALYZED_LEMERGIUM_ALKALIDE]: 3000,  // HEAL     +300% heal and rangedHeal 效率
+    // [RESOURCE_CATALYZED_UTRIUM_ACID]: 3000,         // ATTACK   +300% attack 效率
+    // [RESOURCE_CATALYZED_UTRIUM_ALKALIDE]: 3000,     // WORK     +600% harvest 效率
+    // [RESOURCE_CATALYZED_ZYNTHIUM_ACID]: 3000,       // WORK     +300% dismantle 效率
+    // [RESOURCE_CATALYZED_ZYNTHIUM_ALKALIDE]: 3000,   // MOVE     +300% fatigue(疲劳值) 减低速度
 
     // [RESOURCE_GHODIUM_ACID]: 3000,
     // [RESOURCE_GHODIUM_ALKALIDE]: 3000,

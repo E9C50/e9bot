@@ -48,7 +48,7 @@ function checkReactionReady(room: Room, reactionTarget: ResourceConstant): boole
 function updateReactionConfig(room: Room): void {
     if (Game.time % 100 != 0) return
     // 如果房间没有配置好两个sourceLab，就跳过
-    if (room.memory.roomCustom.sourceLab1 == undefined || !room.memory.roomCustom.sourceLab2 == undefined) return
+    if (room.memory.roomStructurePos.sourceLab1 == undefined || !room.memory.roomStructurePos.sourceLab2 == undefined) return
 
     if (room.memory.labReactionQueue.length > 0 && !checkReactionReady(room, room.memory.labReactionQueue[0])) {
         console.log(`Lab合成配置更新前：${room.memory.labReactionQueue}`)
@@ -102,7 +102,13 @@ function canBeRoomCenter(terrain, posx, posy, baseSize) {
  * @returns
  */
 function autoComputeCenterPos(room: Room, baseSize: number = 13) {
+    const planFlag = Game.flags['planRoomCenter']
+    if (planFlag != undefined && planFlag.pos.roomName == room.name) {
+        room.memory.roomCustom.computeRoomCenter = 3
+        planFlag.remove()
+    }
     if (!room.memory.roomCustom.computeRoomCenter) return
+    room.memory.roomCustom.computeRoomCenter--
 
     const cpu = Game.cpu.getUsed()
 
@@ -209,6 +215,7 @@ export const roomController = function (): void {
         }
 
         if (room.memory.labReactionQueue == undefined) room.memory.labReactionQueue = []
+        if (room.memory.roomStructurePos == undefined) room.memory.roomStructurePos = {}
         if (room.memory.structureIdList == undefined) room.memory.structureIdList = {}
         if (room.memory.freeSpaceCount == undefined) room.memory.freeSpaceCount = {}
         if (room.memory.roomPosition == undefined) room.memory.roomPosition = {}

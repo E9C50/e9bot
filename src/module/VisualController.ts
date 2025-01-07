@@ -90,8 +90,8 @@ export const visualController = function (): void {
         // }
 
         // 显示Lab合成配置
-        const sourceLab1 = room.memory.roomCustom.sourceLab1
-        const sourceLab2 = room.memory.roomCustom.sourceLab2
+        const sourceLab1 = room.memory.roomStructurePos.sourceLab1
+        const sourceLab2 = room.memory.roomStructurePos.sourceLab2
         if (sourceLab1 != undefined && sourceLab2 != undefined && room.memory.labReactionQueue[0]) {
             const lab1 = Game.getObjectById<StructureLab>(sourceLab1)
             const lab2 = Game.getObjectById<StructureLab>(sourceLab2)

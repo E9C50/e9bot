@@ -13,6 +13,11 @@ import { creepNumberController, creepWorkController } from "./module/CreepContro
 profile.profileEnable();
 
 export const loop = ErrorMapper.wrapLoop(() => {
+  // 利用空闲CPU生成Pixel
+  if (typeof Game.cpu.generatePixel === 'function') {
+    Game.cpu.generatePixel();
+  }
+
   profile.profileWrap(function () {
     const debug = false
     const cpuInit = Game.cpu.getUsed()
@@ -67,6 +72,5 @@ export const loop = ErrorMapper.wrapLoop(() => {
     if (debug) console.log(`Creeps 数量：${Object.keys(Game.creeps).length}`)
     if (debug) console.log(`总 CPU 使用量：${(Game.cpu.getUsed() - cpuInit).toFixed(2)}`)
     if (debug) console.log('-----------------------------')
-
   });
 })

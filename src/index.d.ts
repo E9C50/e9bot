@@ -14,6 +14,7 @@ type AdvancedRoleClaimer = 'claimer'
 type AdvancedRoleReserver = 'reserver'
 type AdvancedRoleRemoteHarvester = 'rHarvester'
 type AdvancedRoleRemoteFiller = 'rFiller'
+type AdvancedRoleRemoteBuilder = 'rBuilder'
 
 // 战争角色
 type WarRoleAttacker = 'attacker'
@@ -26,8 +27,8 @@ type WarRoleIntegrate = 'integrate'
 // 所有的 creep 角色
 type CreepRoleConstant = BaseRoleHarvester | BaseRoleFiller | BaseRoleUpgrader | BaseRoleBuilder
     | BaseRoleRepairer | BaseRoleMiner | AdvancedRoleManager | AdvancedRoleProcesser | AdvancedRoleClaimer
-    | AdvancedRoleReserver | AdvancedRoleRemoteHarvester | AdvancedRoleRemoteFiller | WarRoleAttacker
-    | WarRoleHealer | WarRoleRangedAttacker | WarRoleDismantler | WarRoleIntegrate
+    | AdvancedRoleReserver | AdvancedRoleRemoteHarvester | AdvancedRoleRemoteFiller | AdvancedRoleRemoteBuilder
+    | WarRoleAttacker | WarRoleHealer | WarRoleRangedAttacker | WarRoleDismantler | WarRoleIntegrate
 
 // Creep 工作逻辑集合 包含了每个角色应该做的工作
 type CreepWork = { [role in CreepRoleConstant]: (data: CreepData) => ICreepConfig }
@@ -128,6 +129,7 @@ interface RoomCustomMemory {
     reserving?: string[]
     remoteHarvester?: string[]
     remoteFiller?: { [roomName: string]: number }
+    remoteBuilder?: { [roomName: string]: number }
 
     claimer?: string[]
     reserver?: string[]
@@ -139,17 +141,19 @@ interface RoomCustomMemory {
 
     repairerCount?: number
     showVisual?: boolean
-    computeRoomCenter?: boolean
-
-    sourceLab1?: string
-    sourceLab2?: string
-    towerAllowRepair?: string
+    computeRoomCenter?: number
 }
 
 interface IRoomPositionList {
     infoPos?: RoomPosition
     managerPos?: RoomPosition
     centerPos?: RoomPosition
+}
+
+interface IRoomStructurePos {
+    sourceLab1?: string
+    sourceLab2?: string
+    towerAllowRepair?: string
 }
 
 interface IRoomFillJob {
@@ -175,6 +179,7 @@ interface RoomMemory {
 
     roomCustom: RoomCustomMemory
     roomPosition: IRoomPositionList
+    roomStructurePos: IRoomStructurePos
     roomFillJob: IRoomFillJob
 
     autoLaylout?: boolean
@@ -219,7 +224,8 @@ interface ReserverData { targetRoom: string }
 interface ClaimerData { targetRoom: string, sourceId: string, buildTarget?: string }
 
 interface RemoteHarvesterData { sourceId: string, targetRoom: string, buildTarget?: string }
-interface RemoteFillerData { sourceId?: string, withdrawTarget?: string, targetRoom: string }
+interface RemoteFillerData { sourceId?: string, targetRoom: string, withdrawTarget?: string }
+interface RemoteBuilderData { sourceId?: string, targetRoom: string, buildTarget?: string }
 
 interface AttackerData { needBoost: boolean, targetFlag: string, team?: string }
 interface IntegrateData { needBoost: boolean, targetFlag: string, team?: string, attackEnemy?: string }

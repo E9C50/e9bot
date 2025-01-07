@@ -30,7 +30,7 @@ function processFlagPos(flagName: string, memoryKey: string): void {
 function processFlagStructure(flagName: string, memoryKey: string): void {
     if (Game.flags[flagName] != undefined) {
         const roomName = Game.flags[flagName].pos.roomName;
-        Game.rooms[roomName].memory.roomCustom[memoryKey] = Game.flags[flagName].pos.lookFor(LOOK_STRUCTURES)[0].id;
+        Game.rooms[roomName].memory.roomStructurePos[memoryKey] = Game.flags[flagName].pos.lookFor(LOOK_STRUCTURES)[0].id;
         Game.flags[flagName].remove();
     }
     // if (Game.time % 10 == 0) {

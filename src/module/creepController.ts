@@ -191,7 +191,7 @@ function releaseJobsCreepConfig(): void {
         if (roomCustom.claimer != undefined) {
             roomCustom.claimer.forEach(targetRoomName => {
                 const targetRoom = Game.rooms[targetRoomName]
-                if (targetRoom != undefined && targetRoom.controller?.my && targetRoom.spawns.length > 0) return
+                if (targetRoom != undefined && targetRoom.controller?.my) return
                 const claimerMemory: ReserverData = { targetRoom: targetRoomName }
                 const creepName = room.name + '_CLAIMER_' + targetRoomName
                 addCreepConfig(room, roleAdvEnum.CLAIMER, creepName, claimerMemory, 9);
@@ -215,6 +215,18 @@ function releaseJobsCreepConfig(): void {
                 for (let i = 0; i < roomCustom.remoteFiller[targetRoomName]; i++) {
                     const creepName = room.name + '_RFILLER_' + targetRoomName + '_' + i
                     addCreepConfig(room, roleAdvEnum.RFILLER, creepName, remoteFillerMemory, 8);
+                }
+            });
+        }
+
+        // 发布外房建筑工
+        if (roomCustom.remoteBuilder != undefined) {
+            Object.keys(roomCustom.remoteBuilder).forEach(targetRoomName => {
+                const remoteBuilderMemory: RemoteBuilderData = { targetRoom: targetRoomName }
+                if (roomCustom.remoteBuilder == undefined) return
+                for (let i = 0; i < roomCustom.remoteBuilder[targetRoomName]; i++) {
+                    const creepName = room.name + '_RBUILDER_' + targetRoomName + '_' + i
+                    addCreepConfig(room, roleAdvEnum.RBUILDER, creepName, remoteBuilderMemory, 8);
                 }
             });
         }
@@ -283,12 +295,12 @@ export const creepWorkController = function (): void {
 
     });
 
-    workCpu = workCpu.sort((a, b) => b[1] - a[1])
-    for (let role in Object.keys(workCpu)) {
-        if (workCpu[role][1] > 0.5) {
-            console.log(workCpu[role][1], workCpu[role][0])
-        }
-    }
+    // workCpu = workCpu.sort((a, b) => b[1] - a[1])
+    // for (let role in Object.keys(workCpu)) {
+    //     if (workCpu[role][1] > 0.5) {
+    //         console.log(workCpu[role][1], workCpu[role][0])
+    //     }
+    // }
 
-    console.log('------------------------------------------------')
+    // console.log('------------------------------------------------')
 }
