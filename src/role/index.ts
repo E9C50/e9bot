@@ -1,3 +1,4 @@
+import RoleAdvClaimer from "./adv/RoleAdvClaimer"
 import RoleAdvManager from "./adv/RoleAdvManager"
 import RoleAdvProcesser from "./adv/RoleAdvProcesser"
 import RoleAdvRemoteFiller from "./adv/RoleAdvRemoteFiller"
@@ -26,7 +27,7 @@ const creepWork: CreepWork = {
 
     manager: RoleAdvManager,
     processer: RoleAdvProcesser,
-    claimer: notImplemented,
+    claimer: RoleAdvClaimer,
     reserver: RoleAdvReserver,
     rHarvester: RoleAdvRemoteHarvester,
     rFiller: RoleAdvRemoteFiller,

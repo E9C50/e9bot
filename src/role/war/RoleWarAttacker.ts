@@ -1,3 +1,5 @@
+import { getClosestTarget } from "utils"
+
 export default (data: CreepData): ICreepConfig => ({
     isNeed: (room: Room, creepName: string) => {
         const creepData: AttackerData = data as AttackerData
@@ -27,21 +29,21 @@ export default (data: CreepData): ICreepConfig => ({
         if (targetFlag == undefined) return false
 
         const enemies = creep.room.enemies.filter(enemy => !enemy.my && enemy.pos.inRangeTo(creep, 3))
-            .sort((a, b) => a.pos.getRangeTo(creep) - b.pos.getRangeTo(creep))
+        const closestEnemy = getClosestTarget(creep.pos, enemies)
         const structure = creep.room.name == targetFlag.pos.roomName ? targetFlag.pos.lookFor(LOOK_STRUCTURES)[0] : undefined
 
         if (creep.room.name != targetFlag.pos.roomName) {
             creep.moveTo(targetFlag)
         } else if (structure != undefined) {
             creep.moveTo(structure)
-        } else if (enemies.length > 0) {
-            creep.moveTo(enemies[0])
+        } else if (closestEnemy != undefined) {
+            creep.moveTo(closestEnemy)
         } else {
             creep.moveTo(targetFlag)
         }
 
-        if (creep.pos.isNearTo(enemies[0])) {
-            creep.attack(enemies[0])
+        if (creep.pos.isNearTo(closestEnemy)) {
+            creep.attack(closestEnemy)
         } else if (structure != undefined && creep.pos.isNearTo(structure)) {
             creep.attack(structure)
         }

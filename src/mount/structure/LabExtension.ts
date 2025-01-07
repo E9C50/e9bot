@@ -1,13 +1,16 @@
 import { reactionSource } from "settings";
 
 export default class LabExtension extends StructureLab {
+    public init(): void {
+
+    }
     public doWork(): void {
         // 如果Lab冷却中，就跳过
         if (this.cooldown != 0) return
 
         // 如果房间没有配置好两个sourceLab，就跳过
-        const sourceLab1 = this.room.memory.structureIdList.sourceLab1
-        const sourceLab2 = this.room.memory.structureIdList.sourceLab2
+        const sourceLab1 = this.room.memory.roomCustom.sourceLab1
+        const sourceLab2 = this.room.memory.roomCustom.sourceLab2
         if (sourceLab1 == undefined || sourceLab2 == undefined) return
         if (this.id == sourceLab1 || this.id == sourceLab2) return
 

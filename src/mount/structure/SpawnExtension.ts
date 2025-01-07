@@ -2,6 +2,11 @@ import { bodyConfigs, roleAdvEnum, roleBaseEnum } from "settings"
 import { getBodyConfig } from "utils"
 
 export default class SpawnExtension extends StructureSpawn {
+    public init(): void {
+        if (!this.room.memory.roomFillJob.extension && this.room.energyAvailable < this.room.energyCapacityAvailable) {
+            this.room.memory.roomFillJob.extension = true
+        }
+    }
     public doWork(): void {
         if (this.spawning) return
         // 循环creepConfig，筛选出未孵化的creep，并按照优先级排序
@@ -10,8 +15,8 @@ export default class SpawnExtension extends StructureSpawn {
             .filter(creepName => !Game.creeps[creepName])
             .sort((a, b) => creepConfigCache[a].spawnPriority - creepConfigCache[b].spawnPriority)
 
-        const fillers = Object.values(Game.creeps).filter(creep => creep.memory.role == roleBaseEnum.FILLER)
-        const harvesters = Object.values(Game.creeps).filter(creep => creep.memory.role == roleBaseEnum.HARVESTER)
+        const fillers = Object.values(Game.creeps).filter(creep => creep.room.name == this.room.name && creep.memory.role == roleBaseEnum.FILLER)
+        const harvesters = Object.values(Game.creeps).filter(creep => creep.room.name == this.room.name && creep.memory.role == roleBaseEnum.HARVESTER)
 
         // 如果有harvester，但是没有filler，则优先孵化一个对应的filler
         if (this.room.containers.length > 0 && fillers.length == 0 && harvesters.length > 0) {

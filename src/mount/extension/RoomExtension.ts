@@ -1,4 +1,5 @@
 import { STRUCTURE_MEMORYKEY_PERFIX, STRUCTURE_PRIVATEKEY_PERFIX } from "settings";
+import { getDistance } from "utils";
 
 export default class RoomExtension extends Room {
 
@@ -163,9 +164,14 @@ export default class RoomExtension extends Room {
         const memoryKey = STRUCTURE_MEMORYKEY_PERFIX + 'STRUCTURE'
         if (this[privateKey]) return this[privateKey]
 
-        const structures: Structure[] = this.memory.structureIdList[memoryKey] == undefined ? [] :
+        var structures: Structure[] = this.memory.structureIdList[memoryKey] == undefined ? [] :
             this.memory.structureIdList[memoryKey].map(structureId => Game.getObjectById(structureId))
-                .filter(structure => structure != undefined)
+
+        if (structures.filter(structure => structure == undefined).length > 0) {
+            this.memory.needUpdateCache = true
+        }
+
+        structures = structures.filter(structure => structure != undefined)
         if (structures.length > 0) {
             this[privateKey] = structures;
             return structures
@@ -204,7 +210,7 @@ export default class RoomExtension extends Room {
             this[privateKey] = link;
             return link
         } else {
-            const link = this.links.filter(link => this.storage && link.pos.inRangeTo(this.storage.pos, 2))[0]
+            const link = this.links.filter(link => this.storage && getDistance(this.storage.pos, link.pos) <= 2)[0]
             this.memory.structureIdList[memoryKey] = link?.id
             this[privateKey] = link;
             return link
@@ -221,7 +227,7 @@ export default class RoomExtension extends Room {
             this[privateKey] = link;
             return link
         } else {
-            const link = this.links.filter(link => this.controller && link.pos.inRangeTo(this.controller.pos, 2))[0]
+            const link = this.links.filter(link => this.controller && getDistance(this.controller.pos, link.pos) <= 2)[0]
             this.memory.structureIdList[memoryKey] = link?.id
             this[privateKey] = link;
             return link

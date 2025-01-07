@@ -1,3 +1,4 @@
+import { getClosestTarget } from "utils"
 
 
 export default class TowerExtension extends StructureTower {
@@ -15,9 +16,14 @@ export default class TowerExtension extends StructureTower {
             enemys = this.room.enemies
         }
 
-        // 按照距离排序
-        enemys.sort((a, b) => this.pos.getRangeTo(a) - this.pos.getRangeTo(b))
-        return enemys[0]
+        return getClosestTarget(this.pos, enemys)
+    }
+
+    public init(): void {
+        if (!this.room.memory.roomFillJob.tower) this.room.memory.roomFillJob.tower = []
+        if (!this.room.memory.roomFillJob.tower.includes(this.id) && this.store.getFreeCapacity(RESOURCE_ENERGY) > 0) {
+            this.room.memory.roomFillJob.tower.push(this.id)
+        }
     }
 
     public doWork(): void {
@@ -42,7 +48,7 @@ export default class TowerExtension extends StructureTower {
             return
         }
 
-        if (this.id != this.room.memory.structureIdList.towerAllowRepair) return
+        if (this.id != this.room.memory.roomCustom.towerAllowRepair) return
 
         // 如果没有敌人，尝试修复建筑物，优先除墙外的血量最低的建筑，其次修墙
         var structure = this.room.structuresNeedRepair[0]

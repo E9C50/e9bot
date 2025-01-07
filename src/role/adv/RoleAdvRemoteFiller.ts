@@ -42,7 +42,8 @@ export default (data: CreepData): ICreepConfig => ({
         }
 
         // 如果外矿专属搬运，且没有缓存目标，就添加缓存
-        if (creepData.sourceId != undefined && creepData.withdrawTarget == undefined) {
+        const containerList = creep.room.containers.filter(item => item != undefined)
+        if (creepData.sourceId != undefined && creepData.withdrawTarget == undefined && containerList.length > 0) {
             withdrawTarget = getClosestTarget(creep.pos, creep.room.containers)
             withdrawResource = Object.keys(withdrawTarget['store'])[0] as ResourceConstant
         }

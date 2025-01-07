@@ -1,5 +1,16 @@
 import { getClosestTarget, getDistance } from "utils"
 
+function transferToTarget(creep: Creep, transferTarget: Structure): boolean {
+    if (transferTarget == undefined) return true
+    if (getDistance(creep.pos, transferTarget.pos) <= 1) {
+        creep.transfer(transferTarget, RESOURCE_ENERGY)
+        return true
+    } else {
+        creep.moveTo(transferTarget)
+        return false
+    }
+}
+
 export default (data: CreepData): ICreepConfig => ({
     isNeed: (room: Room, creepName: string) => {
         return true
@@ -10,8 +21,10 @@ export default (data: CreepData): ICreepConfig => ({
     source(creep) {
         // 如果携带了除了能量之外的资源，就把它们都放到Storage里
         if (creep.room.storage && creep.store.getUsedCapacity() > creep.store[RESOURCE_ENERGY]) {
-            if (creep.transfer(creep.room.storage, Object.keys(creep.store).filter(item => item != RESOURCE_ENERGY)[0] as ResourceConstant) == ERR_NOT_IN_RANGE) {
+            const carryResourceType = Object.keys(creep.store).filter(item => item != RESOURCE_ENERGY)[0] as ResourceConstant
+            if (creep.transfer(creep.room.storage, carryResourceType) == ERR_NOT_IN_RANGE) {
                 creep.moveTo(creep.room.storage)
+                return true
             }
         }
 
@@ -22,7 +35,16 @@ export default (data: CreepData): ICreepConfig => ({
         }
 
         const creepData: FillerData = data as FillerData
-        const sourceTarget: Structure = Game.getObjectById(creepData.sourceId) as Structure
+        var sourceTarget: Structure = Game.getObjectById(creepData.sourceId) as Structure
+
+        if (sourceTarget == undefined) {
+            sourceTarget = creep.room.containers.filter(item => item != undefined)[0]
+            if (sourceTarget == undefined) {
+                creep.say('❓')
+                return false
+            }
+            creepData.sourceId = sourceTarget.id
+        }
 
         if (creep.pickupDroppedResource(true, 10)) return true
 
@@ -42,49 +64,61 @@ export default (data: CreepData): ICreepConfig => ({
         }
 
         const creepData: FillerData = data as FillerData
+        const fillJobs = creep.room.memory.roomFillJob
 
-        // 优先填充Spawn和Extension
-        var targets: Structure[] = []
-        targets = [...creep.room.spawns, ...creep.room.extensions].filter(item => item.store.getFreeCapacity(RESOURCE_ENERGY) > 0)
+        if (fillJobs.extension) {
+            const extensions = creep.room.extensions
+            var targets: Structure[] = extensions.filter(item => item.store.getFreeCapacity(RESOURCE_ENERGY) > 0)
+            if (targets.length == 0) {
+                targets = creep.room.spawns.filter(item => item.store.getFreeCapacity(RESOURCE_ENERGY) > 0)
+            }
 
-        // 如果没有Spawn和Extension需要填充，则填充Storage
-        if (creep.room.storage && targets.length == 0 && creepData.sourceId != creep.room.storage.id) {
-            targets = [creep.room.storage].filter(item => item.store.getFreeCapacity(RESOURCE_ENERGY) > 0)
-        }
-
-        // 如果没有Storage需要填充，则填充Tower
-        if (targets.length == 0) {
-            targets = creep.room.towers.filter(item => item.store.getFreeCapacity(RESOURCE_ENERGY) > 400)
-        }
-
-        // 如果没有Tower需要填充，则填充Lab
-        if (targets.length == 0) {
-            targets = creep.room.labs.filter(item => item.store.getFreeCapacity(RESOURCE_ENERGY) > 0)
-        }
-
-        // 如果没有Lab需要填充，则填充Nuker
-        if (targets.length == 0) {
-            targets = creep.room.nuker ? [creep.room.nuker].filter(item => item.store.getFreeCapacity(RESOURCE_ENERGY) > 0) : []
-        }
-
-        // 如果没有Nuker需要填充，则填充PowerSpawn
-        if (targets.length == 0) {
-            targets = creep.room.powerSpawn ? [creep.room.powerSpawn].filter(item => item.store.getFreeCapacity(RESOURCE_ENERGY) > 0) : []
-        }
-
-        // 如果有需要填充的目标 就填充
-        const transferTarget: Structure = getClosestTarget(creep.pos, targets)
-        // const transferTarget: Structure = targets.sort((a, b) => a.pos.getRangeTo(creep) - b.pos.getRangeTo(creep))[0]
-        if (transferTarget == undefined) {
-            creep.moveTo(creep.room.spawns[0])
+            const target = getClosestTarget(creep.pos, targets)
+            if (transferToTarget(creep, target)) {
+                fillJobs.extension = false
+            }
             return true
         }
 
-        if (creep.pos.isNearTo(transferTarget)) {
-            creep.transfer(transferTarget, RESOURCE_ENERGY)
-        } else {
-            creep.moveTo(transferTarget)
+        if (fillJobs.tower != undefined && fillJobs.tower.length > 0) {
+            const target = getClosestTarget(creep.pos, fillJobs.tower.map(id => Game.getObjectById(id) as StructureTower))
+            if (transferToTarget(creep, target)) {
+                creep.room.memory.roomFillJob.tower = fillJobs.tower.filter(id => id != target.id)
+            }
+            return true
         }
+
+        if (fillJobs.labInEnergy != undefined && fillJobs.labInEnergy.length > 0) {
+            const target = getClosestTarget(creep.pos, fillJobs.labInEnergy.map(id => Game.getObjectById(id) as StructureLab))
+            if (transferToTarget(creep, target)) {
+                creep.room.memory.roomFillJob.labInEnergy = fillJobs.labInEnergy.filter(id => id != target.id)
+            }
+            return true
+        }
+
+        if (creep.room.nuker != undefined && fillJobs.nukerEnergy) {
+            if (transferToTarget(creep, creep.room.nuker)) {
+                fillJobs.nukerEnergy = false
+            }
+            return true
+        }
+
+        if (creep.room.powerSpawn != undefined && fillJobs.powerSpawnEnergy) {
+            if (transferToTarget(creep, creep.room.powerSpawn)) {
+                fillJobs.powerSpawnEnergy = false
+            }
+            return true
+        }
+
+        if (creep.room.storage && creepData.sourceId != creep.room.storage.id) {
+            transferToTarget(creep, creep.room.storage)
+            return true
+        }
+
+        if (getDistance(creep.pos, creep.room.spawns[0].pos) > 2) {
+            creep.moveTo(creep.room.spawns[0])
+        }
+
         return true
     },
 })

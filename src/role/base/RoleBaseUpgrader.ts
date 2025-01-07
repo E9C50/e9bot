@@ -15,7 +15,16 @@ export default (data: CreepData): ICreepConfig => ({
         }
 
         const creepData: UpgraderData = data as UpgraderData
-        const sourceTarget: Structure = Game.getObjectById(creepData.sourceId) as Structure
+        var sourceTarget: Structure = Game.getObjectById(creepData.sourceId) as Structure
+
+        if (sourceTarget == undefined) {
+            sourceTarget = creep.room.containers.filter(item => item != undefined)[0]
+            if (sourceTarget == undefined) {
+                creep.say('❓')
+                return false
+            }
+            creepData.sourceId = sourceTarget.id
+        }
 
         if (getDistance(creep.pos, sourceTarget.pos) <= 1) {
             creep.withdraw(sourceTarget, RESOURCE_ENERGY)

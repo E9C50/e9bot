@@ -115,6 +115,7 @@ interface Mineral {
 }
 
 interface Structure {
+    init(): void
     doWork(): void
 }
 
@@ -128,6 +129,7 @@ interface RoomCustomMemory {
     remoteHarvester?: string[]
     remoteFiller?: { [roomName: string]: number }
 
+    claimer?: string[]
     reserver?: string[]
     dismantle?: string[]
     attacker?: string[]
@@ -137,6 +139,11 @@ interface RoomCustomMemory {
 
     repairerCount?: number
     showVisual?: boolean
+    computeRoomCenter?: boolean
+
+    sourceLab1?: string
+    sourceLab2?: string
+    towerAllowRepair?: string
 }
 
 interface IRoomPositionList {
@@ -145,15 +152,30 @@ interface IRoomPositionList {
     centerPos?: RoomPosition
 }
 
+interface IRoomFillJob {
+    extension?: boolean
+    tower?: string[]
+
+    powerSpawnEnergy?: boolean
+    powerSpawnPower?: boolean
+
+    nukerEnergy?: boolean
+    nukerMineral?: boolean
+
+    labOut?: string[]
+    labInEnergy?: string[]
+    labInMineral?: {
+        labId: string
+        resourceType: ResourceConstant
+    }[]
+}
+
 interface RoomMemory {
-    structureIdList: {
-        sourceLab1?: string
-        sourceLab2?: string
-        towerAllowRepair?: string
-    }
+    structureIdList: {}
 
     roomCustom: RoomCustomMemory
     roomPosition: IRoomPositionList
+    roomFillJob: IRoomFillJob
 
     autoLaylout?: boolean
     centerLinkSentMode?: boolean
@@ -194,6 +216,7 @@ interface BuilderData { sourceId: string, buildTarget?: string }
 interface RepairerData { sourceId: string, repairTarget?: string }
 
 interface ReserverData { targetRoom: string }
+interface ClaimerData { targetRoom: string, sourceId: string, buildTarget?: string }
 
 interface RemoteHarvesterData { sourceId: string, targetRoom: string, buildTarget?: string }
 interface RemoteFillerData { sourceId?: string, withdrawTarget?: string, targetRoom: string }

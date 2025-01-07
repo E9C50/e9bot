@@ -5,8 +5,8 @@ export default (data: CreepData): ICreepConfig => ({
         const processTask = room.memory.roomCustom.processTaksQueue != undefined
             && room.memory.roomCustom.processTaksQueue.length > 0
 
-        const reactionCheck = room.memory.structureIdList.sourceLab1 != undefined
-            && room.memory.structureIdList.sourceLab2 != undefined
+        const reactionCheck = room.memory.roomCustom.sourceLab1 != undefined
+            && room.memory.roomCustom.sourceLab2 != undefined
             && room.memory.labReactionQueue.length > 0
         return reactionCheck || processTask
     },
@@ -71,8 +71,8 @@ export default (data: CreepData): ICreepConfig => ({
             }
         }
 
-        const sourceLab1Id = creep.room.memory.structureIdList.sourceLab1
-        const sourceLab2Id = creep.room.memory.structureIdList.sourceLab2
+        const sourceLab1Id = creep.room.memory.roomCustom.sourceLab1
+        const sourceLab2Id = creep.room.memory.roomCustom.sourceLab2
 
         // 处理Lab相关物流工作
         if (sourceLab1Id != undefined && sourceLab2Id != undefined) {
@@ -116,7 +116,7 @@ export default (data: CreepData): ICreepConfig => ({
 
             // 查找最近的非Source的Lab，取出其中的资源，然后放到Storage中
             const lab = room.labs.filter(lab =>
-                lab.id != room.memory.structureIdList['sourceLab1'] && lab.id != room.memory.structureIdList['sourceLab2'] && lab.mineralType != undefined && (
+                lab.id != room.memory.roomCustom.sourceLab1 && lab.id != room.memory.roomCustom.sourceLab2 && lab.mineralType != undefined && (
                     lab.store.getUsedCapacity(lab.mineralType) > 200 || lab.mineralType != reactionTarget
                 )).sort((a, b) => b.store[b.mineralType as ResourceConstant] - a.store[a.mineralType as ResourceConstant])[0]
 

@@ -51,8 +51,8 @@ export default (data: CreepData): ICreepConfig => ({
         }
 
         // 如果有link则存放
-        const link = creep.room.links.filter(item => item.store.getFreeCapacity(RESOURCE_ENERGY) > 0 && creep.pos.isNearTo(item))[0]
-        if (link != undefined) {
+        const link = creep.room.links.filter(item => creep.pos.isNearTo(item))[0]
+        if (link != undefined && link.store.getFreeCapacity(RESOURCE_ENERGY) > 0) {
             creep.transfer(link, RESOURCE_ENERGY)
             return true
         }
@@ -74,6 +74,11 @@ export default (data: CreepData): ICreepConfig => ({
             creepData.buildTarget = constructionSite.id
             creep.build(constructionSite)
             return true
+        }
+
+        // 没有Container也没有工地，那就创建
+        if (constructionSite == undefined && container == undefined && link == undefined) {
+            creep.room.createConstructionSite(creep.pos.x, creep.pos.y, STRUCTURE_CONTAINER)
         }
         return true
     },

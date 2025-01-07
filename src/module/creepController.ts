@@ -126,7 +126,7 @@ function releaseBaseCreepConfig(): void {
             const creepFillerMemory: FillerData = { sourceId: container.id }
             const creepFillerName0 = room.name + '_FILLER_CONTAINER_' + container.id + '_0'
             addCreepConfig(room, roleBaseEnum.FILLER, creepFillerName0, creepFillerMemory, 2);
-            if (container.store[RESOURCE_ENERGY] > 1000) {
+            if (container.store[RESOURCE_ENERGY] > 1000 && room.storage != undefined) {
                 const creepFillerName1 = room.name + '_FILLER_CONTAINER_' + container.id + '_1'
                 addCreepConfig(room, roleBaseEnum.FILLER, creepFillerName1, creepFillerMemory, 2);
             }
@@ -185,6 +185,17 @@ function releaseJobsCreepConfig(): void {
                     addCreepConfig(room, roleWarEnum.INTEGRATE, creepName, integrateMemory, -1);
                 }
             });
+        }
+
+        // 发布新房占领
+        if (roomCustom.claimer != undefined) {
+            roomCustom.claimer.forEach(targetRoomName => {
+                const targetRoom = Game.rooms[targetRoomName]
+                if (targetRoom != undefined && targetRoom.controller?.my && targetRoom.spawns.length > 0) return
+                const claimerMemory: ReserverData = { targetRoom: targetRoomName }
+                const creepName = room.name + '_CLAIMER_' + targetRoomName
+                addCreepConfig(room, roleAdvEnum.CLAIMER, creepName, claimerMemory, 9);
+            })
         }
 
         // 发布矿房预定工
@@ -254,27 +265,30 @@ export const creepNumberController = function (): void {
  * Creep 的工作控制器
  */
 export const creepWorkController = function (): void {
+    if (Game.cpu.bucket < 20) return
     // 执行工作
-    var workCpu: [CreepRoleConstant, number][] = []
+    var workCpu: [string, number][] = []
     Object.values(Game.creeps).forEach(creep => {
         if (creep.spawning) return
-        const cpu = Game.cpu.getUsed()
 
         if (roles[creep.memory.role](creep.memory.data).prepare(creep)) {
             if (creep.memory.working) {
+                const cpu = Game.cpu.getUsed()
                 roles[creep.memory.role](creep.memory.data).target(creep)
+                workCpu.push([creep.name, (Game.cpu.getUsed() - cpu)])
             } else {
                 roles[creep.memory.role](creep.memory.data).source(creep)
             }
         }
 
-        workCpu.push([creep.memory.role, (Game.cpu.getUsed() - cpu)])
     });
 
-    // workCpu = workCpu.sort((a, b) => b[1] - a[1])
-    // for (let role in Object.keys(workCpu)) {
-    //     console.log(workCpu[role][1], workCpu[role][0])
-    // }
+    workCpu = workCpu.sort((a, b) => b[1] - a[1])
+    for (let role in Object.keys(workCpu)) {
+        if (workCpu[role][1] > 0.5) {
+            console.log(workCpu[role][1], workCpu[role][0])
+        }
+    }
 
-    // console.log('------------------------------------------------')
+    console.log('------------------------------------------------')
 }

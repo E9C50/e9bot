@@ -144,7 +144,7 @@ export const bodyConfigs: { [role in CreepRoleConstant]: BodySet[] } = {
     ]
 }
 
-export const baseLayout = {
+export const baseLayout: { [level: number]: {} } = {
     1: {
         [STRUCTURE_ROAD]: [
             [3, 0], [2, 1], [1, 2], [0, 3], [-1, 2], [-2, 1], [-3, 0], [-2, -1], [-1, -2], [0, -3], [1, -2], [2, -1],
