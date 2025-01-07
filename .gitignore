@@ -1,4 +1,5 @@
 /test/*
+/scripts/*
 # yarn lock file
 /yarn.lock
 

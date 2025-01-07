@@ -227,13 +227,13 @@ export const baseLayout: { [level: number]: {} } = {
 }
 
 export const reactionConfig = {
-    // [RESOURCE_CATALYZED_GHODIUM_ACID]: 3000,        // WORK     +100% upgradeController 效率但不增加其能量消耗
-    // [RESOURCE_CATALYZED_GHODIUM_ALKALIDE]: 3000,    // TOUGH    70% 伤害减免
-    // [RESOURCE_CATALYZED_KEANIUM_ACID]: 3000,        // CARRY    +150 容量
-    // [RESOURCE_CATALYZED_KEANIUM_ALKALIDE]: 3000,    // R_A      +300% rangedAttack 和 rangedMassAttack 效率
-    // [RESOURCE_CATALYZED_LEMERGIUM_ACID]: 3000,      // WORK     +100% repair 和 build 效率但不增加其能量消耗
-    // [RESOURCE_CATALYZED_LEMERGIUM_ALKALIDE]: 3000,  // HEAL     +300% heal and rangedHeal 效率
-    // [RESOURCE_CATALYZED_UTRIUM_ACID]: 3000,         // ATTACK   +300% attack 效率
+    [RESOURCE_CATALYZED_GHODIUM_ACID]: 3000,        // WORK     +100% upgradeController 效率但不增加其能量消耗
+    [RESOURCE_CATALYZED_GHODIUM_ALKALIDE]: 3000,    // TOUGH    70% 伤害减免
+    [RESOURCE_CATALYZED_KEANIUM_ACID]: 3000,        // CARRY    +150 容量
+    [RESOURCE_CATALYZED_KEANIUM_ALKALIDE]: 3000,    // R_A      +300% rangedAttack 和 rangedMassAttack 效率
+    [RESOURCE_CATALYZED_LEMERGIUM_ACID]: 3000,      // WORK     +100% repair 和 build 效率但不增加其能量消耗
+    [RESOURCE_CATALYZED_LEMERGIUM_ALKALIDE]: 3000,  // HEAL     +300% heal and rangedHeal 效率
+    [RESOURCE_CATALYZED_UTRIUM_ACID]: 3000,         // ATTACK   +300% attack 效率
     // [RESOURCE_CATALYZED_UTRIUM_ALKALIDE]: 3000,     // WORK     +600% harvest 效率
     // [RESOURCE_CATALYZED_ZYNTHIUM_ACID]: 3000,       // WORK     +300% dismantle 效率
     // [RESOURCE_CATALYZED_ZYNTHIUM_ALKALIDE]: 3000,   // MOVE     +300% fatigue(疲劳值) 减低速度
@@ -259,7 +259,7 @@ export const reactionConfig = {
     // [RESOURCE_UTRIUM_OXIDE]: 3000,
     // [RESOURCE_ZYNTHIUM_HYDRIDE]: 3000,
     // [RESOURCE_ZYNTHIUM_OXIDE]: 3000,
-    [RESOURCE_GHODIUM]: 5000,
+    [RESOURCE_GHODIUM]: 10000,
 
     // [RESOURCE_ZYNTHIUM_KEANITE]: 3000,
     // [RESOURCE_UTRIUM_LEMERGITE]: 3000,

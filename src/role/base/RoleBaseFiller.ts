@@ -81,6 +81,7 @@ export default (data: CreepData): ICreepConfig => ({
         }
 
         if (fillJobs.tower != undefined && fillJobs.tower.length > 0) {
+            fillJobs.tower = fillJobs.tower.filter(item => Game.getObjectById(item) != undefined)
             const target = getClosestTarget(creep.pos, fillJobs.tower.map(id => Game.getObjectById(id) as StructureTower))
             if (transferToTarget(creep, target)) {
                 creep.room.memory.roomFillJob.tower = fillJobs.tower.filter(id => id != target.id)
