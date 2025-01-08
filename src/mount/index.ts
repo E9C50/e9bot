@@ -9,6 +9,7 @@ import TowerExtension from "./structure/TowerExtension"
 import LabExtension from "./structure/LabExtension"
 import PowerSpawnExtension from "./structure/PowerSpawnExtension"
 import NukerExtension from "./structure/NukerExtension"
+import FactoryExtension from "./structure/FactoryExtension"
 
 function processFlagPos(flagName: string, memoryKey: string): void {
     if (Game.flags[flagName] != undefined) {
@@ -54,6 +55,7 @@ export function mountWork() {
     assignPrototype(StructureSpawn, SpawnExtension)
     assignPrototype(StructureTower, TowerExtension)
     assignPrototype(StructureNuker, NukerExtension)
+    assignPrototype(StructureFactory, FactoryExtension)
     assignPrototype(StructurePowerSpawn, PowerSpawnExtension)
 
     processFlagPos('infoPos', 'infoPos')

@@ -15,25 +15,22 @@ export default (data: CreepData): ICreepConfig => ({
         }
 
         const creepData: RemoteFillerData = data as RemoteFillerData
+        const sourceFlag: Flag = Game.flags[creepData.sourceFlag]
+        if (sourceFlag == undefined) {
+            creep.say('❓')
+            return true
+        }
+
         // 如果不在目标房间，则去往目标房间
-        if (creep.room.name != creepData.targetRoom) {
-            creep.moveTo(new RoomPosition(25, 25, creepData.targetRoom))
+        if (creep.room.name != sourceFlag.room?.name) {
+            creep.moveTo(sourceFlag)
             return true
         }
 
         var withdrawTarget: Structure | undefined = undefined
         var withdrawResource: ResourceConstant | undefined = undefined
 
-        if (creep.pickupDroppedResource(true, 10)) return true
-
-        // 如果是外矿专属搬运，就去矿点
-        if (creepData.sourceId != undefined) {
-            const sourceTarget = Game.getObjectById(creepData.sourceId) as Source
-            if (getDistance(creep.pos, sourceTarget.pos) > 3) {
-                creep.moveTo(sourceTarget)
-                return true
-            }
-        }
+        if (creep.pickupDroppedResource(true, 50)) return true
 
         // 如果有缓存建筑，就去拿缓存
         if (creepData.withdrawTarget != undefined) {
@@ -41,22 +38,21 @@ export default (data: CreepData): ICreepConfig => ({
             withdrawResource = Object.keys(withdrawTarget['store'])[0] as ResourceConstant
         }
 
-        // 如果外矿专属搬运，且没有缓存目标，就添加缓存
-        const containerList = creep.room.containers.filter(item => item != undefined)
-        if (creepData.sourceId != undefined && creepData.withdrawTarget == undefined && containerList.length > 0) {
-            withdrawTarget = getClosestTarget(creep.pos, creep.room.containers)
-            withdrawResource = Object.keys(withdrawTarget['store'])[0] as ResourceConstant
+        // 如果有PowerBank就去捡
+        if (withdrawTarget == undefined && creep.room.powerBanks.length > 0 && creep.room.powerBanks[0].hits == 0) {
+            withdrawTarget = creep.room.powerBanks[0]
+            withdrawResource = RESOURCE_POWER
         }
 
         // 如果有Storage并且有资源就去捡
-        if (creepData.sourceId == undefined && withdrawTarget == undefined && creep.room.storage != undefined && creep.room.storage.store.getUsedCapacity() > 0) {
+        if (withdrawTarget == undefined && creep.room.storage != undefined && creep.room.storage.store.getUsedCapacity() > 0) {
             const firstResourceType = Object.keys(creep.room.storage.store)[0] as ResourceConstant
             withdrawTarget = creep.room.storage
             withdrawResource = firstResourceType
         }
 
         // 如果有Spawns并且有资源就去捡
-        if (creepData.sourceId == undefined && withdrawTarget == undefined) {
+        if (withdrawTarget == undefined) {
             const spawns = creep.room.spawns.filter(spawn => spawn.store[RESOURCE_ENERGY] > 0)
             if (spawns.length > 0) {
                 withdrawTarget = getClosestTarget(creep.pos, spawns)
@@ -65,10 +61,19 @@ export default (data: CreepData): ICreepConfig => ({
         }
 
         // 如果有Extensions并且有资源就去捡
-        if (creepData.sourceId == undefined && withdrawTarget == undefined) {
+        if (withdrawTarget == undefined) {
             const extensions = creep.room.extensions.filter(extension => extension.store[RESOURCE_ENERGY] > 0)
             if (extensions.length > 0) {
                 withdrawTarget = getClosestTarget(creep.pos, extensions)
+                withdrawResource = RESOURCE_ENERGY
+            }
+        }
+
+        // 如果有Containers并且有资源就去捡
+        if (withdrawTarget == undefined) {
+            const containers = creep.room.containers.filter(container => container.store[RESOURCE_ENERGY] > 0)
+            if (containers.length > 0) {
+                withdrawTarget = getClosestTarget(creep.pos, containers)
                 withdrawResource = RESOURCE_ENERGY
             }
         }
@@ -88,22 +93,23 @@ export default (data: CreepData): ICreepConfig => ({
                 creepData.withdrawTarget = withdrawTarget.id
             } else {
                 creep.withdraw(withdrawTarget, withdrawResource)
-                if (creepData.sourceId == undefined) {
-                    creepData.withdrawTarget = undefined
-                }
+                creepData.withdrawTarget = undefined
             }
             return true
         }
 
-        // 啥都没有就去source待命
-        if (creepData.sourceId != undefined) {
-            const sourceTarget = Game.getObjectById(creepData.sourceId) as Source
-            if (getDistance(creep.pos, sourceTarget.pos) > 3) {
-                console.log('啥都没有就去source待命')
-                creep.moveTo(sourceTarget)
-            }
+        // powerbank还没好就过去等
+        if (creep.room.powerBanks.length > 0 && getDistance(creep.pos, creep.room.powerBanks[0].pos) > 5) {
+            creep.moveTo(creep.room.powerBanks[0])
+            return true
         }
 
+        if (creep.store.getUsedCapacity() > 0) {
+            creep.memory.working = true
+            return false
+        }
+
+        creep.say("💤")
         return true
     },
     target(creep) {
@@ -113,9 +119,16 @@ export default (data: CreepData): ICreepConfig => ({
             return false
         }
 
-        // 如果不在出生房，则去往出生房
-        if (creep.room.name != creep.memory.spawnRoom) {
-            creep.moveTo(new RoomPosition(25, 25, creep.memory.spawnRoom))
+        const creepData: RemoteFillerData = data as RemoteFillerData
+        const targetFlag: Flag = Game.flags[creepData.targetFlag]
+        if (targetFlag == undefined) {
+            creep.say('❓')
+            return true
+        }
+
+        // 如果不在目标房间，则去往目标房间
+        if (creep.room.name != targetFlag.room?.name) {
+            creep.moveTo(targetFlag)
             return true
         }
 
@@ -125,14 +138,19 @@ export default (data: CreepData): ICreepConfig => ({
                 creep.moveTo(creep.room.storage)
                 return true
             }
-            creep.transfer(creep.room.storage, creep.store[0])
+            creep.transfer(creep.room.storage, Object.keys(creep.store)[0] as ResourceConstant)
             return true
         }
 
         // 搬运到最近的storage、link、container
         const structureList: Structure[] = [creep.room.storage, ...creep.room.links, ...creep.room.containers]
             .filter(item => item != undefined && item.store.getFreeCapacity(RESOURCE_ENERGY) > 0) as Structure[]
-        const structure = getClosestTarget(creep.pos, structureList)
+        var structure;
+        if (structureList.length > 0) {
+            structure = getClosestTarget(creep.pos, structureList)
+        } else {
+            structure = creep.room.spawns[0]
+        }
         if (getDistance(creep.pos, structure.pos) > 1) {
             creep.moveTo(structure)
             return true

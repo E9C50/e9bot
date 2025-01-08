@@ -9,6 +9,7 @@ import { visualController } from "./module/VisualController"
 import { resourceController } from './module/ResourceController'
 import { structureWorkController } from "./module/StructureController"
 import { creepNumberController, creepWorkController } from "./module/CreepController"
+import { roleAdvEnum } from 'settings'
 
 profile.profileEnable();
 

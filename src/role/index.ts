@@ -12,6 +12,7 @@ import RoleBaseMiner from "./base/RoleBaseMiner"
 import RoleBaseRepairer from "./base/RoleBaseRepairer"
 import RoleBaseUpgrader from "./base/RoleBaseUpgrader"
 import RoleWarAttacker from "./war/RoleWarAttacker"
+import RoleWarHealer from "./war/RoleWarHealer"
 import RoleWarIntegrate from "./war/RoleWarIntegrate"
 
 const notImplemented = function (data: CreepData): ICreepConfig {
@@ -35,7 +36,7 @@ const creepWork: CreepWork = {
     rBuilder: RoleAdvRemoteBuilder,
 
     attacker: RoleWarAttacker,
-    healer: notImplemented,
+    healer: RoleWarHealer,
     rAttacker: notImplemented,
     dismantler: notImplemented,
     integrate: RoleWarIntegrate,

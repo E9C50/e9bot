@@ -128,13 +128,14 @@ interface IReactionSource {
 interface RoomCustomMemory {
     reserving?: string[]
     remoteHarvester?: string[]
-    remoteFiller?: { [roomName: string]: number }
-    remoteBuilder?: { [roomName: string]: number }
+    remoteFiller?: { [roomName: string]: string }
+    remoteBuilder?: { [roomName: string]: string }
 
     claimer?: string[]
     reserver?: string[]
     dismantle?: string[]
     attacker?: string[]
+    healer?: string[]
     integrate?: string[]
 
     processTaksQueue?: string[]
@@ -223,10 +224,11 @@ interface RepairerData { sourceId: string, repairTarget?: string }
 interface ReserverData { targetRoom: string }
 interface ClaimerData { targetRoom: string, sourceId: string, buildTarget?: string }
 
+interface RemoteFillerData { sourceFlag: string, targetFlag: string, withdrawTarget?: string }
+interface RemoteBuilderData { sourceFlag: string, targetFlag: string, buildTarget?: string }
 interface RemoteHarvesterData { sourceId: string, targetRoom: string, buildTarget?: string }
-interface RemoteFillerData { sourceId?: string, targetRoom: string, withdrawTarget?: string }
-interface RemoteBuilderData { sourceId?: string, targetRoom: string, buildTarget?: string }
 
+interface HealerData { needBoost: boolean, targetFlag: string, targetCreep?: string, team?: string }
 interface AttackerData { needBoost: boolean, targetFlag: string, team?: string }
 interface IntegrateData { needBoost: boolean, targetFlag: string, team?: string, attackEnemy?: string }
 

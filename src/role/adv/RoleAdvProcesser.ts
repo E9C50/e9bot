@@ -50,7 +50,7 @@ export default (data: CreepData): ICreepConfig => ({
 
         // 如果PowerSpawn的Power不足，并且仓库有Power，就从仓库取出
         if (room.powerSpawn && room.storage && room.powerSpawn.store.getFreeCapacity(RESOURCE_POWER) > 90
-            && (room.storage?.store[RESOURCE_POWER] > 10000 || creep.store[RESOURCE_POWER] == creep.store.getCapacity())) {
+            && (room.storage?.store[RESOURCE_POWER] > 0 || creep.store[RESOURCE_POWER] == creep.store.getCapacity())) {
             if (debug) console.log('补充Power')
             if (creep.store[RESOURCE_POWER] > 0) {
                 result = creep.transfer(room.powerSpawn, RESOURCE_POWER)

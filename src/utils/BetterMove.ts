@@ -1615,7 +1615,7 @@ if (!Creep.prototype.$build) {
 if (!Creep.prototype.$repair) {
     Creep.prototype.$repair = Creep.prototype.repair;
     Creep.prototype.repair = function (...e) {
-        this.memory.dontPullMe = true;
+        // this.memory.dontPullMe = true;
         return this.$repair(...e)
     };
 }

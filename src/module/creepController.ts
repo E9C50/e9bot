@@ -138,6 +138,11 @@ function releaseBaseCreepConfig(): void {
             if (roles[roleBaseEnum.BUILDER](creepBuilderMemory).isNeed(room, '')) {
                 const creepBuilderName = room.name + '_BUILDER_CONTAINER_' + container.id
                 addCreepConfig(room, roleBaseEnum.BUILDER, creepBuilderName, creepBuilderMemory, 4);
+
+                if (container.store[RESOURCE_ENERGY] > 1500) {
+                    const creepBuilderName = room.name + '_BUILDER_CONTAINER_' + container.id + '_1'
+                    addCreepConfig(room, roleBaseEnum.BUILDER, creepBuilderName, creepBuilderMemory, 4);
+                }
             }
 
             const creepRepairerMemory: RepairerData = { sourceId: container.id, repairTarget: '' }
@@ -176,6 +181,17 @@ function releaseJobsCreepConfig(): void {
             });
         }
 
+        // 发布 healer
+        if (roomCustom.healer != undefined) {
+            roomCustom.healer.forEach(flagName => {
+                if (Game.flags[flagName] != undefined) {
+                    const healerMemory: HealerData = { needBoost: false, targetFlag: flagName, team: undefined }
+                    const creepName = room.name + '_HEALER_' + flagName
+                    addCreepConfig(room, roleWarEnum.HEALER, creepName, healerMemory, -1);
+                }
+            });
+        }
+
         // 发布 integrate
         if (roomCustom.integrate != undefined) {
             roomCustom.integrate.forEach(flagName => {
@@ -209,11 +225,12 @@ function releaseJobsCreepConfig(): void {
 
         // 发布外房搬运工
         if (roomCustom.remoteFiller != undefined) {
-            Object.keys(roomCustom.remoteFiller).forEach(targetRoomName => {
-                const remoteFillerMemory: RemoteFillerData = { targetRoom: targetRoomName }
-                if (roomCustom.remoteFiller == undefined) return
-                for (let i = 0; i < roomCustom.remoteFiller[targetRoomName]; i++) {
-                    const creepName = room.name + '_RFILLER_' + targetRoomName + '_' + i
+            const remoteFiller = roomCustom.remoteFiller
+            Object.keys(roomCustom.remoteFiller).forEach(targetFlagName => {
+                const sourceFlagName = remoteFiller[targetFlagName]
+                if (Game.flags[sourceFlagName] != undefined && Game.flags[targetFlagName] != undefined) {
+                    const remoteFillerMemory: RemoteFillerData = { sourceFlag: sourceFlagName, targetFlag: targetFlagName }
+                    const creepName = room.name + '_RFILLER_' + sourceFlagName + '_' + targetFlagName
                     addCreepConfig(room, roleAdvEnum.RFILLER, creepName, remoteFillerMemory, 8);
                 }
             });
@@ -221,11 +238,12 @@ function releaseJobsCreepConfig(): void {
 
         // 发布外房建筑工
         if (roomCustom.remoteBuilder != undefined) {
-            Object.keys(roomCustom.remoteBuilder).forEach(targetRoomName => {
-                const remoteBuilderMemory: RemoteBuilderData = { targetRoom: targetRoomName }
-                if (roomCustom.remoteBuilder == undefined) return
-                for (let i = 0; i < roomCustom.remoteBuilder[targetRoomName]; i++) {
-                    const creepName = room.name + '_RBUILDER_' + targetRoomName + '_' + i
+            const remoteBuilder = roomCustom.remoteBuilder
+            Object.keys(roomCustom.remoteBuilder).forEach(targetFlagName => {
+                const sourceFlagName = remoteBuilder[targetFlagName]
+                if (Game.flags[sourceFlagName] != undefined && Game.flags[targetFlagName] != undefined) {
+                    const remoteBuilderMemory: RemoteBuilderData = { sourceFlag: sourceFlagName, targetFlag: targetFlagName }
+                    const creepName = room.name + '_RBUILDER_' + sourceFlagName + '_' + targetFlagName
                     addCreepConfig(room, roleAdvEnum.RBUILDER, creepName, remoteBuilderMemory, 8);
                 }
             });
@@ -238,11 +256,6 @@ function releaseJobsCreepConfig(): void {
                 const creepMemory: RemoteHarvesterData = { sourceId: sourceId, targetRoom: roomCustom.remoteHarvester[sourceId] }
                 const creepNameHarvester: string = room.name + '_RHARVESTER_' + sourceId
                 addCreepConfig(room, roleAdvEnum.RHARVESTER, creepNameHarvester, creepMemory, 9)
-
-                // 专属搬运工
-                const remoteFillerMemory: RemoteFillerData = { sourceId: sourceId, targetRoom: roomCustom.remoteHarvester[sourceId] }
-                const creepName = room.name + '_RFILLER_' + sourceId
-                addCreepConfig(room, roleAdvEnum.RFILLER, creepName, remoteFillerMemory, 8);
             })
         }
     }

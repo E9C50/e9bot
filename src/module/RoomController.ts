@@ -19,7 +19,7 @@ function getReadyChildReaction(room: Room, reactionTarget: ResourceConstant): Re
     const targetAmount = getRoomResourceByType(room, reactionTarget)
 
     var childList: ResourceConstant[] = [...child1List, ...child2List]
-    if ((childList.includes(child[0]) || child1Amount > 0) && (childList.includes(child[1]) || child2Amount > 0)
+    if ((childList.includes(child[0]) || child1Amount >= 5) && (childList.includes(child[1]) || child2Amount >= 5)
         && targetAmount < (reactionConfig[reactionTarget] || 3000)) {
         childList = childList.concat([reactionTarget])
     }
@@ -37,7 +37,7 @@ function checkReactionReady(room: Room, reactionTarget: ResourceConstant): boole
     const child1Amount = getRoomResourceByType(room, child[0])
     const child2Amount = getRoomResourceByType(room, child[1])
     const targetAmount = getRoomResourceByType(room, reactionTarget)
-    return (child1Amount > 0 && child2Amount > 0) && targetAmount < (reactionConfig[reactionTarget] || 3000)
+    return (child1Amount >= 5 && child2Amount >= 5) && targetAmount < (reactionConfig[reactionTarget] || 3000)
 }
 
 /**
@@ -201,6 +201,11 @@ function initialStructures(room: Room): void {
             }
         }
     )
+
+    // 自动设置允许修理的塔
+    if (room.memory.roomStructurePos.towerAllowRepair == undefined && room.towers.length > 0) {
+        room.createFlag(room.towers[0].pos.x, room.towers[0].pos.y, 'repairTower')
+    }
 }
 
 export const roomController = function (): void {

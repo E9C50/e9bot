@@ -1,4 +1,5 @@
 import RoleBaseBuilder from "role/base/RoleBaseBuilder"
+import RoleBaseUpgrader from "role/base/RoleBaseUpgrader";
 import { getClosestTarget, getDistance } from "utils"
 
 
@@ -49,23 +50,6 @@ export default (data: CreepData): ICreepConfig => ({
         return true
     },
     prepare(creep) {
-        const creepData: RemoteBuilderData = data as RemoteBuilderData
-
-        // 没有能量就先拿满
-        if (creep.room.name == creep.memory.spawnRoom && creep.store.getFreeCapacity(RESOURCE_ENERGY) > 0) {
-            if (creep.room.storage != undefined && creep.withdraw(creep.room.storage, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-                creep.moveTo(creep.room.storage)
-            }
-            return false
-        }
-
-        // 不在目标房间就过去
-        if (creep.room.name != creepData.targetRoom) {
-            // creep.moveTo(new RoomPosition(25, 25, creepData.targetRoom))
-            tempMoveTo(creep, new RoomPosition(25, 25, creepData.targetRoom))
-            return false
-        }
-
         return true
     },
     source(creep) {
@@ -76,6 +60,16 @@ export default (data: CreepData): ICreepConfig => ({
         }
 
         const creepData: RemoteBuilderData = data as RemoteBuilderData
+        const sourceFlag = Game.flags[creepData.sourceFlag]
+        if (sourceFlag == undefined) {
+            creep.say('❓')
+            return true
+        }
+
+        if (creep.room.name != sourceFlag.room?.name) {
+            creep.moveTo(sourceFlag)
+            return false
+        }
 
         if (creep.pickupDroppedResource(true, 10)) return true
 
@@ -94,10 +88,9 @@ export default (data: CreepData): ICreepConfig => ({
             return true
         }
 
-        const sourceList = creep.room.sources.filter(source => source.energy > 0)
+        const sourceList = creep.room.sources.filter(source => getDistance(source.pos, sourceFlag.pos) < 3)
         if (sourceList.length == 0) return false
 
-        creepData.sourceId = sourceList[0].id
         const sourceTarget = sourceList[0]
         if (getDistance(creep.pos, sourceTarget.pos) > 1) {
             creep.moveTo(sourceTarget)
@@ -110,6 +103,21 @@ export default (data: CreepData): ICreepConfig => ({
         return true
     },
     target(creep) {
+        const creepData: RemoteBuilderData = data as RemoteBuilderData
+        const targetFlag = Game.flags[creepData.targetFlag]
+        if (targetFlag == undefined) {
+            creep.say('❓')
+            return true
+        }
+
+        if (creep.room.name != targetFlag.room?.name) {
+            creep.moveTo(targetFlag)
+            return false
+        }
+
+        if (creep.room.my && creep.room.constructionSites.length == 0) {
+            return RoleBaseUpgrader(creep.memory.data).target(creep)
+        }
         return RoleBaseBuilder(creep.memory.data).target(creep)
     },
 })
