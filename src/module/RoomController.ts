@@ -1,5 +1,5 @@
-import { baseLayout, reactionConfig, reactionSource } from "settings"
-import { getRoomResourceByType } from "utils"
+import { baseLayout, boostConfig, creepWhiteList, reactionConfig, reactionSource } from "settings"
+import { getClosestTarget } from "utils"
 
 /**
  * 获取底物反应列表
@@ -14,9 +14,9 @@ function getReadyChildReaction(room: Room, reactionTarget: ResourceConstant): Re
     var child1List = getReadyChildReaction(room, child[0])
     var child2List = getReadyChildReaction(room, child[1])
 
-    const child1Amount = getRoomResourceByType(room, child[0])
-    const child2Amount = getRoomResourceByType(room, child[1])
-    const targetAmount = getRoomResourceByType(room, reactionTarget)
+    const child1Amount = room.memory.resourceAmount[child[0]]
+    const child2Amount = room.memory.resourceAmount[child[1]]
+    const targetAmount = room.memory.resourceAmount[reactionTarget]
 
     var childList: ResourceConstant[] = [...child1List, ...child2List]
     if ((childList.includes(child[0]) || child1Amount >= 5) && (childList.includes(child[1]) || child2Amount >= 5)
@@ -34,9 +34,9 @@ function getReadyChildReaction(room: Room, reactionTarget: ResourceConstant): Re
  */
 function checkReactionReady(room: Room, reactionTarget: ResourceConstant): boolean {
     const child: ResourceConstant[] = reactionSource[reactionTarget]
-    const child1Amount = getRoomResourceByType(room, child[0])
-    const child2Amount = getRoomResourceByType(room, child[1])
-    const targetAmount = getRoomResourceByType(room, reactionTarget)
+    const child1Amount = room.memory.resourceAmount[child[0]]
+    const child2Amount = room.memory.resourceAmount[child[1]]
+    const targetAmount = room.memory.resourceAmount[reactionTarget]
     return (child1Amount >= 5 && child2Amount >= 5) && targetAmount < (reactionConfig[reactionTarget] || 3000)
 }
 
@@ -45,8 +45,9 @@ function checkReactionReady(room: Room, reactionTarget: ResourceConstant): boole
  * @param room
  * @returns
  */
-function updateReactionConfig(room: Room): void {
+function updateLabReactionConfig(room: Room): void {
     if (Game.time % 100 != 0) return
+    if (room.memory.roomCustom.labBoostMod) return
     // 如果房间没有配置好两个sourceLab，就跳过
     if (room.memory.roomStructurePos.sourceLab1 == undefined || !room.memory.roomStructurePos.sourceLab2 == undefined) return
 
@@ -59,7 +60,7 @@ function updateReactionConfig(room: Room): void {
     if (room.memory.labReactionQueue.length > 0) return
 
     for (let config in reactionConfig) {
-        if (getRoomResourceByType(room, config as ResourceConstant) >= reactionConfig[config]) continue
+        if (room.memory.resourceAmount[config] >= reactionConfig[config]) continue
         const readyReactionList = getReadyChildReaction(room, config as ResourceConstant)
         if (!readyReactionList.includes(config as ResourceConstant)) continue
 
@@ -69,6 +70,37 @@ function updateReactionConfig(room: Room): void {
         console.log(`notify_Lab合成配置更新：${room.memory.labReactionQueue}`)
         return
     }
+}
+
+function updateLabBoostConfig(room: Room): void {
+    if (Game.time % 10 != 0) return
+    if (!room.memory.roomCustom.labBoostMod) return
+    if (room.memory.labBoostConfig == undefined) return
+
+    const labBoostConfig = {}
+    Object.keys(boostConfig.WAR).forEach(configPart => {
+        if (boostConfig.WAR[configPart].length > 0) {
+            const emptyLabId = room.labs.filter(lab => labBoostConfig[lab.id] == undefined)[0].id
+
+            const resourceTypeT3 = boostConfig.WAR[configPart][2]
+            if (room.memory.resourceAmount[resourceTypeT3] > 0) {
+                labBoostConfig[emptyLabId] = { resourceType: resourceTypeT3, bodyPart: configPart as BodyPartConstant }
+                return
+            }
+            const resourceTypeT2 = boostConfig.WAR[configPart][1]
+            if (room.memory.resourceAmount[resourceTypeT2] > 0) {
+                labBoostConfig[emptyLabId] = { resourceType: resourceTypeT2, bodyPart: configPart as BodyPartConstant }
+                return
+            }
+            const resourceTypeT1 = boostConfig.WAR[configPart][0]
+            if (room.memory.resourceAmount[resourceTypeT1] > 0) {
+                labBoostConfig[emptyLabId] = { resourceType: resourceTypeT1, bodyPart: configPart as BodyPartConstant }
+                return
+            }
+        }
+    });
+
+    room.memory.labBoostConfig = labBoostConfig
 }
 
 /**
@@ -104,11 +136,11 @@ function canBeRoomCenter(terrain, posx, posy, baseSize) {
 function autoComputeCenterPos(room: Room, baseSize: number = 13) {
     const planFlag = Game.flags['planRoomCenter']
     if (planFlag != undefined && planFlag.pos.roomName == room.name) {
-        room.memory.roomCustom.computeRoomCenter = 3
+        room.memory.roomCustom.computeRoomCenterShow = 3
         planFlag.remove()
     }
-    if (!room.memory.roomCustom.computeRoomCenter) return
-    room.memory.roomCustom.computeRoomCenter--
+    if (!room.memory.roomCustom.computeRoomCenterShow) return
+    room.memory.roomCustom.computeRoomCenterShow--
 
     const cpu = Game.cpu.getUsed()
 
@@ -208,6 +240,75 @@ function initialStructures(room: Room): void {
     }
 }
 
+function findTowerEnemy(room: Room): void {
+    if (Game.time % 5 != 0) return
+    if (room.enemies.length == 0) return
+    var enemys = room.enemies.filter(creep => !creepWhiteList.includes(creep.owner.username)
+        && creep.body.some(part => part.type === RANGED_ATTACK))
+
+    if (enemys.length == 0) {
+        enemys = room.enemies.filter(creep => !creepWhiteList.includes(creep.owner.username)
+            && creep.body.some(part => part.type === ATTACK))
+    }
+    if (enemys.length == 0) {
+        enemys = room.enemies.filter(creep => !creepWhiteList.includes(creep.owner.username)
+            && creep.body.some(part => part.type === HEAL))
+    }
+    if (enemys.length == 0) {
+        enemys = room.enemies.filter(creep => !creepWhiteList.includes(creep.owner.username))
+    }
+
+    if (enemys.length > 0) {
+        console.log(`notify_您的房间[${room.name}] 发现敌人 所有者[${enemys[0].owner.username}]`)
+    }
+
+    if (room.spawns.length == 0) return
+
+    const enemyFind = getClosestTarget(room.spawns[0].pos, enemys)
+    if (enemyFind == undefined && room.memory.enemyTarget == undefined) {
+        return
+    }
+
+    const enemyLast: Creep | undefined = room.memory.enemyTarget == undefined ?
+        undefined : Game.getObjectById(room.memory.enemyTarget) as Creep
+
+    if (room.memory.enemyTarget != undefined && Game.getObjectById(room.memory.enemyTarget) == undefined) {
+        room.memory.enemyTarget = undefined
+    }
+
+    if (room.memory.enemyTarget != undefined && enemyLast != undefined &&
+        enemyLast.body.some(part => part.type == ATTACK || part.type == RANGED_ATTACK)) {
+        room.memory.enemyTarget = enemyFind.id
+    }
+
+    if (room.memory.enemyTarget == undefined) {
+        room.memory.enemyTarget = enemyFind.id
+    }
+}
+
+function cacheRoomResourceInfo(room: Room): void {
+    room.memory.resourceAmount = {}
+    if (room.storage != undefined) {
+        const storage = room.storage
+        Object.keys(storage.store).forEach(store => {
+            if (room.memory.resourceAmount[store] == undefined) {
+                room.memory.resourceAmount[store] = 0
+            }
+            room.memory.resourceAmount[store] += storage.store[store]
+        });
+    }
+
+    if (room.labs.length > 0) {
+        room.labs.forEach(lab => {
+            if (lab.mineralType == undefined) return
+            if (room.memory.resourceAmount[lab.mineralType] == undefined) {
+                room.memory.resourceAmount[lab.mineralType] = 0
+            }
+            room.memory.resourceAmount[lab.mineralType] += lab.store[lab.mineralType]
+        })
+    }
+}
+
 export const roomController = function (): void {
     for (const roomName in Game.rooms) {
         const room: Room = Game.rooms[roomName];
@@ -222,7 +323,9 @@ export const roomController = function (): void {
         if (room.memory.labReactionQueue == undefined) room.memory.labReactionQueue = []
         if (room.memory.roomStructurePos == undefined) room.memory.roomStructurePos = {}
         if (room.memory.structureIdList == undefined) room.memory.structureIdList = {}
+        if (room.memory.labBoostConfig == undefined) room.memory.labBoostConfig = {}
         if (room.memory.freeSpaceCount == undefined) room.memory.freeSpaceCount = {}
+        if (room.memory.resourceAmount == undefined) room.memory.resourceAmount = {}
         if (room.memory.roomPosition == undefined) room.memory.roomPosition = {}
         if (room.memory.roomFillJob == undefined) room.memory.roomFillJob = {}
         if (room.memory.roomCustom == undefined) room.memory.roomCustom = {}
@@ -238,7 +341,16 @@ export const roomController = function (): void {
         // 初始化建筑相关
         initialStructures(room)
 
-        // 更新Lab反应
-        updateReactionConfig(room)
+        // 缓存房间资源信息
+        cacheRoomResourceInfo(room)
+
+        // 更新Lab Boost配置
+        updateLabBoostConfig(room)
+
+        // 更新Lab反应配置
+        updateLabReactionConfig(room)
+
+        // 更新房间内敌人信息
+        findTowerEnemy(room)
     }
 }

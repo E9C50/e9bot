@@ -89,18 +89,29 @@ export const visualController = function (): void {
         //     room.visual.text(room.storage.store[RESOURCE_ENERGY].toString(), room.storage.pos.x, room.storage.pos.y + 2, { align: 'center' });
         // }
 
-        // 显示Lab合成配置
-        const sourceLab1 = room.memory.roomStructurePos.sourceLab1
-        const sourceLab2 = room.memory.roomStructurePos.sourceLab2
-        if (sourceLab1 != undefined && sourceLab2 != undefined && room.memory.labReactionQueue[0]) {
-            const lab1 = Game.getObjectById<StructureLab>(sourceLab1)
-            const lab2 = Game.getObjectById<StructureLab>(sourceLab2)
+        if (room.memory.roomCustom.labBoostMod) {
+            // 显示Lab Boost配置信息
+            Object.keys(room.memory.labBoostConfig).forEach(labId => {
+                const lab = Game.getObjectById<StructureLab>(labId)
+                const type = room.memory.labBoostConfig[labId].resourceType
+                if (lab) room.visual.text(type, lab.pos.x, lab.pos.y, { align: 'center', color: 'red', stroke: 'blue', font: 0.3 });
+            });
+        } else {
+            // 显示Lab合成配置
+            const sourceLab1 = room.memory.roomStructurePos.sourceLab1
+            const sourceLab2 = room.memory.roomStructurePos.sourceLab2
+            if (sourceLab1 != undefined && sourceLab2 != undefined && room.memory.labReactionQueue[0]) {
+                const lab1 = Game.getObjectById<StructureLab>(sourceLab1)
+                const lab2 = Game.getObjectById<StructureLab>(sourceLab2)
 
-            const source = reactionSource[room.memory.labReactionQueue[0]]
+                const source = reactionSource[room.memory.labReactionQueue[0]]
 
-            if (lab1) room.visual.text(source[0], lab1.pos.x, lab1.pos.y, { align: 'center', color: 'red', stroke: 'blue' });
-            if (lab2) room.visual.text(source[1], lab2.pos.x, lab2.pos.y, { align: 'center', color: 'red', stroke: 'blue' });
+                if (lab1) room.visual.text(source[0], lab1.pos.x, lab1.pos.y, { align: 'center', color: 'red', stroke: 'blue' });
+                if (lab2) room.visual.text(source[1], lab2.pos.x, lab2.pos.y, { align: 'center', color: 'red', stroke: 'blue' });
+            }
         }
+
+
 
         showCreepCountInfo(room);
     }

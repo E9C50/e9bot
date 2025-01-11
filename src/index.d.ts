@@ -125,6 +125,21 @@ interface IReactionSource {
     [targetResourceName: string]: ResourceConstant[]
 }
 
+type BoostConfigMode = 'WAR' | 'WORK'
+
+type BoostConfig = {
+    [type in BoostConfigMode]: BoostResourceConfig
+}
+
+type BoostResourceConfig = {
+    [type in BodyPartConstant]: ResourceConstant[]
+}
+
+type BoostLabConfig = {
+    resourceType: MineralBoostConstant
+    bodyPart: BodyPartConstant
+}
+
 interface RoomCustomMemory {
     reserving?: string[]
     remoteHarvester?: string[]
@@ -141,8 +156,9 @@ interface RoomCustomMemory {
     processTaksQueue?: string[]
 
     repairerCount?: number
+    computeRoomCenterShow?: number
     showVisual?: boolean
-    computeRoomCenter?: number
+    labBoostMod?: boolean
 }
 
 interface IRoomPositionList {
@@ -189,11 +205,17 @@ interface RoomMemory {
 
     needUpdateCache?: boolean
 
+    enemyTarget?: string
+
     creepSpawnQueue: string[]
+
     labReactionQueue: ResourceConstant[]
+    labBoostConfig: { [labId: string]: BoostLabConfig }
 
     freeSpaceCount: { [sourceId: string]: number }
     creepConfig: { [creepName: string]: CreepMemory }
+
+    resourceAmount: { [resourceType: string]: number }
 }
 
 interface CreepMemory {
@@ -206,6 +228,7 @@ interface CreepMemory {
     spawnPriority: number
     data: CreepData
     dontPullMe?: boolean
+    needBoost?: boolean
 }
 
 interface EmptyData { }
@@ -224,13 +247,13 @@ interface RepairerData { sourceId: string, repairTarget?: string }
 interface ReserverData { targetRoom: string }
 interface ClaimerData { targetRoom: string, sourceId: string, buildTarget?: string }
 
-interface RemoteFillerData { sourceFlag: string, targetFlag: string, withdrawTarget?: string }
+interface RemoteFillerData { sourceFlag: string, targetFlag: string, withdrawTarget?: string, needRecycle?: boolean }
 interface RemoteBuilderData { sourceFlag: string, targetFlag: string, buildTarget?: string }
 interface RemoteHarvesterData { sourceId: string, targetRoom: string, buildTarget?: string }
 
-interface HealerData { needBoost: boolean, targetFlag: string, targetCreep?: string, team?: string }
-interface AttackerData { needBoost: boolean, targetFlag: string, team?: string }
-interface IntegrateData { needBoost: boolean, targetFlag: string, team?: string, attackEnemy?: string }
+interface HealerData { targetFlag: string, targetCreep?: string, team?: string }
+interface AttackerData { targetFlag: string, team?: string }
+interface IntegrateData { targetFlag: string, team?: string, attackEnemy?: string }
 
 interface BodySet {
     [MOVE]?: number

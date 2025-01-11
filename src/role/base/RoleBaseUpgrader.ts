@@ -1,3 +1,4 @@
+import { defaultConrtollerSign } from "settings"
 import { getDistance } from "utils"
 
 export default (data: CreepData): ICreepConfig => ({
@@ -15,7 +16,7 @@ export default (data: CreepData): ICreepConfig => ({
         }
 
         const creepData: UpgraderData = data as UpgraderData
-        var sourceTarget: Structure = Game.getObjectById(creepData.sourceId) as Structure
+        var sourceTarget: StructureContainer | StructureStorage = Game.getObjectById(creepData.sourceId) as StructureContainer | StructureStorage
 
         if (sourceTarget == undefined) {
             sourceTarget = creep.room.containers.filter(item => item != undefined)[0]
@@ -24,6 +25,11 @@ export default (data: CreepData): ICreepConfig => ({
                 return false
             }
             creepData.sourceId = sourceTarget.id
+        }
+
+        if (sourceTarget.store[RESOURCE_ENERGY] == 0) {
+            creep.say("💤")
+            return true
         }
 
         if (getDistance(creep.pos, sourceTarget.pos) <= 1) {
@@ -43,12 +49,22 @@ export default (data: CreepData): ICreepConfig => ({
 
         if (!creep.room.controller) return false
 
-        if (getDistance(creep.pos, creep.room.controller.pos) <= 3) {
-            creep.upgradeController(creep.room.controller)
-        } else {
+        // 升级
+        const distance = getDistance(creep.pos, creep.room.controller.pos)
+        if (distance > 3) {
             creep.moveTo(creep.room.controller)
+        } else {
+            creep.upgradeController(creep.room.controller)
         }
 
+        // 签名
+        if (creep.room.controller.sign?.text != defaultConrtollerSign) {
+            if (distance > 1) {
+                creep.moveTo(creep.room.controller)
+            } else {
+                creep.signController(creep.room.controller, defaultConrtollerSign)
+            }
+        }
         return true
     },
 })

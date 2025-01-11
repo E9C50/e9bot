@@ -71,8 +71,6 @@ export default (data: CreepData): ICreepConfig => ({
             return false
         }
 
-        if (creep.pickupDroppedResource(true, 10)) return true
-
         // 如果房间有可搬运的能量，直接去搬
         var resourceTargets: AnyStoreStructure[] = [creep.room.storage, ...creep.room.containers].filter(item => item != undefined) as AnyStoreStructure[]
         if (!creep.room.my) {

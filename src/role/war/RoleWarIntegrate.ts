@@ -1,3 +1,5 @@
+import { getDistance } from "utils"
+
 export default (data: CreepData): ICreepConfig => ({
     isNeed: (room: Room, creepName: string) => {
         const creepData: IntegrateData = data as IntegrateData
@@ -5,8 +7,30 @@ export default (data: CreepData): ICreepConfig => ({
     },
     prepare(creep) {
         const creepData: AttackerData = data as AttackerData
-        if (creepData.needBoost) {
+        // creep.memory.needBoost = true
+        if (creep.memory.needBoost) {
+            const boostConfig = creep.room.memory.labBoostConfig
+            if (boostConfig == undefined) {
+                creep.say('❓')
+                return false
+            }
+
             // 处理boost
+            for (let index in creep.body) {
+                const bodyPart = creep.body[index]
+                if (bodyPart.boost == undefined) {
+                    for (let labId in boostConfig) {
+                        if (boostConfig[labId].bodyPart == bodyPart.type) {
+                            const boostLab: StructureLab = Game.getObjectById(labId) as StructureLab
+                            if (getDistance(creep.pos, boostLab.pos) > 1) {
+                                creep.moveTo(boostLab)
+                            }
+                        }
+                    }
+                    return false
+                }
+            }
+
             return true
         }
 

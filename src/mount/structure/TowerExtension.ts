@@ -1,27 +1,7 @@
-import { getClosestTarget } from "utils"
-
-
 export default class TowerExtension extends StructureTower {
-    private findEnemy(): Creep | undefined {
-        if (this.room.enemies.length == 0) return undefined
-        var enemys = this.room.enemies.filter(creep => creep.body.some(part => part.type === RANGED_ATTACK))
-
-        if (!enemys) {
-            enemys = this.room.enemies.filter(creep => creep.body.some(part => part.type === ATTACK))
-        }
-        if (!enemys) {
-            enemys = this.room.enemies.filter(creep => creep.body.some(part => part.type === HEAL))
-        }
-        if (!enemys) {
-            enemys = this.room.enemies
-        }
-
-        return getClosestTarget(this.pos, enemys)
-    }
-
     public init(): void {
         if (!this.room.memory.roomFillJob.tower) this.room.memory.roomFillJob.tower = []
-        if (!this.room.memory.roomFillJob.tower.includes(this.id) && this.store.getFreeCapacity(RESOURCE_ENERGY) > 0) {
+        if (!this.room.memory.roomFillJob.tower.includes(this.id) && this.store.getFreeCapacity(RESOURCE_ENERGY) > 400) {
             this.room.memory.roomFillJob.tower.push(this.id)
         }
     }
@@ -30,8 +10,8 @@ export default class TowerExtension extends StructureTower {
         var towerEnergy = this.store[RESOURCE_ENERGY];
 
         // 检测敌人并攻击，优先攻击治疗单位 -> 远程攻击单位 -> 攻击单位 -> 其他
-        var enemy = this.findEnemy();
-        if (enemy) {
+        if (this.room.memory.enemyTarget != undefined) {
+            var enemy: Creep = Game.getObjectById(this.room.memory.enemyTarget) as Creep
             this.attack(enemy);
             return
         }

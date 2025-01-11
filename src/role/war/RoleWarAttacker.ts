@@ -7,7 +7,7 @@ export default (data: CreepData): ICreepConfig => ({
     },
     prepare(creep) {
         const creepData: AttackerData = data as AttackerData
-        if (creepData.needBoost) {
+        if (creep.memory.needBoost) {
             // 处理boost
             return true
         }

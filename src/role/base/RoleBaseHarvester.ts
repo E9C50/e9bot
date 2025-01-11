@@ -30,7 +30,7 @@ export default (data: CreepData): ICreepConfig => ({
 
         const creepData: HarvesterData = data as HarvesterData
         const sourceTarget: Source = Game.getObjectById<Source>(creepData.sourceId) as Source
-        creep.harvest(sourceTarget)
+        if (creep.harvest(sourceTarget) == ERR_NOT_IN_RANGE) creep.memory.ready = false
         return true
     },
     target(creep) {
@@ -58,7 +58,8 @@ export default (data: CreepData): ICreepConfig => ({
         }
 
         // 如果有container，如果生命值不够，则维修，要么就存放
-        const container = creep.room.containers.filter(item => creep.pos.isNearTo(item))[0]
+        const container = creep.room.containers.filter(item => creep.pos.isNearTo(item))
+            .sort((a, b) => a.store[RESOURCE_ENERGY] - b.store[RESOURCE_ENERGY])[0]
         if (container != undefined && container.hits < container.hitsMax) {
             creep.repair(container)
             return true

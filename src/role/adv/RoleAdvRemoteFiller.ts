@@ -1,5 +1,61 @@
 import { getClosestTarget, getDistance } from "utils"
 
+function tempMoveTo(creep: Creep, target: RoomPosition) {
+    let goals = [{ pos: target, range: 1 }]
+    let ret = PathFinder.search(
+        creep.pos, goals,
+        {
+            plainCost: 2,
+            swampCost: 10,
+            roomCallback: function (roomName) {
+                let room = Game.rooms[roomName];
+                let costs = new PathFinder.CostMatrix;
+                if (!room) return costs
+
+                room.find(FIND_STRUCTURES).forEach(function (struct) {
+                    if (struct.structureType === STRUCTURE_ROAD) {
+                        // 相对于平原，寻路时将更倾向于道路
+                        costs.set(struct.pos.x, struct.pos.y, 1);
+                    } else if (struct.structureType !== STRUCTURE_CONTAINER &&
+                        (struct.structureType !== STRUCTURE_RAMPART ||
+                            !struct.my)) {
+                        // 不能穿过无法行走的建筑
+                        costs.set(struct.pos.x, struct.pos.y, 0xff);
+                    }
+                });
+
+                // 躲避房间中的 creep
+                room.find(FIND_HOSTILE_CREEPS).forEach(function (creep) {
+                    for (let x = creep.pos.x - 3; x <= creep.pos.x + 3; x++) {
+                        for (let y = creep.pos.y - 3; y <= creep.pos.y + 3; y++) {
+                            costs.set(x, y, 0xff);
+                        }
+                    }
+                });
+
+                if (roomName == 'E36N4') {
+                    for (let row = 0; row < 49; row++) {
+                        for (let col = 0; col < 49; col++) {
+                            costs.set(row, col, 0xff)
+                        }
+                    }
+                }
+
+                if (roomName == 'E35N4') {
+                    for (let col = 0; col < 49; col++) {
+                        costs.set(49, col, 0xff)
+                    }
+                }
+
+                return costs;
+            },
+        }
+    );
+
+    let pos = ret.path[0];
+    creep.move(creep.pos.getDirectionTo(pos));
+}
+
 export default (data: CreepData): ICreepConfig => ({
     isNeed: (room: Room, creepName: string) => {
         return true
@@ -21,16 +77,32 @@ export default (data: CreepData): ICreepConfig => ({
             return true
         }
 
+        if (creep.room.name == 'E37N7' && sourceFlag.room?.name == 'E35N3' && !creep.pos.isNearTo(creep.room.spawns[0])) {
+            creep.moveTo(creep.room.spawns[0])
+            creepData.needRecycle = true
+            return true
+        }
+
+        if (creep.pickupDroppedResource(true, 50)) return true
+
         // 如果不在目标房间，则去往目标房间
         if (creep.room.name != sourceFlag.room?.name) {
             creep.moveTo(sourceFlag)
             return true
         }
 
+        // 如果身上不止有能量，则搬运到Storage
+        if (creep.room.storage != undefined && Object.keys(creep.store).filter(key => key != RESOURCE_ENERGY).length > 0) {
+            if (getDistance(creep.pos, creep.room.storage.pos) > 1) {
+                creep.moveTo(creep.room.storage)
+                return true
+            }
+            creep.transfer(creep.room.storage, Object.keys(creep.store)[0] as ResourceConstant)
+            return true
+        }
+
         var withdrawTarget: Structure | undefined = undefined
         var withdrawResource: ResourceConstant | undefined = undefined
-
-        if (creep.pickupDroppedResource(true, 50)) return true
 
         // 如果有缓存建筑，就去拿缓存
         if (creepData.withdrawTarget != undefined) {
@@ -39,20 +111,22 @@ export default (data: CreepData): ICreepConfig => ({
         }
 
         // 如果有PowerBank就去捡
-        if (withdrawTarget == undefined && creep.room.powerBanks.length > 0 && creep.room.powerBanks[0].hits == 0) {
+        if ((withdrawTarget == undefined || withdrawResource == undefined)
+            && creep.room.powerBanks.length > 0 && creep.room.powerBanks[0].hits == 0) {
             withdrawTarget = creep.room.powerBanks[0]
             withdrawResource = RESOURCE_POWER
         }
 
         // 如果有Storage并且有资源就去捡
-        if (withdrawTarget == undefined && creep.room.storage != undefined && creep.room.storage.store.getUsedCapacity() > 0) {
+        if ((withdrawTarget == undefined || withdrawResource == undefined)
+            && creep.room.storage != undefined && creep.room.storage.store.getUsedCapacity() > 0) {
             const firstResourceType = Object.keys(creep.room.storage.store)[0] as ResourceConstant
             withdrawTarget = creep.room.storage
             withdrawResource = firstResourceType
         }
 
         // 如果有Spawns并且有资源就去捡
-        if (withdrawTarget == undefined) {
+        if ((withdrawTarget == undefined || withdrawResource == undefined)) {
             const spawns = creep.room.spawns.filter(spawn => spawn.store[RESOURCE_ENERGY] > 0)
             if (spawns.length > 0) {
                 withdrawTarget = getClosestTarget(creep.pos, spawns)
@@ -61,7 +135,7 @@ export default (data: CreepData): ICreepConfig => ({
         }
 
         // 如果有Extensions并且有资源就去捡
-        if (withdrawTarget == undefined) {
+        if ((withdrawTarget == undefined || withdrawResource == undefined)) {
             const extensions = creep.room.extensions.filter(extension => extension.store[RESOURCE_ENERGY] > 0)
             if (extensions.length > 0) {
                 withdrawTarget = getClosestTarget(creep.pos, extensions)
@@ -70,19 +144,11 @@ export default (data: CreepData): ICreepConfig => ({
         }
 
         // 如果有Containers并且有资源就去捡
-        if (withdrawTarget == undefined) {
+        if ((withdrawTarget == undefined || withdrawResource == undefined)) {
             const containers = creep.room.containers.filter(container => container.store[RESOURCE_ENERGY] > 0)
             if (containers.length > 0) {
-                withdrawTarget = getClosestTarget(creep.pos, containers)
-                withdrawResource = RESOURCE_ENERGY
-            }
-        }
-
-        // 如果有Containers并且有资源就去捡
-        if (withdrawTarget == undefined) {
-            const containers = creep.room.containers.filter(container => container.store[RESOURCE_ENERGY] > 0)
-            if (containers.length > 0) {
-                withdrawTarget = getClosestTarget(creep.pos, containers)
+                // withdrawTarget = getClosestTarget(creep.pos, containers)
+                withdrawTarget = containers.sort((a, b) => b.store[RESOURCE_ENERGY] - a.store[RESOURCE_ENERGY])[0]
                 withdrawResource = RESOURCE_ENERGY
             }
         }
@@ -109,6 +175,10 @@ export default (data: CreepData): ICreepConfig => ({
             return false
         }
 
+        if (creep.room.sources.length > 0 && getDistance(creep.room.sources[0].pos, creep.pos) > 5) {
+            creep.moveTo(creep.room.sources[0])
+        }
+
         creep.say("💤")
         return true
     },
@@ -127,8 +197,17 @@ export default (data: CreepData): ICreepConfig => ({
         }
 
         // 如果不在目标房间，则去往目标房间
+        if (targetFlag.room?.name == 'E37N7' && Game.flags[creepData.sourceFlag].room?.name == 'E35N3' && creep.room.name != targetFlag.room?.name) {
+            if (creep.room.name == 'E35N3') {
+                creep.moveTo(targetFlag.pos)
+            } else {
+                tempMoveTo(creep, targetFlag.pos)
+            }
+            return true
+        }
+
         if (creep.room.name != targetFlag.room?.name) {
-            creep.moveTo(targetFlag)
+            creep.moveTo(targetFlag.pos)
             return true
         }
 
@@ -143,19 +222,29 @@ export default (data: CreepData): ICreepConfig => ({
         }
 
         // 搬运到最近的storage、link、container
-        const structureList: Structure[] = [creep.room.storage, ...creep.room.links, ...creep.room.containers]
-            .filter(item => item != undefined && item.store.getFreeCapacity(RESOURCE_ENERGY) > 0) as Structure[]
-        var structure;
+        var targetStructure;
+        const structureList: Structure[] = [
+            creep.room.storage, ...creep.room.links, ...creep.room.containers,
+            ...creep.room.towers, ...creep.room.spawns, ...creep.room.extensions
+        ].filter(item => item != undefined && item.store.getFreeCapacity(RESOURCE_ENERGY) > 0) as Structure[]
         if (structureList.length > 0) {
-            structure = getClosestTarget(creep.pos, structureList)
+            targetStructure = getClosestTarget(creep.pos, structureList)
         } else {
-            structure = creep.room.spawns[0]
+            targetStructure = creep.room.spawns[0]
         }
-        if (getDistance(creep.pos, structure.pos) > 1) {
-            creep.moveTo(structure)
+
+        if (!targetStructure) {
             return true
         }
-        creep.transfer(structure, RESOURCE_ENERGY)
+
+        if (getDistance(creep.pos, targetStructure.pos) > 1) {
+            creep.moveTo(targetStructure)
+            return true
+        }
+
+        if (targetStructure) {
+            creep.transfer(targetStructure, RESOURCE_ENERGY)
+        }
         return true
     },
 })

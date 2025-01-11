@@ -5,6 +5,8 @@ export const STRUCTURE_MEMORYKEY_PERFIX = 'IDOF_'
 export const defaultReserverSign = 'Reserved by E9C50.'
 export const defaultConrtollerSign = 'Controlled by E9C50.'
 
+export const creepWhiteList = ['an_w', '_KCN_']
+
 export enum roleBaseEnum {
     HARVESTER = 'harvester',
     FILLER = 'filler',
@@ -37,6 +39,29 @@ export enum colorEnum {
     GREEN = '#6b9955',
     YELLOW = '#c5c599',
     BLUE = '#8dc5e3'
+}
+
+export const spawnPriority: { [role in CreepRoleConstant]: number } = {
+    manager: 0,
+    harvester: 1,
+    filler: 2,
+    upgrader: 3,
+    builder: 4,
+    repairer: 5,
+    miner: 6,
+    processer: 7,
+
+    claimer: 8,
+    rHarvester: 9,
+    rFiller: 10,
+    reserver: 11,
+    rBuilder: 12,
+
+    integrate: -1,
+    attacker: -1,
+    healer: 15,
+    rAttacker: 16,
+    dismantler: 17,
 }
 
 // TODO 重新配置！！！
@@ -141,13 +166,13 @@ export const bodyConfigs: { [role in CreepRoleConstant]: BodySet[] } = {
         { [MOVE]: 25, [ATTACK]: 25 }
     ],
     integrate: [
-        { [TOUGH]: 0, [RANGED_ATTACK]: 15, [MOVE]: 6, [HEAL]: 3 },
-        { [TOUGH]: 0, [RANGED_ATTACK]: 15, [MOVE]: 6, [HEAL]: 3 },
-        { [TOUGH]: 2, [RANGED_ATTACK]: 15, [MOVE]: 6, [HEAL]: 5 },
-        { [TOUGH]: 4, [RANGED_ATTACK]: 20, [MOVE]: 9, [HEAL]: 9 },
-        { [TOUGH]: 6, [RANGED_ATTACK]: 21, [MOVE]: 10, [HEAL]: 13 },
-        { [TOUGH]: 8, [RANGED_ATTACK]: 15, [MOVE]: 10, [HEAL]: 17 },
-        { [TOUGH]: 10, [RANGED_ATTACK]: 9, [MOVE]: 10, [HEAL]: 21 },
+        { [TOUGH]: 0, [MOVE]: 5, [RANGED_ATTACK]: 5, [HEAL]: 0 },
+        { [TOUGH]: 0, [MOVE]: 5, [RANGED_ATTACK]: 5, [HEAL]: 0 },
+        { [TOUGH]: 0, [MOVE]: 5, [RANGED_ATTACK]: 5, [HEAL]: 0 },
+        { [TOUGH]: 0, [MOVE]: 5, [RANGED_ATTACK]: 5, [HEAL]: 0 },
+        { [TOUGH]: 0, [MOVE]: 5, [RANGED_ATTACK]: 5, [HEAL]: 0 },
+        { [TOUGH]: 0, [MOVE]: 5, [RANGED_ATTACK]: 5, [HEAL]: 0 },
+        { [TOUGH]: 0, [MOVE]: 5, [RANGED_ATTACK]: 5, [HEAL]: 0 },
         { [TOUGH]: 12, [RANGED_ATTACK]: 5, [MOVE]: 10, [HEAL]: 23 }
     ],
     healer: [
@@ -275,6 +300,28 @@ export const reactionConfig = {
     [RESOURCE_HYDROXIDE]: 10000,
 }
 
+export const boostConfig: BoostConfig = {
+    WAR: {
+        move: [RESOURCE_ZYNTHIUM_OXIDE, RESOURCE_ZYNTHIUM_ALKALIDE, RESOURCE_CATALYZED_ZYNTHIUM_ALKALIDE],
+        attack: [RESOURCE_UTRIUM_HYDRIDE, RESOURCE_UTRIUM_ACID, RESOURCE_CATALYZED_UTRIUM_ACID],
+        ranged_attack: [RESOURCE_KEANIUM_OXIDE, RESOURCE_KEANIUM_ALKALIDE, RESOURCE_CATALYZED_KEANIUM_ALKALIDE],
+        heal: [RESOURCE_LEMERGIUM_OXIDE, RESOURCE_LEMERGIUM_ALKALIDE, RESOURCE_CATALYZED_LEMERGIUM_ALKALIDE],
+        tough: [RESOURCE_GHODIUM_OXIDE, RESOURCE_GHODIUM_ALKALIDE, RESOURCE_CATALYZED_GHODIUM_ALKALIDE],
+        work: [],
+        carry: [],
+        claim: []
+    },
+    WORK: {
+        move: [],
+        attack: [],
+        ranged_attack: [],
+        heal: [],
+        tough: [],
+        work: [],
+        carry: [],
+        claim: []
+    }
+}
 
 // 从反应目标产物获取其底物的对应表
 export const reactionSource: IReactionSource = {

@@ -88,23 +88,6 @@ export const getClosestTarget = function <T extends Creep | Structure | Construc
 }
 
 /**
- * 获取房间中指定资源的数量
- * @param room
- * @param resourceType
- * @returns
- */
-export const getRoomResourceByType = function (room: Room, resourceType: ResourceConstant): number {
-    const storageEnergy = room.storage ? room.storage.store[resourceType] : 0;
-    const terminalEnergy = room.terminal ? room.terminal.store[resourceType] : 0;
-    const labsEnergy = room.labs.reduce((pre, lab) => pre + (lab.mineralType == resourceType ? lab.store[resourceType] : 0), 0);
-    const creepEnergy = Object.values(Game.creeps)
-        .filter(creep => creep.room.name == room.name && [roleAdvEnum.PROCESSER, roleAdvEnum.MANAGER].includes(creep.memory.role as roleAdvEnum))
-        .reduce((pre, creep) => pre + (creep.store[resourceType] ? creep.store[resourceType] : 0), 0);
-    const totalEnergy = storageEnergy + terminalEnergy + labsEnergy + creepEnergy;
-    return totalEnergy
-}
-
-/**
  * 对输入的字符串进行拼接并且进行SHA1
  * @param strings 输入的n个字符串
  * @returns

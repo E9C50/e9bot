@@ -1,5 +1,3 @@
-import { getRoomResourceByType } from "utils"
-
 export default class PowerSpawnExtension extends StructurePowerSpawn {
     public init(): void {
         if (!this.room.memory.roomFillJob.powerSpawnEnergy && this.store.getFreeCapacity(RESOURCE_ENERGY) > 0) {
@@ -10,7 +8,7 @@ export default class PowerSpawnExtension extends StructurePowerSpawn {
         }
     }
     public doWork(): void {
-        if (getRoomResourceByType(this.room, RESOURCE_ENERGY) > 500000 &&
+        if (this.room.memory.resourceAmount[RESOURCE_ENERGY] > 500000 &&
             this.store[RESOURCE_ENERGY] >= 50 && this.store[RESOURCE_POWER] >= 1) {
             this.processPower()
         }

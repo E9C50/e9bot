@@ -6,7 +6,7 @@ import { ErrorMapper } from "./utils/ErrorMapper"
 import { exportStats } from "./utils/ExportStats"
 import { roomController } from './module/RoomController'
 import { visualController } from "./module/VisualController"
-import { resourceController } from './module/ResourceController'
+import { obScannerController } from './module/ObserverController'
 import { structureWorkController } from "./module/StructureController"
 import { creepNumberController, creepWorkController } from "./module/CreepController"
 import { roleAdvEnum } from 'settings'
@@ -35,11 +35,6 @@ export const loop = ErrorMapper.wrapLoop(() => {
     if (debug) console.log(`房间自动化配置 CPU 使用量：${(Game.cpu.getUsed() - cpu).toFixed(2)}`)
     cpu = Game.cpu.getUsed()
 
-    // 资源控制器
-    // resourceController()
-
-    if (debug) console.log(`资源控制器 CPU 使用量：${(Game.cpu.getUsed() - cpu).toFixed(2)}`)
-    cpu = Game.cpu.getUsed()
     // Creep 数量控制
     creepNumberController()
 
@@ -56,6 +51,12 @@ export const loop = ErrorMapper.wrapLoop(() => {
     structureWorkController()
 
     if (debug) console.log(`建筑工作控制 CPU 使用量：${(Game.cpu.getUsed() - cpu).toFixed(2)}`)
+    cpu = Game.cpu.getUsed()
+
+    // 扫描指定房间
+    obScannerController()
+
+    if (debug) console.log(`扫描指定房间 CPU 使用量：${(Game.cpu.getUsed() - cpu).toFixed(2)}`)
     cpu = Game.cpu.getUsed()
 
     // 可视化信息
@@ -75,3 +76,5 @@ export const loop = ErrorMapper.wrapLoop(() => {
     if (debug) console.log('-----------------------------')
   });
 })
+
+console.log(`脚本初始化... Tick[${Game.time}] CPU[${Game.cpu.getUsed().toFixed(4)}] Bucket[${Game.cpu.bucket}]`)
