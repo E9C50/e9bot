@@ -32,7 +32,9 @@ function showCreepCountInfo(room: Room): void {
 
     // 显示统计信息
     var index = 0
-    const infoPos = room.memory.roomPosition.infoPos || (room.controller && room.controller.pos);
+    const svFlag = Game.flags['SV']
+    const svPos = svFlag == undefined ? undefined : new RoomPosition(svFlag.pos.x + 1, svFlag.pos.y, svFlag.pos.roomName)
+    const infoPos = svPos || (room.controller && room.controller.pos);
     if (infoPos) {
         index = infoPos.y
         for (let role in roleCounts) {
@@ -59,7 +61,7 @@ export const visualController = function (): void {
     for (const roomName in Game.rooms) {
         const room: Room = Game.rooms[roomName];
         if (!room.my) continue;
-        if (!room.memory.roomCustom.showVisual) continue;
+        if (Game.flags['SV'] == undefined) continue;
 
         // 显示Spawn孵化进度
         room.spawns.forEach(spawn => {
@@ -89,26 +91,26 @@ export const visualController = function (): void {
         //     room.visual.text(room.storage.store[RESOURCE_ENERGY].toString(), room.storage.pos.x, room.storage.pos.y + 2, { align: 'center' });
         // }
 
-        if (room.memory.roomCustom.labBoostMod) {
-            // 显示Lab Boost配置信息
-            Object.keys(room.memory.labBoostConfig).forEach(labId => {
+        // 显示Lab Boost配置信息
+        Object.keys(room.memory.roomLabConfig.singleLabConfig).forEach(labId => {
+            if (room.memory.roomLabConfig.singleLabConfig[labId].boostMode) {
                 const lab = Game.getObjectById<StructureLab>(labId)
-                const type = room.memory.labBoostConfig[labId].resourceType
-                if (lab) room.visual.text(type, lab.pos.x, lab.pos.y, { align: 'center', color: 'red', stroke: 'blue', font: 0.3 });
-            });
-        } else {
-            // 显示Lab合成配置
-            const sourceLab1 = room.memory.roomStructurePos.sourceLab1
-            const sourceLab2 = room.memory.roomStructurePos.sourceLab2
-            if (sourceLab1 != undefined && sourceLab2 != undefined && room.memory.labReactionQueue[0]) {
-                const lab1 = Game.getObjectById<StructureLab>(sourceLab1)
-                const lab2 = Game.getObjectById<StructureLab>(sourceLab2)
-
-                const source = reactionSource[room.memory.labReactionQueue[0]]
-
-                if (lab1) room.visual.text(source[0], lab1.pos.x, lab1.pos.y, { align: 'center', color: 'red', stroke: 'blue' });
-                if (lab2) room.visual.text(source[1], lab2.pos.x, lab2.pos.y, { align: 'center', color: 'red', stroke: 'blue' });
+                const type = room.memory.roomLabConfig.singleLabConfig[labId].resourceType
+                if (lab) room.visual.text(type, lab.pos.x, lab.pos.y, { align: 'center', color: 'red', font: 0.3 });
             }
+        });
+
+        // 显示Lab合成配置
+        const sourceLab1 = room.memory.roomLabConfig.sourceLab1
+        const sourceLab2 = room.memory.roomLabConfig.sourceLab2
+        if (sourceLab1 != undefined && sourceLab2 != undefined && room.memory.roomLabConfig.labReactionQueue[0]) {
+            const lab1 = Game.getObjectById<StructureLab>(sourceLab1)
+            const lab2 = Game.getObjectById<StructureLab>(sourceLab2)
+
+            const source = reactionSource[room.memory.roomLabConfig.labReactionQueue[0]]
+
+            if (lab1) room.visual.text(source[0], lab1.pos.x, lab1.pos.y, { align: 'center', color: 'blue' });
+            if (lab2) room.visual.text(source[1], lab2.pos.x, lab2.pos.y, { align: 'center', color: 'blue' });
         }
 
 

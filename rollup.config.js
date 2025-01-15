@@ -4,9 +4,9 @@ import typescript from 'rollup-plugin-typescript2';
 import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 
+import copy from 'rollup-plugin-copy'
 import clear from 'rollup-plugin-clear';
 import screeps from 'rollup-plugin-screeps';
-import obfuscator from 'rollup-plugin-obfuscator';
 
 const { terser } = require('rollup-plugin-terser')
 
@@ -21,9 +21,9 @@ if (!dest) {
 export default {
   input: "src/main.ts",
   output: {
-    file: "dist/main.js",
     format: "cjs",
-    sourcemap: true
+    file: "dist/main.js",
+    sourcemap: true,
   },
 
   plugins: [
@@ -34,41 +34,24 @@ export default {
     typescript(),
 
     terser(),
-    // obfuscator({
-    //   global: false,
-    //   options: {
-    //     compact: true,
-    //     controlFlowFlattening: true,
-    //     controlFlowFlatteningThreshold: 1,
-    //     deadCodeInjection: true,
-    //     deadCodeInjectionThreshold: 1,
-    //     // debugProtection: true,
-    //     // debugProtectionInterval: 4000,
-    //     disableConsoleOutput: false,
-    //     identifierNamesGenerator: 'hexadecimal',
-    //     log: false,
-    //     numbersToExpressions: true,
-    //     renameGlobals: false,
-    //     selfDefending: false,
-    //     simplify: true,
-    //     splitStrings: true,
-    //     splitStringsChunkLength: 5,
-    //     stringArray: true,
-    //     stringArrayCallsTransform: true,
-    //     stringArrayCallsTransformThreshold: 0.5,
-    //     stringArrayEncoding: ['rc4'],
-    //     stringArrayIndexShift: true,
-    //     stringArrayRotate: true,
-    //     stringArrayShuffle: true,
-    //     stringArrayWrappersCount: 5,
-    //     stringArrayWrappersChainedCalls: true,
-    //     stringArrayWrappersParametersMaxCount: 5,
-    //     stringArrayWrappersType: 'function',
-    //     stringArrayThreshold: 1,
-    //     transformObjectKeys: true,
-    //     unicodeEscapeSequence: false
-    //   }
-    // }),
-    screeps({ config: cfg })
+
+    screeps({ config: cfg }),
+
+    copy({
+      targets: [
+        {
+          src: 'dist/main.js',
+          dest: 'C:\\Users\\jason\\AppData\\Local\\Screeps\\scripts\\127_0_0_1___21025\\default',
+        },
+        {
+          src: 'dist/main.js.map',
+          dest: 'C:\\Users\\jason\\AppData\\Local\\Screeps\\scripts\\127_0_0_1___21025\\default',
+          rename: name => name + '.map.js',
+          transform: contents => `module.exports = ${contents.toString()};`
+        }
+      ],
+      hook: 'writeBundle',
+      verbose: true
+    })
   ]
 }

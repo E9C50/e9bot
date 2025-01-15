@@ -10,7 +10,8 @@ export default (data: CreepData): ICreepConfig => ({
         }
 
         // 如果不在目标位置则移动
-        if (!creep.memory.ready) {
+        if (!creep.memory.ready || Game.time % 10 == 0) {
+            creep.memory.ready = false
             var managerPos: RoomPosition = creep.room.memory.roomPosition.managerPos as RoomPosition
             if (managerPos != undefined) {
                 managerPos = new RoomPosition(managerPos.x, managerPos.y, managerPos.roomName)
@@ -51,8 +52,9 @@ export default (data: CreepData): ICreepConfig => ({
         if (creep.store.getUsedCapacity() > 0) {
             const resourceType = Object.keys(creep.store)[0] as ResourceConstant
 
-            if (resourceType == RESOURCE_BATTERY && creep.room.factory) {
-                creep.transfer(creep.room.factory, resourceType);
+            if (creep.room.memory.terminalAmount == undefined) creep.room.memory.terminalAmount = {}
+            if (creep.room.terminal != undefined && creep.room.terminal.store[resourceType] < (creep.room.memory.terminalAmount[resourceType] || 0)) {
+                creep.transfer(creep.room.terminal, resourceType);
             } else {
                 creep.transfer(creep.room.storage, resourceType);
             }
@@ -65,17 +67,17 @@ export default (data: CreepData): ICreepConfig => ({
             return true
         }
 
-        // factory有东西就拿起来
-        if (creep.room.factory && creep.room.factory.store[RESOURCE_ENERGY] > 0) {
-            creep.withdraw(creep.room.factory, RESOURCE_ENERGY);
-            return true
-        }
+        // // factory有东西就拿起来
+        // if (creep.room.factory && creep.room.factory.store[RESOURCE_ENERGY] > 0) {
+        //     creep.withdraw(creep.room.factory, RESOURCE_ENERGY);
+        //     return true
+        // }
 
-        if (creep.room.factory && creep.room.factory.store.getFreeCapacity() > 20000
-            && creep.room.storage && creep.room.storage.store[RESOURCE_BATTERY] > 0) {
-            creep.withdraw(creep.room.storage, RESOURCE_BATTERY);
-            return true
-        }
+        // if (creep.room.factory && creep.room.factory.store.getFreeCapacity() > 20000
+        //     && creep.room.storage && creep.room.storage.store[RESOURCE_BATTERY] > 0) {
+        //     creep.withdraw(creep.room.storage, RESOURCE_BATTERY);
+        //     return true
+        // }
 
         // if (creep.room.factory != undefined && creep.room.factory.store.getUsedCapacity() > 0) {
         //     const resourceType = Object.keys(creep.room.factory.store)[0] as ResourceConstant
@@ -85,9 +87,24 @@ export default (data: CreepData): ICreepConfig => ({
 
         // 终端有东西就拿起来
         if (creep.room.terminal != undefined && creep.room.terminal.store.getUsedCapacity() > 0) {
-            const resourceType = Object.keys(creep.room.terminal.store)[0] as ResourceConstant
-            creep.withdraw(creep.room.terminal, resourceType);
-            return true
+            for (let resourceType in creep.room.terminal.store) {
+                if (creep.room.terminal.store[resourceType] > (creep.room.memory.terminalAmount[resourceType] || 0)) {
+                    var amount = Math.abs(creep.room.terminal.store[resourceType] - (creep.room.memory.terminalAmount[resourceType] || 0))
+                    amount = Math.min(amount, creep.store.getFreeCapacity())
+                    creep.withdraw(creep.room.terminal, resourceType as ResourceConstant, amount);
+                    return true
+                }
+            }
+        }
+
+        // 终端东西不足就从storage拿
+        if (creep.room.terminal != undefined) {
+            for (let resourceType in creep.room.memory.terminalAmount) {
+                if (creep.room.terminal.store[resourceType] < creep.room.memory.terminalAmount[resourceType] && creep.room.storage.store[resourceType] > 0) {
+                    creep.withdraw(creep.room.storage, resourceType as ResourceConstant);
+                    return true
+                }
+            }
         }
 
         return true

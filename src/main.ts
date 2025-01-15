@@ -9,7 +9,6 @@ import { visualController } from "./module/VisualController"
 import { obScannerController } from './module/ObserverController'
 import { structureWorkController } from "./module/StructureController"
 import { creepNumberController, creepWorkController } from "./module/CreepController"
-import { roleAdvEnum } from 'settings'
 
 profile.profileEnable();
 

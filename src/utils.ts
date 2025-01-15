@@ -27,6 +27,16 @@ export const assignPrototype = function (obj1: { [key: string]: any }, obj2: { [
 }
 
 /**
+ * 挂载到全局
+ * @param obj
+ */
+export const assignGlobal = function (obj: { [key: string]: any }) {
+    Object.getOwnPropertyNames(obj.prototype).forEach(key => {
+        global[key] = obj.prototype[key]
+    })
+}
+
+/**
  * 构建BodyPart
  * @param room
  * @param bodyConfigs
@@ -85,6 +95,15 @@ export const getClosestTarget = function <T extends Creep | Structure | Construc
     }
 
     return closest
+}
+
+// 以给定中心位置，获取指定位置相对该中心的相反位置
+export const getOppositePosition = function (center: RoomPosition, target: RoomPosition): RoomPosition {
+    var oppositeX = Math.max(2 * center.x - target.x, 0)
+    var oppositeY = Math.max(2 * center.y - target.y, 0)
+
+    console.log(oppositeX, oppositeY, center.roomName)
+    return new RoomPosition(oppositeX, oppositeY, center.roomName);
 }
 
 /**

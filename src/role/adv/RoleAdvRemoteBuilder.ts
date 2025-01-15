@@ -61,15 +61,20 @@ export default (data: CreepData): ICreepConfig => ({
 
         const creepData: RemoteBuilderData = data as RemoteBuilderData
         const sourceFlag = Game.flags[creepData.sourceFlag]
-        if (sourceFlag == undefined) {
+        const sourceStructure = Game.getObjectById(creepData.sourceFlag) as Source
+        const targetPos = sourceFlag || sourceStructure
+
+        if (targetPos == undefined) {
             creep.say('❓')
             return true
         }
 
-        if (creep.room.name != sourceFlag.room?.name) {
-            creep.moveTo(sourceFlag)
+        if (creep.room.name != targetPos.room?.name) {
+            creep.moveTo(targetPos)
             return false
         }
+
+        if (creep.pickupDroppedResource(false, 3)) return true
 
         // 如果房间有可搬运的能量，直接去搬
         var resourceTargets: AnyStoreStructure[] = [creep.room.storage, ...creep.room.containers].filter(item => item != undefined) as AnyStoreStructure[]
@@ -86,7 +91,7 @@ export default (data: CreepData): ICreepConfig => ({
             return true
         }
 
-        const sourceList = creep.room.sources.filter(source => getDistance(source.pos, sourceFlag.pos) < 3)
+        const sourceList = creep.room.sources.filter(source => getDistance(source.pos, targetPos.pos) < 3)
         if (sourceList.length == 0) return false
 
         const sourceTarget = sourceList[0]
@@ -103,13 +108,16 @@ export default (data: CreepData): ICreepConfig => ({
     target(creep) {
         const creepData: RemoteBuilderData = data as RemoteBuilderData
         const targetFlag = Game.flags[creepData.targetFlag]
-        if (targetFlag == undefined) {
+        const targetStructure = Game.getObjectById(creepData.targetFlag) as Source
+        const targetPos = targetFlag || targetStructure
+
+        if (targetPos == undefined) {
             creep.say('❓')
             return true
         }
 
-        if (creep.room.name != targetFlag.room?.name) {
-            creep.moveTo(targetFlag)
+        if (creep.room.name != targetPos.room?.name) {
+            creep.moveTo(targetPos)
             return false
         }
 

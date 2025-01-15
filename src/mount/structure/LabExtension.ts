@@ -6,8 +6,8 @@ export default class LabExtension extends StructureLab {
         if (this.cooldown != 0) return
 
         // 如果房间没有配置好两个sourceLab，就跳过
-        const sourceLab1 = this.room.memory.roomStructurePos.sourceLab1
-        const sourceLab2 = this.room.memory.roomStructurePos.sourceLab2
+        const sourceLab1 = this.room.memory.roomLabConfig.sourceLab1
+        const sourceLab2 = this.room.memory.roomLabConfig.sourceLab2
         if (sourceLab1 == undefined || sourceLab2 == undefined) return
         if (this.id == sourceLab1 || this.id == sourceLab2) return
 
@@ -29,12 +29,10 @@ export default class LabExtension extends StructureLab {
     }
 
     private boostCreepWork(): void {
-        if (this.room.memory.labBoostConfig == undefined) return
-        if (this.room.memory.labBoostConfig[this.id] == undefined) return
-        if (this.mineralType != this.room.memory.labBoostConfig[this.id].resourceType) return
+        if (this.room.memory.roomLabConfig.singleLabConfig[this.id] == undefined) return
+        if (!this.room.memory.roomLabConfig.singleLabConfig[this.id].boostMode) return
 
-        const labBoostBody = this.room.memory.labBoostConfig[this.id].bodyPart
-
+        const labBoostBody = this.room.memory.roomLabConfig.singleLabConfig[this.id].boostPart
         const nearbyCreeps = this.pos.findInRange(FIND_MY_CREEPS, 1)
         for (let name in nearbyCreeps) {
             let creep = nearbyCreeps[name]
@@ -51,40 +49,44 @@ export default class LabExtension extends StructureLab {
         if (this.room.memory.roomFillJob.labInEnergy == undefined) this.room.memory.roomFillJob.labInEnergy = []
         if (this.room.memory.roomFillJob.labInMineral == undefined) this.room.memory.roomFillJob.labInMineral = []
 
-        const labOut = this.room.memory.roomFillJob.labOut
-        const labInEnergy = this.room.memory.roomFillJob.labInEnergy
-        const labInMineral = this.room.memory.roomFillJob.labInMineral
-
-        if (!labInEnergy.includes(this.id) && this.store.getFreeCapacity(RESOURCE_ENERGY) > 0) {
+        // 能量不够就请求能量
+        if (this.store.getFreeCapacity(RESOURCE_ENERGY) > 0) {
             this.room.memory.roomFillJob.labInEnergy.push(this.id)
         }
 
-        if (this.room.memory.roomCustom.labBoostMod && this.room.memory.labBoostConfig[this.id] == undefined) {
-            if (this.mineralType != undefined) { this.room.memory.roomFillJob.labOut.push(this.id) }
-            return
-        }
-
-        var targetType: MineralConstant | MineralCompoundConstant;
-        const boostMode = this.room.memory.roomCustom.labBoostMod
-        if (boostMode) {
-            targetType = this.room.memory.labBoostConfig[this.id].resourceType
-        } else {
-            targetType = RESOURCE_GHODIUM
-        }
-
-        if (!labOut.includes(this.id) && this.mineralType != targetType && this.mineralType != undefined) {
+        // 如果是boost模式，且boost配置的元素和当前元素不一致，就取出
+        const labConfig = this.room.memory.roomLabConfig
+        const thisLabConfig = labConfig.singleLabConfig[this.id]
+        const boostMode = thisLabConfig != undefined && thisLabConfig.boostMode
+        if (boostMode && this.mineralType != undefined && thisLabConfig.resourceType != this.mineralType) {
             this.room.memory.roomFillJob.labOut.push(this.id)
         }
 
-        if (!labInMineral.map(x => x.labId).includes(this.id) && this.store.getFreeCapacity(targetType) > 0
-            && (this.room.memory.resourceAmount[targetType] - this.store[targetType]) > 0) {
+        // 如果不是boost模式，并且不是sourceLab，那么超过1000就取出
+        if (!boostMode && this.id != labConfig.sourceLab1 && this.id != labConfig.sourceLab2
+            && this.mineralType != undefined && this.store[this.mineralType] > 1000) {
+            this.room.memory.roomFillJob.labOut.push(this.id)
+        }
 
-            this.room.memory.roomFillJob.labInMineral.push({ labId: this.id, resourceType: targetType })
+        // 如果有反应配置，则处理sourceLab
+        if (labConfig.labReactionQueue.length > 0) {
+            const reactionConfig = reactionSource[this.room.memory.roomLabConfig.labReactionQueue[0]]
+            if (this.id == labConfig.sourceLab1) {
+                this.room.memory.roomFillJob.labInMineral.push({ labId: this.id, resourceType: reactionConfig[0] })
+            }
+            if (this.id == labConfig.sourceLab2) {
+                this.room.memory.roomFillJob.labInMineral.push({ labId: this.id, resourceType: reactionConfig[1] })
+            }
+        }
+
+        if (boostMode && this.store[thisLabConfig.resourceType] < 3000) {
+            this.room.memory.roomFillJob.labInMineral.push({ labId: this.id, resourceType: thisLabConfig.resourceType })
         }
     }
 
     public doWork(): void {
-        if (this.room.memory.roomCustom.labBoostMod) {
+        const thisLabConfig = this.room.memory.roomLabConfig.singleLabConfig[this.id]
+        if (thisLabConfig != undefined && thisLabConfig.boostMode) {
             this.boostCreepWork()
         } else {
             this.labReactionWork()

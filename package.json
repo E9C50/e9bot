@@ -9,6 +9,7 @@
     "build": "rollup -c",
     "push-main": "rollup -c --environment DEST:main",
     "push-pserver": "rollup -c --environment DEST:pserver",
+    "push-local": "rollup -c --environment DEST:local",
     "push-season": "rollup -c --environment DEST:season",
     "push-sim": "rollup -c --environment DEST:sim",
     "test": "npm run test-unit",
@@ -16,6 +17,7 @@
     "test-integration": "echo 'See docs/in-depth/testing.md for instructions on enabling integration tests'",
     "watch-main": "rollup -cw --environment DEST:main",
     "watch-pserver": "rollup -cw --environment DEST:pserver",
+    "watch-local": "rollup -cw --environment DEST:local",
     "watch-season": "rollup -cw --environment DEST:season",
     "watch-sim": "rollup -cw --environment DEST:sim"
   },
@@ -58,6 +60,7 @@
     "prettier": "^2.3.2",
     "rollup": "^2.35.1",
     "rollup-plugin-clear": "^2.0.7",
+    "rollup-plugin-copy": "^3.5.0",
     "rollup-plugin-obfuscator": "^1.1.0",
     "rollup-plugin-screeps": "^1.0.1",
     "rollup-plugin-terser": "^7.0.2",

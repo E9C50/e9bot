@@ -6,6 +6,7 @@ type BaseRoleUpgrader = 'upgrader'
 type BaseRoleBuilder = 'builder'
 type BaseRoleRepairer = 'repairer'
 type BaseRoleMiner = 'miner'
+type BaseRoleScout = 'scout'
 
 // 房间高级运营
 type AdvancedRoleManager = 'manager'
@@ -25,8 +26,8 @@ type WarRoleIntegrate = 'integrate'
 
 
 // 所有的 creep 角色
-type CreepRoleConstant = BaseRoleHarvester | BaseRoleFiller | BaseRoleUpgrader | BaseRoleBuilder
-    | BaseRoleRepairer | BaseRoleMiner | AdvancedRoleManager | AdvancedRoleProcesser | AdvancedRoleClaimer
+type CreepRoleConstant = BaseRoleHarvester | BaseRoleFiller | BaseRoleUpgrader | BaseRoleBuilder | BaseRoleRepairer
+    | BaseRoleMiner | BaseRoleScout | AdvancedRoleManager | AdvancedRoleProcesser | AdvancedRoleClaimer
     | AdvancedRoleReserver | AdvancedRoleRemoteHarvester | AdvancedRoleRemoteFiller | AdvancedRoleRemoteBuilder
     | WarRoleAttacker | WarRoleHealer | WarRoleRangedAttacker | WarRoleDismantler | WarRoleIntegrate
 
@@ -36,6 +37,18 @@ type CreepWork = { [role in CreepRoleConstant]: (data: CreepData) => ICreepConfi
 // 所有 Creep 角色的 Data 数据
 type CreepData = EmptyData | HarvesterData | MineralData | FillerData | BuilderData | RepairerData
 
+declare module NodeJS {
+    // 全局对象
+    interface Global {
+        BetterMove: {
+            deletePathInRoom: (roomName: string) => boolean
+        }
+    }
+}
+
+interface Memory {
+    warMode: boolean
+}
 
 interface Room {
     my: boolean
@@ -104,6 +117,8 @@ interface ICreepConfig {
 
 // Creep通用函数定义
 interface Creep {
+    transferToTarget(transferTarget: Structure, resourceType: ResourceConstant): boolean
+    takeFromTarget(takeTarget: Structure, resourceType: ResourceConstant, amount?: number): boolean
     pickupDroppedResource(allSource: boolean, range: number): boolean
 }
 
@@ -122,7 +137,7 @@ interface Structure {
 
 // 反应底物表接口
 interface IReactionSource {
-    [targetResourceName: string]: ResourceConstant[]
+    [targetResourceName: string]: (MineralConstant | MineralCompoundConstant)[]
 }
 
 type BoostConfigMode = 'WAR' | 'WORK'
@@ -140,36 +155,31 @@ type BoostLabConfig = {
     bodyPart: BodyPartConstant
 }
 
-interface RoomCustomMemory {
-    reserving?: string[]
-    remoteHarvester?: string[]
-    remoteFiller?: { [roomName: string]: string }
-    remoteBuilder?: { [roomName: string]: string }
+// interface RoomCustomMemory {
+//     reserving?: string[]
+//     remoteHarvester?: string[]
+//     remoteFiller?: { [roomName: string]: string }
+//     remoteBuilder?: { [roomName: string]: string }
 
-    claimer?: string[]
-    reserver?: string[]
-    dismantle?: string[]
-    attacker?: string[]
-    healer?: string[]
-    integrate?: string[]
+//     claimer?: string[]
+//     reserver?: string[]
+//     dismantle?: string[]
+//     attacker?: string[]
+//     healer?: string[]
+//     integrate?: string[]
 
-    processTaksQueue?: string[]
+//     processTaksQueue?: string[]
 
-    repairerCount?: number
-    computeRoomCenterShow?: number
-    showVisual?: boolean
-    labBoostMod?: boolean
-}
+//     repairerCount?: number
+//     computeRoomCenterShow?: number
+// }
 
 interface IRoomPositionList {
-    infoPos?: RoomPosition
     managerPos?: RoomPosition
     centerPos?: RoomPosition
 }
 
 interface IRoomStructurePos {
-    sourceLab1?: string
-    sourceLab2?: string
     towerAllowRepair?: string
 }
 
@@ -191,31 +201,43 @@ interface IRoomFillJob {
     }[]
 }
 
-interface RoomMemory {
-    structureIdList: {}
-
-    roomCustom: RoomCustomMemory
-    roomPosition: IRoomPositionList
-    roomStructurePos: IRoomStructurePos
-    roomFillJob: IRoomFillJob
-
-    autoLaylout?: boolean
-    centerLinkSentMode?: boolean
-    enableTowerRepairWall?: boolean
-
-    needUpdateCache?: boolean
-
-    enemyTarget?: string
-
-    creepSpawnQueue: string[]
+interface ILabConfig {
+    sourceLab1?: string
+    sourceLab2?: string
 
     labReactionQueue: ResourceConstant[]
-    labBoostConfig: { [labId: string]: BoostLabConfig }
+    singleLabConfig: {
+        [labId: string]: {
+            boostMode: boolean
+            boostPart: BodyPartConstant
+            resourceType: ResourceConstant
+        }
+    }
+}
+
+interface RoomMemory {
+    structureIdList: {}
 
     freeSpaceCount: { [sourceId: string]: number }
     creepConfig: { [creepName: string]: CreepMemory }
 
     resourceAmount: { [resourceType: string]: number }
+    terminalAmount: { [resourceType: string]: number }
+
+    enemyTarget?: string
+    creepSpawnQueue: string[]
+
+    // roomCustom: RoomCustomMemory
+    roomPosition: IRoomPositionList
+    roomStructurePos: IRoomStructurePos
+
+    roomFillJob: IRoomFillJob
+    roomLabConfig: ILabConfig
+
+    autoLaylout?: boolean
+    needUpdateCache?: boolean
+    centerLinkSentMode?: boolean
+    enableTowerRepairWall?: boolean
 }
 
 interface CreepMemory {
@@ -229,6 +251,7 @@ interface CreepMemory {
     data: CreepData
     dontPullMe?: boolean
     needBoost?: boolean
+    pathCache?: PathFinderPath
 }
 
 interface EmptyData { }
@@ -244,6 +267,7 @@ interface UpgraderData { sourceId: string }
 interface BuilderData { sourceId: string, buildTarget?: string }
 interface RepairerData { sourceId: string, repairTarget?: string }
 
+interface ScoutData { targetFlag: string }
 interface ReserverData { targetRoom: string }
 interface ClaimerData { targetRoom: string, sourceId: string, buildTarget?: string }
 

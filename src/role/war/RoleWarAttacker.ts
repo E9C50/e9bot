@@ -42,9 +42,10 @@ export default (data: CreepData): ICreepConfig => ({
             creep.moveTo(targetFlag)
         }
 
-        if (creep.pos.isNearTo(closestEnemy)) {
-            creep.attack(closestEnemy)
-        } else if (structure != undefined && creep.pos.isNearTo(structure)) {
+        // if (creep.pos.isNearTo(closestEnemy)) {
+        //     creep.attack(closestEnemy)
+        // } else
+         if (structure != undefined && creep.pos.isNearTo(structure)) {
             creep.attack(structure)
         }
         return true

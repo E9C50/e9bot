@@ -1,4 +1,4 @@
-import { assignPrototype } from "utils"
+import { assignGlobal, assignPrototype } from "utils"
 import CreepExtension from "./extension/CreepExtension"
 import RoomExtension from "./extension/RoomExtension"
 import SourceExtension from "./extension/SourceExtension"
@@ -10,6 +10,7 @@ import LabExtension from "./structure/LabExtension"
 import PowerSpawnExtension from "./structure/PowerSpawnExtension"
 import NukerExtension from "./structure/NukerExtension"
 import FactoryExtension from "./structure/FactoryExtension"
+import ConsoleExtension from "./extension/ConsoleExtension"
 
 function processFlagPos(flagName: string, memoryKey: string): void {
     if (Game.flags[flagName] != undefined) {
@@ -45,6 +46,8 @@ function processFlagStructure(flagName: string, memoryKey: string): void {
 }
 
 export function mountWork() {
+    assignGlobal(ConsoleExtension)
+
     assignPrototype(Room, RoomExtension)
     assignPrototype(Creep, CreepExtension)
     assignPrototype(Source, SourceExtension)
@@ -58,7 +61,6 @@ export function mountWork() {
     assignPrototype(StructureFactory, FactoryExtension)
     assignPrototype(StructurePowerSpawn, PowerSpawnExtension)
 
-    processFlagPos('infoPos', 'infoPos')
     processFlagPos('managerPos', 'managerPos')
     processFlagPos('centerPos', 'centerPos')
 

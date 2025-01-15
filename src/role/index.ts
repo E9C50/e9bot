@@ -10,6 +10,7 @@ import RoleBaseFiller from "./base/RoleBaseFiller"
 import RoleBaseHarvester from "./base/RoleBaseHarvester"
 import RoleBaseMiner from "./base/RoleBaseMiner"
 import RoleBaseRepairer from "./base/RoleBaseRepairer"
+import RoleBaseScout from "./base/RoleBaseScout"
 import RoleBaseUpgrader from "./base/RoleBaseUpgrader"
 import RoleWarAttacker from "./war/RoleWarAttacker"
 import RoleWarHealer from "./war/RoleWarHealer"
@@ -26,6 +27,7 @@ const creepWork: CreepWork = {
     builder: RoleBaseBuilder,
     repairer: RoleBaseRepairer,
     miner: RoleBaseMiner,
+    scout: RoleBaseScout,
 
     manager: RoleAdvManager,
     processer: RoleAdvProcesser,

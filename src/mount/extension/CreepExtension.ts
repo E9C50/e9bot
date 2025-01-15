@@ -1,6 +1,42 @@
 import { getDistance } from "utils";
 
 export default class CreepExtension extends Creep {
+
+    /**
+     * 转移资源到指定目标
+     * @param creep
+     * @param transferTarget
+     * @param resourceType
+     * @returns
+     */
+    public transferToTarget(transferTarget: Structure, resourceType: ResourceConstant): boolean {
+        if (transferTarget == undefined) return false
+        if (getDistance(this.pos, transferTarget.pos) <= 1) {
+            this.transfer(transferTarget, resourceType)
+            return true
+        } else {
+            this.moveTo(transferTarget)
+            return false
+        }
+    }
+
+    /**
+     * 从指定地方取出资源
+     * @param takeTarget
+     * @param resourceType
+     * @param amount
+     */
+    public takeFromTarget(takeTarget: Structure, resourceType: ResourceConstant, amount?: number): boolean {
+        if (takeTarget == undefined) return false
+        if (getDistance(this.pos, takeTarget.pos) <= 1) {
+            this.withdraw(takeTarget, resourceType, amount)
+            return true
+        } else {
+            this.moveTo(takeTarget)
+            return false
+        }
+    }
+
     /**
      * 捡起地上的资源
      * @param allSource

@@ -1,4 +1,4 @@
-import { getDistance } from "utils"
+import { getDistance, getOppositePosition } from "utils"
 
 export default (data: CreepData): ICreepConfig => ({
     isNeed: (room: Room, creepName: string) => {
@@ -7,30 +7,29 @@ export default (data: CreepData): ICreepConfig => ({
     },
     prepare(creep) {
         const creepData: AttackerData = data as AttackerData
-        // creep.memory.needBoost = true
+        creep.memory.needBoost = true
         if (creep.memory.needBoost) {
-            const boostConfig = creep.room.memory.labBoostConfig
-            if (boostConfig == undefined) {
-                creep.say('❓')
-                return false
-            }
-
             // 处理boost
+            const boostConfig = creep.room.memory.roomLabConfig.singleLabConfig
             for (let index in creep.body) {
                 const bodyPart = creep.body[index]
                 if (bodyPart.boost == undefined) {
                     for (let labId in boostConfig) {
-                        if (boostConfig[labId].bodyPart == bodyPart.type) {
+                        if (boostConfig[labId].boostPart == bodyPart.type) {
                             const boostLab: StructureLab = Game.getObjectById(labId) as StructureLab
+                            if (boostLab.mineralType == undefined || boostLab.store[boostLab.mineralType] < 100) {
+                                creep.moveTo(creep.room.spawns[0])
+                                return false
+                            }
                             if (getDistance(creep.pos, boostLab.pos) > 1) {
                                 creep.moveTo(boostLab)
+                                return false
                             }
                         }
                     }
                     return false
                 }
             }
-
             return true
         }
 
@@ -48,7 +47,10 @@ export default (data: CreepData): ICreepConfig => ({
     target(creep) {
         const creepData: IntegrateData = data as IntegrateData
         const targetFlag: Flag = Game.flags[creepData.targetFlag]
-        if (targetFlag == undefined) return false
+        const enemySource = Game.getObjectById(creepData.targetFlag) as Source
+        const target = targetFlag || enemySource
+
+        if (target == undefined) return false
 
         if (creep.hits < creep.hitsMax) {
             creep.heal(creep)
@@ -66,7 +68,7 @@ export default (data: CreepData): ICreepConfig => ({
         // 获取敌人信息
         var enemyTarget: Creep | undefined = undefined
         const lastEnemy: Creep = Game.getObjectById(creepData.attackEnemy || '') as Creep
-        if (lastEnemy != undefined && lastEnemy.pos.getRangeTo(creep) < 10) {
+        if (lastEnemy != undefined && lastEnemy.pos.getRangeTo(creep) < 3) {
             enemyTarget = lastEnemy
         } else {
             enemyTarget = creep.room.enemies
@@ -76,16 +78,17 @@ export default (data: CreepData): ICreepConfig => ({
 
         // 敌人在范围内就攻击
         if (enemyTarget != undefined && creep.pos.inRangeTo(enemyTarget, 3)) {
-            creep.rangedAttack(enemyTarget)
+            // creep.rangedAttack(enemyTarget)
+            creep.rangedMassAttack()
             creepData.attackEnemy = enemyTarget.id
         }
 
         // 不在目标房那就过去
-        const structure = creep.room.name == targetFlag.pos.roomName ?
-            targetFlag.pos.lookFor(LOOK_STRUCTURES)[0] : undefined
+        const structure = creep.room.name == target.pos.roomName ?
+            target.pos.lookFor(LOOK_STRUCTURES)[0] : undefined
 
-        if (creep.room.name != targetFlag.pos.roomName) {
-            creep.moveTo(targetFlag)
+        if (creep.room.name != target.pos.roomName) {
+            creep.moveTo(target)
             return true
         }
 
@@ -102,16 +105,23 @@ export default (data: CreepData): ICreepConfig => ({
 
         // 两个都没有就去Flag待命
         if (enemyTarget == undefined && structure == undefined) {
-            moveTarget = targetFlag.pos
+            moveTarget = target.pos
         }
 
         // 向目标移动
-        if (moveTarget != undefined) creep.moveTo(moveTarget)
+        if (moveTarget != undefined) {
+            // if (getDistance(creep.pos, moveTarget) < 3) {
+            //     creep.moveTo(getOppositePosition(creep.pos, moveTarget))
+            // } else {
+            //     creep.moveTo(moveTarget)
+            // }
 
+            creep.moveTo(moveTarget)
+        }
 
         // 建筑在范围内就攻击
-        if (structure != undefined && creep.pos.inRangeTo(structure, 3)) {
-            creep.rangedAttack(structure)
+        if (structure != undefined && creep.pos.inRangeTo(structure, 1)) {
+            creep.rangedMassAttack()
         }
 
         return true

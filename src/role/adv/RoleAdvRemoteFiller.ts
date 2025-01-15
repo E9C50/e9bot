@@ -2,58 +2,66 @@ import { getClosestTarget, getDistance } from "utils"
 
 function tempMoveTo(creep: Creep, target: RoomPosition) {
     let goals = [{ pos: target, range: 1 }]
-    let ret = PathFinder.search(
-        creep.pos, goals,
-        {
-            plainCost: 2,
-            swampCost: 10,
-            roomCallback: function (roomName) {
-                let room = Game.rooms[roomName];
-                let costs = new PathFinder.CostMatrix;
-                if (!room) return costs
 
-                room.find(FIND_STRUCTURES).forEach(function (struct) {
-                    if (struct.structureType === STRUCTURE_ROAD) {
-                        // 相对于平原，寻路时将更倾向于道路
-                        costs.set(struct.pos.x, struct.pos.y, 1);
-                    } else if (struct.structureType !== STRUCTURE_CONTAINER &&
-                        (struct.structureType !== STRUCTURE_RAMPART ||
-                            !struct.my)) {
-                        // 不能穿过无法行走的建筑
-                        costs.set(struct.pos.x, struct.pos.y, 0xff);
-                    }
-                });
+    // if (creep.memory.pathCache == undefined || Game.time % 2 == 0) {
+        creep.memory.pathCache = PathFinder.search(
+            creep.pos, goals,
+            {
+                plainCost: 2,
+                swampCost: 10,
+                roomCallback: function (roomName) {
+                    let room = Game.rooms[roomName];
+                    let costs = new PathFinder.CostMatrix;
+                    if (!room) return costs
 
-                // 躲避房间中的 creep
-                room.find(FIND_HOSTILE_CREEPS).forEach(function (creep) {
-                    for (let x = creep.pos.x - 3; x <= creep.pos.x + 3; x++) {
-                        for (let y = creep.pos.y - 3; y <= creep.pos.y + 3; y++) {
-                            costs.set(x, y, 0xff);
+                    room.find(FIND_STRUCTURES).forEach(function (struct) {
+                        if (struct.structureType === STRUCTURE_ROAD) {
+                            // 相对于平原，寻路时将更倾向于道路
+                            costs.set(struct.pos.x, struct.pos.y, 1);
+                        } else if (struct.structureType !== STRUCTURE_CONTAINER &&
+                            (struct.structureType !== STRUCTURE_RAMPART ||
+                                !struct.my)) {
+                            // 不能穿过无法行走的建筑
+                            costs.set(struct.pos.x, struct.pos.y, 0xff);
                         }
-                    }
-                });
+                    });
 
-                if (roomName == 'E36N4') {
-                    for (let row = 0; row < 49; row++) {
-                        for (let col = 0; col < 49; col++) {
-                            costs.set(row, col, 0xff)
+                    // 躲避房间中的 creep
+                    room.find(FIND_HOSTILE_CREEPS).forEach(function (creep) {
+                        for (let x = creep.pos.x - 3; x <= creep.pos.x + 3; x++) {
+                            for (let y = creep.pos.y - 3; y <= creep.pos.y + 3; y++) {
+                                costs.set(x, y, 0xff);
+                            }
                         }
-                    }
-                }
+                    });
 
-                if (roomName == 'E35N4') {
-                    for (let col = 0; col < 49; col++) {
-                        costs.set(49, col, 0xff)
-                    }
-                }
+                    // if (roomName == 'E36N4') {
+                    //     for (let row = 0; row < 49; row++) {
+                    //         for (let col = 0; col < 49; col++) {
+                    //             costs.set(row, col, 0xff)
+                    //         }
+                    //     }
+                    // }
 
-                return costs;
-            },
-        }
-    );
+                    // if (roomName == 'E35N4') {
+                    //     for (let col = 0; col < 49; col++) {
+                    //         costs.set(49, col, 0xff)
+                    //     }
+                    // }
 
-    let pos = ret.path[0];
-    creep.move(creep.pos.getDirectionTo(pos));
+                    return costs;
+                },
+            }
+        );
+    // }
+
+    let pos = creep.memory.pathCache.path[0];
+    const result = creep.moveByPath(creep.memory.pathCache.path)
+    // console.log(creep.name, creep.room.name, result)
+    // creep.move(creep.pos.getDirectionTo(pos))
+    if (result == OK) {
+        // creep.memory.pathCache.path.shift()
+    }
 }
 
 export default (data: CreepData): ICreepConfig => ({
@@ -72,22 +80,25 @@ export default (data: CreepData): ICreepConfig => ({
 
         const creepData: RemoteFillerData = data as RemoteFillerData
         const sourceFlag: Flag = Game.flags[creepData.sourceFlag]
-        if (sourceFlag == undefined) {
+        const sourceTarget = Game.getObjectById(creepData.sourceFlag) as Source
+        const sourcePos = sourceFlag?.pos || sourceTarget?.pos
+
+        if (sourcePos == undefined) {
             creep.say('❓')
             return true
         }
 
-        if (creep.room.name == 'E37N7' && sourceFlag.room?.name == 'E35N3' && !creep.pos.isNearTo(creep.room.spawns[0])) {
+        if (creep.room.name == 'E37N7' && sourcePos.roomName == 'E35N3' && !creep.pos.isNearTo(creep.room.spawns[0])) {
             creep.moveTo(creep.room.spawns[0])
             creepData.needRecycle = true
             return true
         }
 
-        if (creep.pickupDroppedResource(true, 50)) return true
+        if (creep.pickupDroppedResource(false, 50)) return true
 
         // 如果不在目标房间，则去往目标房间
-        if (creep.room.name != sourceFlag.room?.name) {
-            creep.moveTo(sourceFlag)
+        if (creep.room.name != sourcePos.roomName) {
+            creep.moveTo(sourcePos)
             return true
         }
 
@@ -145,11 +156,11 @@ export default (data: CreepData): ICreepConfig => ({
 
         // 如果有Containers并且有资源就去捡
         if ((withdrawTarget == undefined || withdrawResource == undefined)) {
-            const containers = creep.room.containers.filter(container => container.store[RESOURCE_ENERGY] > 0)
+            const containers = creep.room.containers.filter(container => container.store.getUsedCapacity() > 0)
             if (containers.length > 0) {
-                // withdrawTarget = getClosestTarget(creep.pos, containers)
-                withdrawTarget = containers.sort((a, b) => b.store[RESOURCE_ENERGY] - a.store[RESOURCE_ENERGY])[0]
-                withdrawResource = RESOURCE_ENERGY
+                const container = getClosestTarget(creep.pos, containers) as StructureContainer
+                withdrawTarget = container
+                withdrawResource = Object.keys(container.store)[0] as ResourceConstant
             }
         }
 
@@ -175,7 +186,7 @@ export default (data: CreepData): ICreepConfig => ({
             return false
         }
 
-        if (creep.room.sources.length > 0 && getDistance(creep.room.sources[0].pos, creep.pos) > 5) {
+        if (creep.room.sources.length > 0 && getDistance(creep.room.sources[0].pos, creep.pos) > 3) {
             creep.moveTo(creep.room.sources[0])
         }
 
@@ -191,23 +202,20 @@ export default (data: CreepData): ICreepConfig => ({
 
         const creepData: RemoteFillerData = data as RemoteFillerData
         const targetFlag: Flag = Game.flags[creepData.targetFlag]
-        if (targetFlag == undefined) {
+        const targetTarget = Game.getObjectById(creepData.targetFlag) as Structure
+        const targetPos = targetFlag?.pos || targetTarget?.pos
+
+        if (targetPos == undefined) {
             creep.say('❓')
             return true
         }
 
-        // 如果不在目标房间，则去往目标房间
-        if (targetFlag.room?.name == 'E37N7' && Game.flags[creepData.sourceFlag].room?.name == 'E35N3' && creep.room.name != targetFlag.room?.name) {
-            if (creep.room.name == 'E35N3') {
-                creep.moveTo(targetFlag.pos)
-            } else {
-                tempMoveTo(creep, targetFlag.pos)
+        if (creep.room.name != targetPos.roomName) {
+            if (creep.room.name == creep.memory.spawnRoom) {
+                creep.moveTo(targetPos)
+                return true
             }
-            return true
-        }
-
-        if (creep.room.name != targetFlag.room?.name) {
-            creep.moveTo(targetFlag.pos)
+            tempMoveTo(creep, targetPos)
             return true
         }
 

@@ -138,11 +138,25 @@ export default class RoomExtension extends Room {
         const memoryKey = STRUCTURE_MEMORYKEY_PERFIX + 'WALLS_NEED_REPAIR'
         if (this[privateKey]) return this[privateKey]
 
-        const walls: Structure[] = this.structures.filter(structure => structure.hits < structure.hitsMax &&
-            (structure.structureType == STRUCTURE_WALL || structure.structureType == STRUCTURE_RAMPART)
-        )
-        this[privateKey] = walls
-        return walls
+        const walls: Structure[] = this.memory.structureIdList[memoryKey] == undefined ? [] :
+            this.memory.structureIdList[memoryKey].map(structureId => Game.getObjectById(structureId))
+                .filter(structure => structure != undefined)
+        if (walls.length > 0) {
+            this[privateKey] = walls;
+            return walls
+        } else {
+            const walls: Structure[] = [...this.ramparts, ...this.walls].filter(structure => {
+                var filterRam = true;
+                if (structure.structureType == STRUCTURE_RAMPART) {
+                    filterRam = structure.pos.lookFor(LOOK_STRUCTURES).filter(stru =>
+                        stru.structureType != STRUCTURE_ROAD && stru.structureType != STRUCTURE_RAMPART
+                    ).length == 0
+                }
+                return structure.hits < structure.hitsMax && filterRam
+            })
+            this.memory.structureIdList[memoryKey] = walls.map(source => source.id)
+            return walls
+        }
     }
 
     // 需要维修的建筑缓存

@@ -14,9 +14,9 @@ function getReadyChildReaction(room: Room, reactionTarget: ResourceConstant): Re
     var child1List = getReadyChildReaction(room, child[0])
     var child2List = getReadyChildReaction(room, child[1])
 
-    const child1Amount = room.memory.resourceAmount[child[0]]
-    const child2Amount = room.memory.resourceAmount[child[1]]
-    const targetAmount = room.memory.resourceAmount[reactionTarget]
+    const child1Amount = room.memory.resourceAmount[child[0]] || 0
+    const child2Amount = room.memory.resourceAmount[child[1]] || 0
+    const targetAmount = room.memory.resourceAmount[reactionTarget] || 0
 
     var childList: ResourceConstant[] = [...child1List, ...child2List]
     if ((childList.includes(child[0]) || child1Amount >= 5) && (childList.includes(child[1]) || child2Amount >= 5)
@@ -34,9 +34,9 @@ function getReadyChildReaction(room: Room, reactionTarget: ResourceConstant): Re
  */
 function checkReactionReady(room: Room, reactionTarget: ResourceConstant): boolean {
     const child: ResourceConstant[] = reactionSource[reactionTarget]
-    const child1Amount = room.memory.resourceAmount[child[0]]
-    const child2Amount = room.memory.resourceAmount[child[1]]
-    const targetAmount = room.memory.resourceAmount[reactionTarget]
+    const child1Amount = room.memory.resourceAmount[child[0]] || 0
+    const child2Amount = room.memory.resourceAmount[child[1]] || 0
+    const targetAmount = room.memory.resourceAmount[reactionTarget] || 0
     return (child1Amount >= 5 && child2Amount >= 5) && targetAmount < (reactionConfig[reactionTarget] || 3000)
 }
 
@@ -46,61 +46,60 @@ function checkReactionReady(room: Room, reactionTarget: ResourceConstant): boole
  * @returns
  */
 function updateLabReactionConfig(room: Room): void {
-    if (Game.time % 100 != 0) return
-    if (room.memory.roomCustom.labBoostMod) return
+    if (Game.time % 10 != 0) return
+    if (room.labs.length == 0) return
     // 如果房间没有配置好两个sourceLab，就跳过
-    if (room.memory.roomStructurePos.sourceLab1 == undefined || !room.memory.roomStructurePos.sourceLab2 == undefined) return
+    if (room.memory.roomLabConfig.sourceLab1 == undefined || !room.memory.roomLabConfig.sourceLab2 == undefined) return
 
-    if (room.memory.labReactionQueue.length > 0 && !checkReactionReady(room, room.memory.labReactionQueue[0])) {
-        console.log(`Lab合成配置更新前：${room.memory.labReactionQueue}`)
-        room.memory.labReactionQueue.shift()
-        console.log(`Lab合成配置更新后：${room.memory.labReactionQueue}`)
+    if (room.memory.roomLabConfig.labReactionQueue.length > 0 && !checkReactionReady(room, room.memory.roomLabConfig.labReactionQueue[0])) {
+        console.log(`Lab合成配置更新前：${room.memory.roomLabConfig.labReactionQueue}`)
+        room.memory.roomLabConfig.labReactionQueue.shift()
+        console.log(`Lab合成配置更新后：${room.memory.roomLabConfig.labReactionQueue}`)
     }
 
-    if (room.memory.labReactionQueue.length > 0) return
+    if (room.memory.roomLabConfig.labReactionQueue.length > 0) return
 
     for (let config in reactionConfig) {
-        if (room.memory.resourceAmount[config] >= reactionConfig[config]) continue
+        if ((room.memory.resourceAmount[config] || 0) >= reactionConfig[config]) continue
         const readyReactionList = getReadyChildReaction(room, config as ResourceConstant)
         if (!readyReactionList.includes(config as ResourceConstant)) continue
 
-        console.log(`Lab合成配置更新前：${room.memory.labReactionQueue}`)
-        room.memory.labReactionQueue = readyReactionList
-        console.log(`Lab合成配置更新后：${room.memory.labReactionQueue}`)
-        console.log(`notify_Lab合成配置更新：${room.memory.labReactionQueue}`)
+        console.log(`Lab合成配置更新前：${room.memory.roomLabConfig.labReactionQueue}`)
+        room.memory.roomLabConfig.labReactionQueue = readyReactionList
+        console.log(`Lab合成配置更新后：${room.memory.roomLabConfig.labReactionQueue}`)
+        console.log(`notify_Lab合成配置更新：${room.memory.roomLabConfig.labReactionQueue}`)
         return
     }
 }
 
 function updateLabBoostConfig(room: Room): void {
     if (Game.time % 10 != 0) return
-    if (!room.memory.roomCustom.labBoostMod) return
-    if (room.memory.labBoostConfig == undefined) return
+    if (room.labs.length == 0) return
+    const labConfig = room.memory.roomLabConfig
+    labConfig.singleLabConfig = {}
 
-    const labBoostConfig = {}
     Object.keys(boostConfig.WAR).forEach(configPart => {
         if (boostConfig.WAR[configPart].length > 0) {
-            const emptyLabId = room.labs.filter(lab => labBoostConfig[lab.id] == undefined)[0].id
+            const emptyLabId = room.labs.filter(lab => lab.id != labConfig.sourceLab1 && lab.id != labConfig.sourceLab2 && (labConfig.singleLabConfig[lab.id] == undefined || !labConfig.singleLabConfig[lab.id].boostMode))[0]?.id
 
+            if (emptyLabId == undefined) return
             const resourceTypeT3 = boostConfig.WAR[configPart][2]
-            if (room.memory.resourceAmount[resourceTypeT3] > 0) {
-                labBoostConfig[emptyLabId] = { resourceType: resourceTypeT3, bodyPart: configPart as BodyPartConstant }
+            if ((room.memory.resourceAmount[resourceTypeT3] || 0) > 0) {
+                labConfig.singleLabConfig[emptyLabId] = { resourceType: resourceTypeT3, boostMode: true, boostPart: configPart as BodyPartConstant }
                 return
             }
             const resourceTypeT2 = boostConfig.WAR[configPart][1]
-            if (room.memory.resourceAmount[resourceTypeT2] > 0) {
-                labBoostConfig[emptyLabId] = { resourceType: resourceTypeT2, bodyPart: configPart as BodyPartConstant }
+            if ((room.memory.resourceAmount[resourceTypeT2] || 0) > 0) {
+                labConfig.singleLabConfig[emptyLabId] = { resourceType: resourceTypeT2, boostMode: true, boostPart: configPart as BodyPartConstant }
                 return
             }
             const resourceTypeT1 = boostConfig.WAR[configPart][0]
-            if (room.memory.resourceAmount[resourceTypeT1] > 0) {
-                labBoostConfig[emptyLabId] = { resourceType: resourceTypeT1, bodyPart: configPart as BodyPartConstant }
+            if ((room.memory.resourceAmount[resourceTypeT1] || 0) > 0) {
+                labConfig.singleLabConfig[emptyLabId] = { resourceType: resourceTypeT1, boostMode: true, boostPart: configPart as BodyPartConstant }
                 return
             }
         }
     });
-
-    room.memory.labBoostConfig = labBoostConfig
 }
 
 /**
@@ -135,15 +134,9 @@ function canBeRoomCenter(terrain, posx, posy, baseSize) {
  */
 function autoComputeCenterPos(room: Room, baseSize: number = 13) {
     const planFlag = Game.flags['planRoomCenter']
-    if (planFlag != undefined && planFlag.pos.roomName == room.name) {
-        room.memory.roomCustom.computeRoomCenterShow = 3
-        planFlag.remove()
-    }
-    if (!room.memory.roomCustom.computeRoomCenterShow) return
-    room.memory.roomCustom.computeRoomCenterShow--
+    if (planFlag == undefined || planFlag.pos.roomName != room.name) return
 
     const cpu = Game.cpu.getUsed()
-
     const terrain = room.getTerrain();
     var minSwamp = Infinity;
     var autoSelectCenter: RoomPosition | undefined = undefined;
@@ -174,10 +167,6 @@ function autoComputeCenterPos(room: Room, baseSize: number = 13) {
  * @param {*} room
  */
 function releaseConstructionSite(room: Room): void {
-    // room.constructionSites.forEach(constructionSite => {
-    //     constructionSite.remove()
-    // });
-
     const roomCenter = room.memory.roomPosition.centerPos;
 
     if (!roomCenter) return
@@ -298,6 +287,16 @@ function cacheRoomResourceInfo(room: Room): void {
         });
     }
 
+    if (room.terminal != undefined) {
+        const terminal = room.terminal
+        Object.keys(terminal.store).forEach(store => {
+            if (room.memory.resourceAmount[store] == undefined) {
+                room.memory.resourceAmount[store] = 0
+            }
+            room.memory.resourceAmount[store] += terminal.store[store]
+        });
+    }
+
     if (room.labs.length > 0) {
         room.labs.forEach(lab => {
             if (lab.mineralType == undefined) return
@@ -313,24 +312,32 @@ export const roomController = function (): void {
     for (const roomName in Game.rooms) {
         const room: Room = Game.rooms[roomName];
 
+        const updateFlag = Game.flags['updateCache']
+        if (updateFlag != undefined && updateFlag.pos.roomName == roomName) {
+            room.memory.needUpdateCache = true
+            updateFlag.remove()
+        }
+
         // 更新缓存
         if (room.memory.needUpdateCache) {
+            global.BetterMove.deletePathInRoom(room.name)
             room.memory.structureIdList = {}
             room.memory.needUpdateCache = false
             console.log('更新建筑缓存', roomName)
         }
 
-        if (room.memory.labReactionQueue == undefined) room.memory.labReactionQueue = []
+        if (room.memory.roomLabConfig == undefined) room.memory.roomLabConfig = { labReactionQueue: [], singleLabConfig: {} }
         if (room.memory.roomStructurePos == undefined) room.memory.roomStructurePos = {}
         if (room.memory.structureIdList == undefined) room.memory.structureIdList = {}
-        if (room.memory.labBoostConfig == undefined) room.memory.labBoostConfig = {}
         if (room.memory.freeSpaceCount == undefined) room.memory.freeSpaceCount = {}
         if (room.memory.resourceAmount == undefined) room.memory.resourceAmount = {}
         if (room.memory.roomPosition == undefined) room.memory.roomPosition = {}
         if (room.memory.roomFillJob == undefined) room.memory.roomFillJob = {}
-        if (room.memory.roomCustom == undefined) room.memory.roomCustom = {}
+
+        room.memory.roomFillJob.labInMineral = []
 
         if (!room.my) continue;
+
 
         // 自动计算RoomCenter
         autoComputeCenterPos(room)

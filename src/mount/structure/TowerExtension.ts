@@ -1,7 +1,7 @@
 export default class TowerExtension extends StructureTower {
     public init(): void {
         if (!this.room.memory.roomFillJob.tower) this.room.memory.roomFillJob.tower = []
-        if (!this.room.memory.roomFillJob.tower.includes(this.id) && this.store.getFreeCapacity(RESOURCE_ENERGY) > 400) {
+        if (!this.room.memory.roomFillJob.tower.includes(this.id) && this.store.getFreeCapacity(RESOURCE_ENERGY) > 0) {
             this.room.memory.roomFillJob.tower.push(this.id)
         }
     }
@@ -12,8 +12,10 @@ export default class TowerExtension extends StructureTower {
         // 检测敌人并攻击，优先攻击治疗单位 -> 远程攻击单位 -> 攻击单位 -> 其他
         if (this.room.memory.enemyTarget != undefined) {
             var enemy: Creep = Game.getObjectById(this.room.memory.enemyTarget) as Creep
-            this.attack(enemy);
-            return
+            if (enemy != undefined) {
+                this.attack(enemy);
+                return
+            }
         }
 
         // 只有energy大于500时，才会修复建筑物/治疗单位（储备弹药优先攻击敌人）

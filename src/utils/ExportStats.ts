@@ -26,6 +26,8 @@ export const exportStats = function () {
             Memory.stats.rooms[roomName].controllerProgress = room.controller.progress;
             Memory.stats.rooms[roomName].controllerProgressTotal = room.controller.progressTotal;
             Memory.stats.rooms[roomName].controllerLevel = room.controller.level;
+
+            Memory.stats.rooms[roomName].resourceAmount = room.memory.resourceAmount
         }
     }
 

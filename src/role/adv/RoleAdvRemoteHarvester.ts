@@ -1,4 +1,4 @@
-import { getClosestTarget } from "utils"
+import { getClosestTarget, getDistance } from "utils"
 
 export default (data: CreepData): ICreepConfig => ({
     isNeed: (room: Room, creepName: string) => {
@@ -69,7 +69,8 @@ export default (data: CreepData): ICreepConfig => ({
         }
 
         // 如果有工地则建造
-        const constructionSite = getClosestTarget(creep.pos, creep.room.constructionSites)
+        const constructionSites = creep.room.constructionSites.filter(item => getDistance(creep.pos, item.pos) <= 3)
+        const constructionSite = getClosestTarget(creep.pos, constructionSites)
         if (constructionSite != undefined) {
             creepData.buildTarget = constructionSite.id
             creep.build(constructionSite)
@@ -79,6 +80,7 @@ export default (data: CreepData): ICreepConfig => ({
         // 没有Container也没有工地，那就创建
         if (constructionSite == undefined && container == undefined) {
             creep.room.createConstructionSite(creep.pos.x, creep.pos.y, STRUCTURE_CONTAINER)
+            creep.room.memory.needUpdateCache = true
         }
         return true
     },
