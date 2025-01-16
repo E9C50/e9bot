@@ -1,5 +1,5 @@
 import jsSHA from "jssha";
-import { min } from "lodash";
+import { max, min } from "lodash";
 import { colorEnum, roleAdvEnum } from "settings";
 
 /**
@@ -102,7 +102,12 @@ export const getOppositePosition = function (center: RoomPosition, target: RoomP
     var oppositeX = Math.max(2 * center.x - target.x, 0)
     var oppositeY = Math.max(2 * center.y - target.y, 0)
 
-    console.log(oppositeX, oppositeY, center.roomName)
+    if (oppositeX < 0) oppositeX = 0
+    if (oppositeY < 0) oppositeY = 0
+
+    if (oppositeX > 49) oppositeX = 49
+    if (oppositeY > 49) oppositeY = 49
+
     return new RoomPosition(oppositeX, oppositeY, center.roomName);
 }
 

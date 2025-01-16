@@ -31,7 +31,7 @@ export default (data: CreepData): ICreepConfig => ({
         }
 
         // 检查有没有掉落的资源需要捡
-        if (creep.pickupDroppedResource(false, 40)) return true
+        // if (creep.pickupDroppedResource(false, 40)) return true
 
         // 如果没有指定目标容器，就随便找一个
         if (sourceTarget == undefined) {
@@ -77,10 +77,19 @@ export default (data: CreepData): ICreepConfig => ({
 
         // 如果有extension需要填充，那就去
         if (fillJobs.extension) {
-            var targets: Structure[] = [...creep.room.extensions, ...creep.room.spawns].filter(item => item.store.getFreeCapacity(RESOURCE_ENERGY) > 0)
-            const target = getClosestTarget(creep.pos, targets)
-            if (creep.transferToTarget(target, RESOURCE_ENERGY)) {
-                fillJobs.extension = false
+            if (creepData.targetId == undefined) {
+                const targets: Structure[] = [...creep.room.extensions, ...creep.room.spawns].filter(item => item.store.getFreeCapacity(RESOURCE_ENERGY) > 0)
+                const closestTareget = getClosestTarget(creep.pos, targets)
+                if (closestTareget != undefined) {
+                    creepData.targetId = closestTareget.id
+                }
+            }
+            if (creepData.targetId != undefined) {
+                const target = Game.getObjectById(creepData.targetId) as Structure
+                if (creep.transferToTarget(target, RESOURCE_ENERGY)) {
+                    fillJobs.extension = false
+                    creepData.targetId = undefined
+                }
             }
             return true
         }

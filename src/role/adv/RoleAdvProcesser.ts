@@ -1,8 +1,6 @@
-import RoleBaseFiller from "role/base/RoleBaseFiller"
-
 export default (data: CreepData): ICreepConfig => ({
     isNeed: (room: Room, creepName: string) => {
-        return room.level > 6
+        return room.level > 6 && room.labs.length > 0
     },
     prepare(creep) {
         return true
@@ -70,7 +68,7 @@ export default (data: CreepData): ICreepConfig => ({
             const labInMineral = creep.room.memory.roomFillJob.labInMineral
             for (let index in labInMineral) {
                 const targetLab = Game.getObjectById(labInMineral[index].labId) as StructureLab
-                if (targetLab == undefined) continue
+                if (targetLab == undefined || creep.store[labInMineral[index].resourceType] == 0) continue
                 if (targetLab.mineralType == undefined || targetLab.store.getFreeCapacity(targetLab.mineralType) > 0) {
                     if (creep.transferToTarget(targetLab, labInMineral[index].resourceType)) {
                         fillJobs.labInMineral = []

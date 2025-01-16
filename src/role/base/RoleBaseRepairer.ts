@@ -1,4 +1,4 @@
-import { getDistance } from "utils"
+import { getClosestTarget, getDistance } from "utils"
 import BaseRoleUpgrader from "./RoleBaseUpgrader"
 
 export default (data: CreepData): ICreepConfig => ({
@@ -43,12 +43,9 @@ export default (data: CreepData): ICreepConfig => ({
 
         // 找到要修复的建筑
         var repairTarget = Game.getObjectById<Structure>(creepData.repairTarget || '');
-        if (!repairTarget || repairTarget.hits == repairTarget.hitsMax) {
-            repairTarget = [...creep.room.walls, ...creep.room.ramparts]
-                .filter(structure => structure.hits < structure.hitsMax)
-                .sort((a, b) => a.hits - b.hits)[0]
-
-            if (repairTarget) creepData.repairTarget = repairTarget.id
+        if (repairTarget == undefined || repairTarget.hits == repairTarget.hitsMax) {
+            const repairTargets = [...creep.room.wallsNeedRepair, ...creep.room.structuresNeedRepair].sort((a, b) => a.hits - b.hits)
+            if (repairTargets.length > 0) creepData.repairTarget = repairTargets[0].id
         }
 
         // 如果没有就去升级

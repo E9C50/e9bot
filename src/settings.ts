@@ -5,7 +5,7 @@ export const STRUCTURE_MEMORYKEY_PERFIX = 'IDOF_'
 export const defaultReserverSign = 'Reserved by E9C50.'
 export const defaultConrtollerSign = 'Controlled by E9C50.'
 
-export const creepWhiteList = ['an_w']
+export const creepWhiteList = ['an_w', 'NoName_', 'MoSaSa', 'Kaoruko', 'keqing']
 
 export enum roleBaseEnum {
     HARVESTER = 'harvester',
@@ -33,7 +33,14 @@ export enum roleWarEnum {
     RANGED_ATTACKER = 'rAttacker',
     DISMANTLER = 'dismantler',
     INTEGRATE = 'integrate',
+    DEFENDER = 'defender',
 }
+
+export const warModeRole: CreepRoleConstant[] = [
+    roleBaseEnum.FILLER, roleBaseEnum.REPAIRER, roleAdvEnum.PROCESSER, roleAdvEnum.MANAGER,
+    roleWarEnum.ATTACKER, roleWarEnum.DISMANTLER, roleWarEnum.HEALER,
+    roleWarEnum.INTEGRATE, roleWarEnum.RANGED_ATTACKER
+]
 
 export enum colorEnum {
     RED = '#ef9a9a',
@@ -46,20 +53,21 @@ export const spawnPriority: { [role in CreepRoleConstant]: number } = {
     manager: 0,
     harvester: 1,
     filler: 2,
-    processer: 2,
+    processer: 3,
     scout: 3,
-    upgrader: 4,
-    builder: 5,
+    builder: 4,
+    upgrader: 5,
     repairer: 6,
     miner: 7,
 
     claimer: 9,
     rHarvester: 10,
     rFiller: 11,
-    reserver: 12,
-    rBuilder: 13,
+    rBuilder: 12,
+    reserver: 13,
 
     integrate: 3,
+    defender: 3,
     attacker: 14,
     healer: 15,
     rAttacker: 16,
@@ -93,10 +101,10 @@ export const bodyConfigs: { [role in CreepRoleConstant]: BodySet[] } = {
     upgrader: workerBodyConfigs,
     builder: workerBodyConfigs,
     repairer: workerBodyConfigs,
+    rBuilder: workerBodyConfigs,
     miner: workerBodyConfigs,
     filler: carryBodyConfigs,
     processer: carryBodyConfigs,
-    rBuilder: workerBodyConfigs,
     rFiller: carryBodyConfigs,
     scout: [
         { [MOVE]: 1 },
@@ -175,8 +183,8 @@ export const bodyConfigs: { [role in CreepRoleConstant]: BodySet[] } = {
         { [TOUGH]: 0, [MOVE]: 5, [RANGED_ATTACK]: 5, [HEAL]: 0 },
         { [TOUGH]: 0, [MOVE]: 5, [RANGED_ATTACK]: 5, [HEAL]: 0 },
         { [TOUGH]: 0, [MOVE]: 5, [RANGED_ATTACK]: 5, [HEAL]: 0 },
-        { [TOUGH]: 2, [RANGED_ATTACK]: 36, [MOVE]: 10, [HEAL]: 2 },
-        { [TOUGH]: 2, [RANGED_ATTACK]: 36, [MOVE]: 10, [HEAL]: 2 },
+        { [TOUGH]: 7, [RANGED_ATTACK]: 19, [MOVE]: 10, [HEAL]: 14 },
+        { [TOUGH]: 7, [RANGED_ATTACK]: 19, [MOVE]: 10, [HEAL]: 14 },
     ],
     healer: [
         { [MOVE]: 2, [HEAL]: 2 },
@@ -190,6 +198,16 @@ export const bodyConfigs: { [role in CreepRoleConstant]: BodySet[] } = {
     ],
     rAttacker: [],
     dismantler: [],
+    defender: [
+        { [ATTACK]: 2, [MOVE]: 2 },
+        { [ATTACK]: 3, [MOVE]: 3 },
+        { [ATTACK]: 4, [MOVE]: 4 },
+        { [ATTACK]: 5, [MOVE]: 5 },
+        { [ATTACK]: 6, [MOVE]: 6 },
+        { [ATTACK]: 7, [MOVE]: 7 },
+        { [ATTACK]: 40, [MOVE]: 10 },
+        { [ATTACK]: 40, [MOVE]: 10 }
+    ]
 }
 
 export const baseLayout: { [level: number]: {} } = {
@@ -308,13 +326,28 @@ export const reactionConfig = {
 // 建筑 work: [RESOURCE_CATALYZED_LEMERGIUM_ACID, RESOURCE_LEMERGIUM_ACID, RESOURCE_LEMERGIUM_HYDRIDE],
 export const boostConfig: BoostConfig = {
     WAR: {
-        move: [RESOURCE_ZYNTHIUM_OXIDE, RESOURCE_ZYNTHIUM_ALKALIDE, RESOURCE_CATALYZED_ZYNTHIUM_ALKALIDE],
-        attack: [RESOURCE_UTRIUM_HYDRIDE, RESOURCE_UTRIUM_ACID, RESOURCE_CATALYZED_UTRIUM_ACID],
-        ranged_attack: [RESOURCE_KEANIUM_OXIDE, RESOURCE_KEANIUM_ALKALIDE, RESOURCE_CATALYZED_KEANIUM_ALKALIDE],
-        heal: [RESOURCE_LEMERGIUM_OXIDE, RESOURCE_LEMERGIUM_ALKALIDE, RESOURCE_CATALYZED_LEMERGIUM_ALKALIDE],
-        tough: [RESOURCE_GHODIUM_OXIDE, RESOURCE_GHODIUM_ALKALIDE, RESOURCE_CATALYZED_GHODIUM_ALKALIDE],
-        work: [RESOURCE_CATALYZED_LEMERGIUM_ACID, RESOURCE_LEMERGIUM_ACID, RESOURCE_LEMERGIUM_HYDRIDE],
-        carry: [RESOURCE_KEANIUM_HYDRIDE, RESOURCE_KEANIUM_ACID, RESOURCE_CATALYZED_KEANIUM_ACID],
+        move: [
+            RESOURCE_ZYNTHIUM_OXIDE, RESOURCE_ZYNTHIUM_ALKALIDE, RESOURCE_CATALYZED_ZYNTHIUM_ALKALIDE
+        ],
+        attack: [
+            RESOURCE_UTRIUM_HYDRIDE, RESOURCE_UTRIUM_ACID, RESOURCE_CATALYZED_UTRIUM_ACID
+        ],
+        ranged_attack: [
+            RESOURCE_KEANIUM_OXIDE, RESOURCE_KEANIUM_ALKALIDE, RESOURCE_CATALYZED_KEANIUM_ALKALIDE
+        ],
+        heal: [
+            RESOURCE_LEMERGIUM_OXIDE, RESOURCE_LEMERGIUM_ALKALIDE, RESOURCE_CATALYZED_LEMERGIUM_ALKALIDE
+        ],
+        tough: [
+            RESOURCE_GHODIUM_OXIDE, RESOURCE_GHODIUM_ALKALIDE, RESOURCE_CATALYZED_GHODIUM_ALKALIDE
+        ],
+        work: [
+            // RESOURCE_GHODIUM_HYDRIDE, RESOURCE_GHODIUM_ACID, RESOURCE_CATALYZED_GHODIUM_ACID // 升级
+            RESOURCE_CATALYZED_LEMERGIUM_ACID, RESOURCE_LEMERGIUM_ACID, RESOURCE_LEMERGIUM_HYDRIDE // 建筑
+        ],
+        carry: [
+            RESOURCE_KEANIUM_HYDRIDE, RESOURCE_KEANIUM_ACID, RESOURCE_CATALYZED_KEANIUM_ACID
+        ],
         claim: []
     },
     WORK: {

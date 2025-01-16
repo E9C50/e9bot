@@ -31,12 +31,10 @@ function showCreepCountInfo(room: Room): void {
     }
 
     // 显示统计信息
-    var index = 0
     const svFlag = Game.flags['SV']
-    const svPos = svFlag == undefined ? undefined : new RoomPosition(svFlag.pos.x + 1, svFlag.pos.y, svFlag.pos.roomName)
-    const infoPos = svPos || (room.controller && room.controller.pos);
-    if (infoPos) {
-        index = infoPos.y
+    if (svFlag != undefined && svFlag.pos.roomName == room.name) {
+        const infoPos = new RoomPosition(svFlag.pos.x + 1, svFlag.pos.y, svFlag.pos.roomName)
+        var index = infoPos.y
         for (let role in roleCounts) {
             if (roleMaxCounts[role] == undefined) roleMaxCounts[role] = 0
             const checkText = (roleCounts[role] == roleMaxCounts[role]) ? '✅ ' : (roleCounts[role] > roleMaxCounts[role]) ? '⏳ ' : '❌ ';
@@ -55,6 +53,27 @@ function showCreepCountInfo(room: Room): void {
         }
     }
 
+}
+
+function showCostMatrix(room: Room) {
+    const flag = Game.flags['SCM']
+    if (flag != undefined && flag.pos.roomName == room.name && room.memory.defenderCostMatrix != undefined) {
+        for (let i = 0; i < 2500 - 1; i++) {
+            const x = i % 50
+            const y = Math.floor(i / 50)
+            const cost = room.memory.defenderCostMatrix[i]
+            // room.visual.text(text, x, y, { align: 'center' });
+            if (cost > 250) {
+                room.visual.circle(x, y, { fill: 'red', opacity: 0.2, radius: 0.55, stroke: 'red' });
+            } else if (cost == 0) {
+                room.visual.circle(x, y, { fill: 'green', opacity: 0.2, radius: 0.55, stroke: 'green' });
+            } else if (cost == 2) {
+                room.visual.circle(x, y, { fill: 'blue', opacity: 0.2, radius: 0.55, stroke: 'blue' });
+            } else if (cost == 10) {
+                room.visual.circle(x, y, { fill: 'yellow', opacity: 0.2, radius: 0.55, stroke: 'yellow' });
+            }
+        }
+    }
 }
 
 export const visualController = function (): void {
@@ -113,8 +132,7 @@ export const visualController = function (): void {
             if (lab2) room.visual.text(source[1], lab2.pos.x, lab2.pos.y, { align: 'center', color: 'blue' });
         }
 
-
-
-        showCreepCountInfo(room);
+        showCostMatrix(room)
+        showCreepCountInfo(room)
     }
 }

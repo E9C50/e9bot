@@ -48,16 +48,22 @@ export default (data: CreepData): ICreepConfig => ({
         const creepData: IntegrateData = data as IntegrateData
         const targetFlag: Flag = Game.flags[creepData.targetFlag]
         const enemySource = Game.getObjectById(creepData.targetFlag) as Source
-        const target = targetFlag || enemySource
+        var structureTarget = creep.room.name == targetFlag.pos.roomName ?
+            targetFlag.pos.lookFor(LOOK_STRUCTURES)[0] : undefined
+
+        const target = targetFlag || enemySource || structureTarget
 
         if (target == undefined) return false
 
+        // 治疗自己
         if (creep.hits < creep.hitsMax) {
             creep.heal(creep)
         }
 
+        // 获取友军并治疗
         const myCreeps = creep.pos.findInRange(FIND_MY_CREEPS, 3, { filter: x => x.hits < x.hitsMax })
         if (myCreeps.length > 0) {
+            myCreeps.sort((a, b) => a.hits - b.hits)
             if (creep.pos.isNearTo(myCreeps[0])) {
                 creep.heal(myCreeps[0])
             } else {
@@ -65,63 +71,54 @@ export default (data: CreepData): ICreepConfig => ({
             }
         }
 
-        // 获取敌人信息
-        var enemyTarget: Creep | undefined = undefined
-        const lastEnemy: Creep = Game.getObjectById(creepData.attackEnemy || '') as Creep
-        if (lastEnemy != undefined && lastEnemy.pos.getRangeTo(creep) < 3) {
-            enemyTarget = lastEnemy
-        } else {
-            enemyTarget = creep.room.enemies
-                .filter(enemy => !enemy.my && enemy.pos.inRangeTo(creep, 3))
-                .sort((a, b) => a.pos.getRangeTo(creep) - b.pos.getRangeTo(creep))[0]
-        }
-
-        // 敌人在范围内就攻击
-        if (enemyTarget != undefined && creep.pos.inRangeTo(enemyTarget, 3)) {
-            // creep.rangedAttack(enemyTarget)
-            creep.rangedMassAttack()
-            creepData.attackEnemy = enemyTarget.id
-        }
-
-        // 不在目标房那就过去
-        const structure = creep.room.name == target.pos.roomName ?
-            target.pos.lookFor(LOOK_STRUCTURES)[0] : undefined
-
         if (creep.room.name != target.pos.roomName) {
             creep.moveTo(target)
             return true
         }
 
-        var moveTarget: RoomPosition | undefined = undefined
-        // 附近有敌人就追上去
-        if (enemyTarget != undefined) {
-            moveTarget = enemyTarget.pos
+        // 获取敌人信息
+        var enemyTarget: Creep | undefined = undefined
+        const lastEnemy: Creep = Game.getObjectById(creepData.attackEnemy || '') as Creep
+        if (lastEnemy != undefined && lastEnemy.pos.getRangeTo(creep) < 5) {
+            enemyTarget = lastEnemy
+        } else {
+            enemyTarget = creep.room.enemies
+                .filter(enemy => !enemy.my && enemy.pos.inRangeTo(creep, 5))
+                .sort((a, b) => a.pos.getRangeTo(creep) - b.pos.getRangeTo(creep))[0]
         }
 
-        // 标点有建筑就去拆建筑
-        if (enemyTarget == undefined && structure != undefined) {
-            moveTarget = structure.pos
-        }
-
-        // 两个都没有就去Flag待命
-        if (enemyTarget == undefined && structure == undefined) {
-            moveTarget = target.pos
-        }
-
-        // 向目标移动
-        if (moveTarget != undefined) {
-            // if (getDistance(creep.pos, moveTarget) < 3) {
-            //     creep.moveTo(getOppositePosition(creep.pos, moveTarget))
-            // } else {
-            //     creep.moveTo(moveTarget)
-            // }
-
-            creep.moveTo(moveTarget)
+        if (structureTarget == undefined) {
+            structureTarget = creep.pos.findInRange(FIND_STRUCTURES, 3)[0]
         }
 
         // 建筑在范围内就攻击
-        if (structure != undefined && creep.pos.inRangeTo(structure, 1)) {
-            creep.rangedMassAttack()
+        if (structureTarget != undefined) {
+            if (creep.pos.inRangeTo(structureTarget, 1)) {
+                creep.rangedMassAttack()
+            } else if (creep.pos.inRangeTo(structureTarget, 3)) {
+                creep.rangedAttack(structureTarget)
+            }
+        }
+
+        // 敌人在范围内就攻击
+        if (enemyTarget != undefined) {
+            const isAttack = enemyTarget.body.filter(body => body.type == 'attack').length > 0
+            if (enemyTarget != undefined && creep.pos.getRangeTo(enemyTarget.pos) < 3 && isAttack) {
+                creep.moveTo(getOppositePosition(creep.pos, enemyTarget.pos))
+            } else {
+                creep.moveTo(enemyTarget)
+            }
+
+            if (creep.pos.inRangeTo(enemyTarget, 1)) {
+                creep.rangedMassAttack()
+            } else if (creep.pos.inRangeTo(enemyTarget, 3)) {
+                creep.rangedAttack(enemyTarget)
+            }
+            // creepData.attackEnemy = enemyTarget.id
+        }
+
+        if (!creep.pos.isNearTo(target)) {
+            creep.moveTo(target)
         }
 
         return true

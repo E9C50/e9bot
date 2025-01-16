@@ -4,55 +4,55 @@ function tempMoveTo(creep: Creep, target: RoomPosition) {
     let goals = [{ pos: target, range: 1 }]
 
     // if (creep.memory.pathCache == undefined || Game.time % 2 == 0) {
-        creep.memory.pathCache = PathFinder.search(
-            creep.pos, goals,
-            {
-                plainCost: 2,
-                swampCost: 10,
-                roomCallback: function (roomName) {
-                    let room = Game.rooms[roomName];
-                    let costs = new PathFinder.CostMatrix;
-                    if (!room) return costs
+    creep.memory.pathCache = PathFinder.search(
+        creep.pos, goals,
+        {
+            plainCost: 2,
+            swampCost: 10,
+            roomCallback: function (roomName) {
+                let room = Game.rooms[roomName];
+                let costs = new PathFinder.CostMatrix;
+                if (!room) return costs
 
-                    room.find(FIND_STRUCTURES).forEach(function (struct) {
-                        if (struct.structureType === STRUCTURE_ROAD) {
-                            // 相对于平原，寻路时将更倾向于道路
-                            costs.set(struct.pos.x, struct.pos.y, 1);
-                        } else if (struct.structureType !== STRUCTURE_CONTAINER &&
-                            (struct.structureType !== STRUCTURE_RAMPART ||
-                                !struct.my)) {
-                            // 不能穿过无法行走的建筑
-                            costs.set(struct.pos.x, struct.pos.y, 0xff);
+                room.find(FIND_STRUCTURES).forEach(function (struct) {
+                    if (struct.structureType === STRUCTURE_ROAD) {
+                        // 相对于平原，寻路时将更倾向于道路
+                        costs.set(struct.pos.x, struct.pos.y, 1);
+                    } else if (struct.structureType !== STRUCTURE_CONTAINER &&
+                        (struct.structureType !== STRUCTURE_RAMPART ||
+                            !struct.my)) {
+                        // 不能穿过无法行走的建筑
+                        costs.set(struct.pos.x, struct.pos.y, 0xff);
+                    }
+                });
+
+                // 躲避房间中的 creep
+                room.find(FIND_HOSTILE_CREEPS).forEach(function (creep) {
+                    for (let x = creep.pos.x - 3; x <= creep.pos.x + 3; x++) {
+                        for (let y = creep.pos.y - 3; y <= creep.pos.y + 3; y++) {
+                            costs.set(x, y, 0xff);
                         }
-                    });
+                    }
+                });
 
-                    // 躲避房间中的 creep
-                    room.find(FIND_HOSTILE_CREEPS).forEach(function (creep) {
-                        for (let x = creep.pos.x - 3; x <= creep.pos.x + 3; x++) {
-                            for (let y = creep.pos.y - 3; y <= creep.pos.y + 3; y++) {
-                                costs.set(x, y, 0xff);
-                            }
-                        }
-                    });
+                // if (roomName == 'E36N4') {
+                //     for (let row = 0; row < 49; row++) {
+                //         for (let col = 0; col < 49; col++) {
+                //             costs.set(row, col, 0xff)
+                //         }
+                //     }
+                // }
 
-                    // if (roomName == 'E36N4') {
-                    //     for (let row = 0; row < 49; row++) {
-                    //         for (let col = 0; col < 49; col++) {
-                    //             costs.set(row, col, 0xff)
-                    //         }
-                    //     }
-                    // }
+                // if (roomName == 'E35N4') {
+                //     for (let col = 0; col < 49; col++) {
+                //         costs.set(49, col, 0xff)
+                //     }
+                // }
 
-                    // if (roomName == 'E35N4') {
-                    //     for (let col = 0; col < 49; col++) {
-                    //         costs.set(49, col, 0xff)
-                    //     }
-                    // }
-
-                    return costs;
-                },
-            }
-        );
+                return costs;
+            },
+        }
+    );
     // }
 
     let pos = creep.memory.pathCache.path[0];
@@ -90,11 +90,11 @@ export default (data: CreepData): ICreepConfig => ({
 
         if (creep.room.name == 'E37N7' && sourcePos.roomName == 'E35N3' && !creep.pos.isNearTo(creep.room.spawns[0])) {
             creep.moveTo(creep.room.spawns[0])
-            creepData.needRecycle = true
+            creep.memory.needRecycle = true
             return true
         }
 
-        if (creep.pickupDroppedResource(false, 50)) return true
+        // if (creep.pickupDroppedResource(false, 50)) return true
 
         // 如果不在目标房间，则去往目标房间
         if (creep.room.name != sourcePos.roomName) {
@@ -211,11 +211,7 @@ export default (data: CreepData): ICreepConfig => ({
         }
 
         if (creep.room.name != targetPos.roomName) {
-            if (creep.room.name == creep.memory.spawnRoom) {
-                creep.moveTo(targetPos)
-                return true
-            }
-            tempMoveTo(creep, targetPos)
+            creep.moveTo(targetPos)
             return true
         }
 

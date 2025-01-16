@@ -55,6 +55,13 @@ export default (data: CreepData): ICreepConfig => ({
             creep.moveTo(creep.room.controller)
         } else {
             creep.upgradeController(creep.room.controller)
+            if (creep.room.terminal != undefined && getDistance(creep.pos, creep.room.terminal.pos) < 5) {
+                if (getDistance(creep.pos, creep.room.terminal.pos) == 1) {
+                    creep.withdraw(creep.room.terminal, RESOURCE_ENERGY)
+                } else {
+                    creep.moveTo(creep.room.terminal)
+                }
+            }
         }
 
         // 签名

@@ -14,25 +14,27 @@ export default (data: CreepData): ICreepConfig => ({
     target(creep) {
         const creepData: ScoutData = data as ScoutData
 
-        for (let i = 0; i < 10; i++) {
-            const flag = Game.flags[creep.memory.spawnRoom + '_OUT' + i]
-            if (flag != undefined && creep.room.find(FIND_MY_CREEPS).length == 1) {
-                if (getDistance(creep.pos, flag.pos) > 3) {
-                    creep.moveTo(flag)
-                }
-                return true
-            }
-            if (flag != undefined && flag.room?.sources == undefined) {
-                if (creep.room.name != flag.pos.roomName || creep.pos.isEqualTo(flag.pos)) {
-                    creep.moveTo(flag)
-                }
-                return true
-            }
-        }
-
+        // 优先去标点位置
         const targetFlag = Game.flags[creepData.targetFlag]
         if (targetFlag != undefined && !creep.pos.isEqualTo(targetFlag.pos)) {
             creep.moveTo(targetFlag)
+            return true
+        }
+
+        // 没有标点位置就检查没有视野的外矿，去探路
+        for (let i = 0; i < 10; i++) {
+            const flag = Game.flags[creep.memory.spawnRoom + '_OUT' + i]
+            if (flag == undefined) continue
+            if (Game.rooms[flag.pos.roomName] == undefined) {
+                creep.moveTo(new RoomPosition(25, 25, flag.pos.roomName))
+                return true
+            }
+
+            const myCreeps = Game.rooms[flag.pos.roomName].find(FIND_MY_CREEPS)
+            if (myCreeps.length == 0 || (myCreeps.length == 1 && myCreeps[0].id == creep.id)) {
+                creep.moveTo(flag.pos.x, flag.pos.y, { range: 3 })
+                return true
+            }
         }
 
         return true

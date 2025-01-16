@@ -1,4 +1,4 @@
-import { STRUCTURE_MEMORYKEY_PERFIX, STRUCTURE_PRIVATEKEY_PERFIX } from "settings";
+import { creepWhiteList, STRUCTURE_MEMORYKEY_PERFIX, STRUCTURE_PRIVATEKEY_PERFIX } from "settings";
 import { getDistance } from "utils";
 
 export default class RoomExtension extends Room {
@@ -97,6 +97,7 @@ export default class RoomExtension extends Room {
             return this[privateKey]
         }
         const enemies: Creep[] = this.find(FIND_HOSTILE_CREEPS)
+            .filter(creep => !creepWhiteList.includes(creep.owner.username))
         this[privateKey] = enemies
         return enemies
     }
@@ -148,7 +149,7 @@ export default class RoomExtension extends Room {
             const walls: Structure[] = [...this.ramparts, ...this.walls].filter(structure => {
                 var filterRam = true;
                 if (structure.structureType == STRUCTURE_RAMPART) {
-                    filterRam = structure.pos.lookFor(LOOK_STRUCTURES).filter(stru =>
+                    filterRam = structure.hits < 25000000 || structure.pos.lookFor(LOOK_STRUCTURES).filter(stru =>
                         stru.structureType != STRUCTURE_ROAD && stru.structureType != STRUCTURE_RAMPART
                     ).length == 0
                 }

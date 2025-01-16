@@ -1,5 +1,5 @@
 import { baseLayout, boostConfig, creepWhiteList, reactionConfig, reactionSource } from "settings"
-import { getClosestTarget } from "utils"
+import { getClosestTarget, getDistance } from "utils"
 
 /**
  * 获取底物反应列表
@@ -229,50 +229,39 @@ function initialStructures(room: Room): void {
     }
 }
 
+/**
+ * 更新房间内敌人信息
+ * @param room
+ * @returns
+ */
 function findTowerEnemy(room: Room): void {
-    if (Game.time % 5 != 0) return
-    if (room.enemies.length == 0) return
-    var enemys = room.enemies.filter(creep => !creepWhiteList.includes(creep.owner.username)
-        && creep.body.some(part => part.type === RANGED_ATTACK))
-
-    if (enemys.length == 0) {
-        enemys = room.enemies.filter(creep => !creepWhiteList.includes(creep.owner.username)
-            && creep.body.some(part => part.type === ATTACK))
-    }
-    if (enemys.length == 0) {
-        enemys = room.enemies.filter(creep => !creepWhiteList.includes(creep.owner.username)
-            && creep.body.some(part => part.type === HEAL))
-    }
-    if (enemys.length == 0) {
-        enemys = room.enemies.filter(creep => !creepWhiteList.includes(creep.owner.username))
-    }
-
-    if (enemys.length > 0) {
-        console.log(`notify_您的房间[${room.name}] 发现敌人 所有者[${enemys[0].owner.username}]`)
-    }
-
-    if (room.spawns.length == 0) return
-
-    const enemyFind = getClosestTarget(room.spawns[0].pos, enemys)
-    if (enemyFind == undefined && room.memory.enemyTarget == undefined) {
+    if (Game.time % 5 != 0 && !Memory.warMode) return
+    if (room.enemies.length == 0) {
+        if (Memory.warMode[room.name]) {
+            console.log(room.name, '战争模式已关闭')
+            Memory.warMode[room.name] = false
+        }
         return
     }
 
-    const enemyLast: Creep | undefined = room.memory.enemyTarget == undefined ?
-        undefined : Game.getObjectById(room.memory.enemyTarget) as Creep
+    Memory.warMode[room.name] = true
+    console.log(room.name, '战争模式已开启')
+    console.log(`notify_您的房间[${room.name}] 发现敌人 所有者[${room.enemies[0].owner.username}]`)
 
-    if (room.memory.enemyTarget != undefined && Game.getObjectById(room.memory.enemyTarget) == undefined) {
-        room.memory.enemyTarget = undefined
-    }
+    // 查找离ram最近的敌人
+    var closestRange = Infinity
+    var closestTarget = room.enemies[0]
+    room.enemies.forEach(enemy => {
+        room.ramparts.forEach(ram => {
+            const range = getDistance(enemy.pos, ram.pos)
+            if (range < closestRange) {
+                closestRange = range
+                closestTarget = enemy
+            }
+        })
+    })
 
-    if (room.memory.enemyTarget != undefined && enemyLast != undefined &&
-        enemyLast.body.some(part => part.type == ATTACK || part.type == RANGED_ATTACK)) {
-        room.memory.enemyTarget = enemyFind.id
-    }
-
-    if (room.memory.enemyTarget == undefined) {
-        room.memory.enemyTarget = enemyFind.id
-    }
+    room.memory.enemyTarget = closestTarget.id
 }
 
 function cacheRoomResourceInfo(room: Room): void {
@@ -326,6 +315,7 @@ export const roomController = function (): void {
             console.log('更新建筑缓存', roomName)
         }
 
+        if (Memory.warMode == undefined) Memory.warMode = {}
         if (room.memory.roomLabConfig == undefined) room.memory.roomLabConfig = { labReactionQueue: [], singleLabConfig: {} }
         if (room.memory.roomStructurePos == undefined) room.memory.roomStructurePos = {}
         if (room.memory.structureIdList == undefined) room.memory.structureIdList = {}

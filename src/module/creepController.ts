@@ -1,6 +1,6 @@
 import { sha1String } from "utils";
 import roles from 'role'
-import { roleAdvEnum, roleBaseEnum, roleWarEnum, spawnPriority } from "settings";
+import { roleAdvEnum, roleBaseEnum, roleWarEnum, spawnPriority, warModeRole } from "settings";
 
 /**
  * 添加需求配置
@@ -112,6 +112,8 @@ function releaseBaseCreepConfig(): void {
             if (roles[roleBaseEnum.REPAIRER](creepRepairerMemory).isNeed(room, '')) {
                 var repairerCount = Math.floor(room.storage.store[RESOURCE_ENERGY] / 100000) + 1;
                 if (room.controller && room.controller.level < 6) repairerCount = 1;
+
+                repairerCount = 1
                 for (let i = 0; i < repairerCount; i++) {
                     const creepRepairerName = room.name + '_REPAIRER_STORAGE' + i
                     addCreepConfig(room, roleBaseEnum.REPAIRER, creepRepairerName, creepRepairerMemory, spawnPriority.repairer)
@@ -310,19 +312,19 @@ function releaseJobsCreepConfig(): void {
         //         addCreepConfig(room, roleAdvEnum.RESERVER, creepName, reserverMemory, spawnPriority.reserver);
         //     })
         // }
+    }
+}
 
-        // // 发布外房搬运工
-        // if (roomCustom.remoteFiller != undefined) {
-        //     const remoteFiller = roomCustom.remoteFiller
-        //     Object.keys(roomCustom.remoteFiller).forEach(targetFlagName => {
-        //         const sourceFlagName = remoteFiller[targetFlagName]
-        //         if (Game.flags[sourceFlagName] != undefined && Game.flags[targetFlagName] != undefined) {
-        //             const remoteFillerMemory: RemoteFillerData = { sourceFlag: sourceFlagName, targetFlag: targetFlagName }
-        //             const creepName = room.name + '_RFILLER_' + sourceFlagName + '_' + targetFlagName
-        //             addCreepConfig(room, roleAdvEnum.RFILLER, creepName, remoteFillerMemory, spawnPriority.rFiller);
-        //         }
-        //     });
-        // }
+function releaseWarCreepConfig(): void {
+    for (const roomName in Game.rooms) {
+        const room: Room = Game.rooms[roomName];
+        if (!room.my) continue;
+
+        // 守卫者
+        if (room.enemies.filter(enemy => enemy.owner.username != 'Invader' && enemy.owner.username != 'Source Keeper').length > 0) {
+            const creepName = room.name + '_DEFENDER_' + 0
+            addCreepConfig(room, roleWarEnum.DEFENDER, creepName, {}, spawnPriority.defender);
+        }
     }
 }
 
@@ -349,6 +351,9 @@ export const creepNumberController = function (): void {
 
     // 发布远程工作配置
     releaseJobsCreepConfig()
+
+    // 发布战争相关配置
+    releaseWarCreepConfig()
 }
 
 /**
@@ -356,28 +361,37 @@ export const creepNumberController = function (): void {
  */
 export const creepWorkController = function (): void {
     // 执行工作
+    // if (Game.shard.name == 'shard3') console.log('战争模式开启状态', Object.values(Memory.warMode).filter(warMode => warMode).length > 0)
     var workCpu: [string, number][] = []
     Object.values(Game.creeps).forEach(creep => {
         if (creep.spawning) return
+        if (Object.values(Memory.warMode).filter(warMode => warMode).length > 0 && !warModeRole.includes(creep.memory.role)) return
 
-        if (roles[creep.memory.role](creep.memory.data).prepare(creep)) {
+        const cpu = Game.cpu.getUsed()
+        const prepared = roles[creep.memory.role](creep.memory.data).prepare(creep)
+        workCpu.push([creep.name + ' prepare', (Game.cpu.getUsed() - cpu)])
+        if (prepared) {
             if (creep.memory.working) {
                 const cpu = Game.cpu.getUsed()
                 roles[creep.memory.role](creep.memory.data).target(creep)
-                workCpu.push([creep.name, (Game.cpu.getUsed() - cpu)])
+                workCpu.push([creep.name + ' target', (Game.cpu.getUsed() - cpu)])
             } else {
+                const cpu = Game.cpu.getUsed()
                 roles[creep.memory.role](creep.memory.data).source(creep)
+                workCpu.push([creep.name + ' source', (Game.cpu.getUsed() - cpu)])
             }
         }
 
     });
 
-    // workCpu = workCpu.sort((a, b) => b[1] - a[1])
-    // for (let role in Object.keys(workCpu)) {
-    //     if (workCpu[role][1] > 0.5) {
-    //         console.log(workCpu[role][1], workCpu[role][0])
-    //     }
-    // }
-
-    // console.log('------------------------------------------------')
+    const debug = false && Game.shard.name == 'shard3'
+    if (debug) {
+        workCpu = workCpu.sort((a, b) => b[1] - a[1])
+        for (let role in Object.keys(workCpu)) {
+            if (workCpu[role][1] > 0.5) {
+                console.log(workCpu[role][1], workCpu[role][0])
+            }
+        }
+        console.log('------------------------------------------------')
+    }
 }

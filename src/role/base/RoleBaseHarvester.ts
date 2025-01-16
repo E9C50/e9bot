@@ -30,6 +30,9 @@ export default (data: CreepData): ICreepConfig => ({
 
         const creepData: HarvesterData = data as HarvesterData
         const sourceTarget: Source = Game.getObjectById<Source>(creepData.sourceId) as Source
+        if (sourceTarget.energy == 0) {
+            return false
+        }
         if (creep.harvest(sourceTarget) == ERR_NOT_IN_RANGE) creep.memory.ready = false
         return true
     },
@@ -50,6 +53,15 @@ export default (data: CreepData): ICreepConfig => ({
             }
         }
 
+        // 如果有工地则建造
+        const constructionSites = creep.room.constructionSites.filter(item => getDistance(creep.pos, item.pos) <= 3)
+        const constructionSite = getClosestTarget(creep.pos, constructionSites)
+        if (constructionSite != undefined) {
+            creepData.buildTarget = constructionSite.id
+            creep.build(constructionSite)
+            return true
+        }
+
         // 如果有link则存放
         const link = creep.room.links.filter(item => creep.pos.isNearTo(item))[0]
         if (link != undefined && link.store.getFreeCapacity(RESOURCE_ENERGY) > 0) {
@@ -66,15 +78,6 @@ export default (data: CreepData): ICreepConfig => ({
         }
         if (container != undefined && container.store.getFreeCapacity(RESOURCE_ENERGY) > 0) {
             creep.transfer(container, RESOURCE_ENERGY)
-            return true
-        }
-
-        // 如果有工地则建造
-        const constructionSites = creep.room.constructionSites.filter(item => getDistance(creep.pos, item.pos) <= 3)
-        const constructionSite = getClosestTarget(creep.pos, constructionSites)
-        if (constructionSite != undefined) {
-            creepData.buildTarget = constructionSite.id
-            creep.build(constructionSite)
             return true
         }
 

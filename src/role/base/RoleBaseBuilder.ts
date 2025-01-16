@@ -28,9 +28,11 @@ export default (data: CreepData): ICreepConfig => ({
             creepData.sourceId = sourceTarget.id
         }
 
-        if (sourceTarget != undefined && sourceTarget.store[RESOURCE_ENERGY] == 0) {
-            if (creep.pickupDroppedResource(false, 20)) return true
-        }
+
+        if (creep.pickupDroppedResource(false, 40)) return true
+        // if (sourceTarget != undefined && sourceTarget.store[RESOURCE_ENERGY] == 0) {
+        //     if (creep.pickupDroppedResource(false, 20)) return true
+        // }
 
         if (sourceTarget.store[RESOURCE_ENERGY] == 0) {
             creep.say("💤")
@@ -74,7 +76,7 @@ export default (data: CreepData): ICreepConfig => ({
         const buildTargets: ConstructionSite[] = creep.room.constructionSites
 
         // 如果没有建筑工地并且需要升级，就去升级
-        if (buildTargets.length == 0 && creep.room.level < 8) {
+        if (buildTargets.length == 0 && creep.room.my && creep.room.level < 8) {
             return RoleBaseUpgrader(creep.memory.data).target(creep)
         }
 

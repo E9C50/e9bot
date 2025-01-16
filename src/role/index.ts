@@ -13,6 +13,7 @@ import RoleBaseRepairer from "./base/RoleBaseRepairer"
 import RoleBaseScout from "./base/RoleBaseScout"
 import RoleBaseUpgrader from "./base/RoleBaseUpgrader"
 import RoleWarAttacker from "./war/RoleWarAttacker"
+import RoleWarDefender from "./war/RoleWarDefender"
 import RoleWarHealer from "./war/RoleWarHealer"
 import RoleWarIntegrate from "./war/RoleWarIntegrate"
 
@@ -42,6 +43,7 @@ const creepWork: CreepWork = {
     rAttacker: notImplemented,
     dismantler: notImplemented,
     integrate: RoleWarIntegrate,
+    defender: RoleWarDefender
 }
 
 export default creepWork

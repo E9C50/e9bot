@@ -23,13 +23,14 @@ type WarRoleHealer = 'healer'
 type WarRoleRangedAttacker = 'rAttacker'
 type WarRoleDismantler = 'dismantler'
 type WarRoleIntegrate = 'integrate'
+type WarRoleDefender = 'defender'
 
 
 // 所有的 creep 角色
 type CreepRoleConstant = BaseRoleHarvester | BaseRoleFiller | BaseRoleUpgrader | BaseRoleBuilder | BaseRoleRepairer
     | BaseRoleMiner | BaseRoleScout | AdvancedRoleManager | AdvancedRoleProcesser | AdvancedRoleClaimer
     | AdvancedRoleReserver | AdvancedRoleRemoteHarvester | AdvancedRoleRemoteFiller | AdvancedRoleRemoteBuilder
-    | WarRoleAttacker | WarRoleHealer | WarRoleRangedAttacker | WarRoleDismantler | WarRoleIntegrate
+    | WarRoleAttacker | WarRoleHealer | WarRoleRangedAttacker | WarRoleDismantler | WarRoleIntegrate | WarRoleDefender
 
 // Creep 工作逻辑集合 包含了每个角色应该做的工作
 type CreepWork = { [role in CreepRoleConstant]: (data: CreepData) => ICreepConfig }
@@ -47,7 +48,7 @@ declare module NodeJS {
 }
 
 interface Memory {
-    warMode: boolean
+    warMode: { [room: string]: boolean }
 }
 
 interface Room {
@@ -217,6 +218,7 @@ interface ILabConfig {
 
 interface RoomMemory {
     structureIdList: {}
+    defenderCostMatrix: number[]
 
     freeSpaceCount: { [sourceId: string]: number }
     creepConfig: { [creepName: string]: CreepMemory }
@@ -251,6 +253,7 @@ interface CreepMemory {
     data: CreepData
     dontPullMe?: boolean
     needBoost?: boolean
+    needRecycle?: boolean
     pathCache?: PathFinderPath
 }
 
@@ -258,7 +261,7 @@ interface EmptyData { }
 
 interface HarvesterData { sourceId: string, buildTarget?: string }
 interface MineralData { sourceId: string }
-interface FillerData { sourceId: string }
+interface FillerData { sourceId: string, targetId?: string }
 
 interface ManagerData { }
 interface ProcesserData { waiting: number }
@@ -271,7 +274,7 @@ interface ScoutData { targetFlag: string }
 interface ReserverData { targetRoom: string }
 interface ClaimerData { targetRoom: string, sourceId: string, buildTarget?: string }
 
-interface RemoteFillerData { sourceFlag: string, targetFlag: string, withdrawTarget?: string, needRecycle?: boolean }
+interface RemoteFillerData { sourceFlag: string, targetFlag: string, withdrawTarget?: string }
 interface RemoteBuilderData { sourceFlag: string, targetFlag: string, buildTarget?: string }
 interface RemoteHarvesterData { sourceId: string, targetRoom: string, buildTarget?: string }
 
