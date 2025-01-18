@@ -11,6 +11,7 @@ import { roleAdvEnum, roleBaseEnum, roleWarEnum, spawnPriority, warModeRole } fr
  * @returns
  */
 function addCreepConfig(room: Room, creepRole: CreepRoleConstant, creepName: string, creepData: CreepData = {}, priority: number = 0): void {
+    if (Memory.warMode[room.name] && !warModeRole.includes(creepRole)) return
     const creepNameHash = creepRole.toUpperCase() + '_' + sha1String(creepName)
     room.memory.creepConfig[creepNameHash] = {
         displayName: creepNameHash,
@@ -61,7 +62,8 @@ function releaseBaseCreepConfig(): void {
 
         // 根据矿产情况发布矿工
         room.sources.forEach(source => {
-            let canHarvesterPos: number = source.freeSpaceCount;
+            if (source.energy == 0) return
+            let canHarvesterPos: number = source.pos.getFreeSpace().length;
             canHarvesterPos = Math.min(canHarvesterPos, 2);
             // 三级之后每个矿一个矿工
             if (room.level > 3) canHarvesterPos = 1;
@@ -198,20 +200,25 @@ function releaseJobsCreepConfig(): void {
                 if (targetOutRoom != undefined && (targetOutRoom.constructionSites.length > 0 || targetOutRoom.roads.filter(road => road.hits < (road.hitsMax / 2)).length > 0)) {
                     const remoteBuilderMemory: RemoteBuilderData = { sourceFlag: targetOutRoom.sources[0].id, targetFlag: targetOutRoom.sources[0].id }
                     const creepName = room.name + '_OSBUILDER_' + room.name
-                    const creep = Game.creeps['RBUILDER_' + sha1String(creepName)]
+                    const creep = Game.creeps['OSBUILDER_' + sha1String(creepName)]
                     if (creep == undefined) {
                         addCreepConfig(room, roleAdvEnum.RBUILDER, creepName, remoteBuilderMemory, spawnPriority.rBuilder);
                     } else {
                         // 如果修理工已经发布，就更新他的工作目标
                         const creepData = creep.memory.data as RemoteBuilderData
-                        creepData.sourceFlag = targetOutRoom.sources[0].id
+                        if (room.storage != undefined && room.storage[RESOURCE_ENERGY] > 100000) {
+                            creepData.sourceFlag = room.storage.id
+                        } else {
+                            creepData.sourceFlag = targetOutRoom.sources[0].id
+                        }
                         creepData.targetFlag = targetOutRoom.sources[0].id
                     }
                 }
 
                 // 如果外矿有入侵者，发布一体机去干他
-                if (targetOutRoom != undefined && targetOutRoom.enemies.length > 0) {
-                    const integrateMemory: IntegrateData = { targetFlag: targetOutRoom.sources[0].id, team: undefined }
+                const invader = targetOutRoom.enemies.filter(enemy => enemy.owner.username == 'Invader')
+                if (targetOutRoom != undefined && (invader.length > 0 || targetOutRoom.invaderCore != undefined)) {
+                    const integrateMemory: IntegrateData = { targetFlag: targetOutRoom.sources[0].id }
                     const creepName = room.name + '_INTEGRATE_' + targetOutRoom.sources[0].id
                     const creep = Game.creeps['INTEGRATE_' + sha1String(creepName)]
                     if (creep == undefined) {
@@ -244,7 +251,7 @@ function releaseJobsCreepConfig(): void {
         for (let i = 0; i < 20; i++) {
             const flag = Game.flags[room.name + '_ATT' + i]
             if (flag != undefined) {
-                const attackerMemory: AttackerData = { targetFlag: room.name + '_ATT' + i, team: undefined }
+                const attackerMemory: AttackerData = { targetFlag: room.name + '_ATT' + i }
                 const creepName = room.name + '_ATTACKER_' + room.name + '_ATT' + i
                 addCreepConfig(room, roleWarEnum.ATTACKER, creepName, attackerMemory, spawnPriority.attacker);
             }
@@ -254,7 +261,7 @@ function releaseJobsCreepConfig(): void {
         for (let i = 0; i < 20; i++) {
             const flag = Game.flags[room.name + '_INTE' + i]
             if (flag != undefined) {
-                const integrateMemory: IntegrateData = { targetFlag: room.name + '_INTE' + i, team: undefined }
+                const integrateMemory: IntegrateData = { targetFlag: room.name + '_INTE' + i }
                 const creepName = room.name + '_INTEGRATE_' + room.name + '_INTE' + i
                 addCreepConfig(room, roleWarEnum.INTEGRATE, creepName, integrateMemory, spawnPriority.integrate);
             }
@@ -321,9 +328,17 @@ function releaseWarCreepConfig(): void {
         if (!room.my) continue;
 
         // 守卫者
-        if (room.enemies.filter(enemy => enemy.owner.username != 'Invader' && enemy.owner.username != 'Source Keeper').length > 0) {
-            const creepName = room.name + '_DEFENDER_' + 0
-            addCreepConfig(room, roleWarEnum.DEFENDER, creepName, {}, spawnPriority.defender);
+        const enemyList = room.enemies.filter(enemy => {
+            const isNotNpc = enemy.owner.username != 'Invader' && enemy.owner.username != 'Source Keeper'
+            const isAttacker = enemy.body.filter(body => body.type == 'attack' || body.type == 'ranged_attack' || body.type == 'work')
+            return isNotNpc && isAttacker
+        })
+        if (enemyList.length > 0) {
+            const dCreepName = room.name + '_DEFENDER_' + 0
+            addCreepConfig(room, roleWarEnum.DEFENDER, dCreepName, {}, spawnPriority.defender);
+
+            const rCreepName = room.name + '_RDEFENDER_' + 0
+            addCreepConfig(room, roleWarEnum.RDEFENDER, rCreepName, {}, spawnPriority.rdefender);
         }
     }
 }
@@ -361,7 +376,6 @@ export const creepNumberController = function (): void {
  */
 export const creepWorkController = function (): void {
     // 执行工作
-    // if (Game.shard.name == 'shard3') console.log('战争模式开启状态', Object.values(Memory.warMode).filter(warMode => warMode).length > 0)
     var workCpu: [string, number][] = []
     Object.values(Game.creeps).forEach(creep => {
         if (creep.spawning) return
@@ -384,14 +398,13 @@ export const creepWorkController = function (): void {
 
     });
 
-    const debug = false && Game.shard.name == 'shard3'
+    const debug = true && Game.shard.name == 'shard3'
     if (debug) {
         workCpu = workCpu.sort((a, b) => b[1] - a[1])
         for (let role in Object.keys(workCpu)) {
-            if (workCpu[role][1] > 0.5) {
+            if (workCpu[role][1] > 0.8) {
                 console.log(workCpu[role][1], workCpu[role][0])
             }
         }
-        console.log('------------------------------------------------')
     }
 }

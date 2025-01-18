@@ -32,12 +32,6 @@ export default (data: CreepData): ICreepConfig => ({
             }
             return true
         }
-
-        if (creepData.team != undefined) {
-            // 处理组队逻辑
-            return true
-        }
-
         return true
     },
     source(creep) {
@@ -48,12 +42,7 @@ export default (data: CreepData): ICreepConfig => ({
         const creepData: IntegrateData = data as IntegrateData
         const targetFlag: Flag = Game.flags[creepData.targetFlag]
         const enemySource = Game.getObjectById(creepData.targetFlag) as Source
-        var structureTarget = creep.room.name == targetFlag.pos.roomName ?
-            targetFlag.pos.lookFor(LOOK_STRUCTURES)[0] : undefined
-
-        const target = targetFlag || enemySource || structureTarget
-
-        if (target == undefined) return false
+        const moveTarget = targetFlag || enemySource
 
         // 治疗自己
         if (creep.hits < creep.hitsMax) {
@@ -71,9 +60,19 @@ export default (data: CreepData): ICreepConfig => ({
             }
         }
 
-        if (creep.room.name != target.pos.roomName) {
-            creep.moveTo(target)
-            return true
+        if (moveTarget != undefined && !creep.pos.isNearTo(moveTarget)) {
+            creep.moveTo(moveTarget)
+            if (creep.room.name != moveTarget.pos.roomName) return true
+        }
+
+        // 建筑在范围内就攻击
+        if (!creep.room.my) {
+            const structureInRange = creep.pos.findInRange(FIND_STRUCTURES, 3)
+            if (structureInRange.filter(s => creep.pos.isNearTo(s.pos)).length > 0) {
+                creep.rangedMassAttack()
+            } else {
+                creep.rangedAttack(structureInRange[0])
+            }
         }
 
         // 获取敌人信息
@@ -85,19 +84,6 @@ export default (data: CreepData): ICreepConfig => ({
             enemyTarget = creep.room.enemies
                 .filter(enemy => !enemy.my && enemy.pos.inRangeTo(creep, 5))
                 .sort((a, b) => a.pos.getRangeTo(creep) - b.pos.getRangeTo(creep))[0]
-        }
-
-        if (structureTarget == undefined) {
-            structureTarget = creep.pos.findInRange(FIND_STRUCTURES, 3)[0]
-        }
-
-        // 建筑在范围内就攻击
-        if (structureTarget != undefined) {
-            if (creep.pos.inRangeTo(structureTarget, 1)) {
-                creep.rangedMassAttack()
-            } else if (creep.pos.inRangeTo(structureTarget, 3)) {
-                creep.rangedAttack(structureTarget)
-            }
         }
 
         // 敌人在范围内就攻击
@@ -114,11 +100,6 @@ export default (data: CreepData): ICreepConfig => ({
             } else if (creep.pos.inRangeTo(enemyTarget, 3)) {
                 creep.rangedAttack(enemyTarget)
             }
-            // creepData.attackEnemy = enemyTarget.id
-        }
-
-        if (!creep.pos.isNearTo(target)) {
-            creep.moveTo(target)
         }
 
         return true

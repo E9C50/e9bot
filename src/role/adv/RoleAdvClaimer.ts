@@ -1,5 +1,4 @@
 import { getDistance } from "utils"
-import { defaultConrtollerSign } from "settings"
 import RoleAdvRemoteBuilder from "./RoleAdvRemoteBuilder"
 
 export default (data: CreepData): ICreepConfig => ({
@@ -42,8 +41,8 @@ export default (data: CreepData): ICreepConfig => ({
         }
 
         // 签名不一致就签名
-        if (creep.room.controller.sign?.text != defaultConrtollerSign) {
-            creep.signController(creep.room.controller, defaultConrtollerSign)
+        if (creep.room.memory.roomSignText != undefined && creep.room.controller.sign?.text != creep.room.memory.roomSignText) {
+            creep.signController(creep.room.controller, creep.room.memory.roomSignText)
             return false
         }
 

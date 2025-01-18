@@ -11,12 +11,6 @@ export default (data: CreepData): ICreepConfig => ({
             // 处理boost
             return true
         }
-
-        if (creepData.team != undefined) {
-            // 处理组队逻辑
-            return true
-        }
-
         return true
     },
     source(creep) {

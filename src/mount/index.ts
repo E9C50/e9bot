@@ -1,8 +1,6 @@
 import { assignGlobal, assignPrototype } from "utils"
 import CreepExtension from "./extension/CreepExtension"
 import RoomExtension from "./extension/RoomExtension"
-import SourceExtension from "./extension/SourceExtension"
-import MineralExtension from "./extension/MineralExtension"
 import SpawnExtension from "./structure/SpawnExtension"
 import LinkExtension from "./structure/LinkExtension"
 import TowerExtension from "./structure/TowerExtension"
@@ -11,6 +9,7 @@ import PowerSpawnExtension from "./structure/PowerSpawnExtension"
 import NukerExtension from "./structure/NukerExtension"
 import FactoryExtension from "./structure/FactoryExtension"
 import ConsoleExtension from "./extension/ConsoleExtension"
+import PositionExtension from "./extension/PositionExtension"
 
 function processFlagPos(flagName: string, memoryKey: string): void {
     if (Game.flags[flagName] != undefined) {
@@ -50,8 +49,7 @@ export function mountWork() {
 
     assignPrototype(Room, RoomExtension)
     assignPrototype(Creep, CreepExtension)
-    assignPrototype(Source, SourceExtension)
-    assignPrototype(Mineral, MineralExtension)
+    assignPrototype(RoomPosition, PositionExtension)
 
     assignPrototype(StructureLab, LabExtension)
     assignPrototype(StructureLink, LinkExtension)

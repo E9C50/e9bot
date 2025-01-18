@@ -2,10 +2,36 @@
 export const STRUCTURE_PRIVATEKEY_PERFIX = '_'
 export const STRUCTURE_MEMORYKEY_PERFIX = 'IDOF_'
 
-export const defaultReserverSign = 'Reserved by E9C50.'
-export const defaultConrtollerSign = 'Controlled by E9C50.'
-
 export const creepWhiteList = ['an_w', 'NoName_', 'MoSaSa', 'Kaoruko', 'keqing']
+
+// 永不踏入这些房间
+export const findPathAvoidRooms = [
+    'E36N5', // 要塞
+    'E39N4', 'E38N1', 'E39N1', 'E32N2', 'E33N5', 'E39N7'
+]
+export const enableObserversFindPath = true
+export const observersFindPathIdList = [
+    '6787d30d1d4221eac2004302',
+    '6779ca1adbeeb60e63b5038f',
+    '67883badb94d0b4edde751ba'
+]
+
+export const defaultReserverSign = 'RESERVED BY E9C50, PLEASE STAY AWAY ⚠️⚠️⚠️'
+export const roomSignTextList = [
+    '用兵之法，无恃其不来，恃吾有以待也；无恃其不攻，恃吾有所不可攻也。',
+    '智者之虑，必杂于利害；杂于利，而务可信也；杂于害，而患可解也。',
+    '兵之情主速，乘人之不及，由不虞之道，攻其所不戒也。',
+    '兵形象水，水之行，避高而趋下；兵之形，避实而击虚。',
+    '兵无常势，水无常形，能因敌变化而取胜者，谓之神。',
+    '兵者，国之大事，死生之地，存亡之道，不可不察也。',
+    '善守者，藏于九地之下；善攻者，动于九天之上。',
+    '五行无常胜，四时无常位，日有短长，月有死生。',
+    '知彼知己，胜乃不殆；知天知地，胜乃不穷。',
+    '不尽知用兵之害者，则不能尽知用兵之利也。',
+    '上兵伐谋，其次伐交，其次伐兵，其下攻城。',
+    '善用兵者，避其锐气，击其惰归。',
+    '不战而屈人之兵，善之善者也。',
+]
 
 export enum roleBaseEnum {
     HARVESTER = 'harvester',
@@ -34,12 +60,13 @@ export enum roleWarEnum {
     DISMANTLER = 'dismantler',
     INTEGRATE = 'integrate',
     DEFENDER = 'defender',
+    RDEFENDER = 'rdefender'
 }
 
 export const warModeRole: CreepRoleConstant[] = [
     roleBaseEnum.FILLER, roleBaseEnum.REPAIRER, roleAdvEnum.PROCESSER, roleAdvEnum.MANAGER,
     roleWarEnum.ATTACKER, roleWarEnum.DISMANTLER, roleWarEnum.HEALER,
-    roleWarEnum.INTEGRATE, roleWarEnum.RANGED_ATTACKER
+    roleWarEnum.INTEGRATE, roleWarEnum.RANGED_ATTACKER, roleWarEnum.DEFENDER, roleWarEnum.RDEFENDER
 ]
 
 export enum colorEnum {
@@ -68,6 +95,7 @@ export const spawnPriority: { [role in CreepRoleConstant]: number } = {
 
     integrate: 3,
     defender: 3,
+    rdefender: 3,
     attacker: 14,
     healer: 15,
     rAttacker: 16,
@@ -98,34 +126,16 @@ const carryBodyConfigs = [
 ]
 
 export const bodyConfigs: { [role in CreepRoleConstant]: BodySet[] } = {
+    harvester: workerBodyConfigs,
     upgrader: workerBodyConfigs,
     builder: workerBodyConfigs,
-    repairer: workerBodyConfigs,
     rBuilder: workerBodyConfigs,
+    repairer: workerBodyConfigs,
     miner: workerBodyConfigs,
     filler: carryBodyConfigs,
-    processer: carryBodyConfigs,
     rFiller: carryBodyConfigs,
-    scout: [
-        { [MOVE]: 1 },
-        { [MOVE]: 1 },
-        { [MOVE]: 1 },
-        { [MOVE]: 1 },
-        { [MOVE]: 1 },
-        { [MOVE]: 1 },
-        { [MOVE]: 1 },
-        { [MOVE]: 1 },
-    ],
-    harvester: [
-        { [WORK]: 2, [CARRY]: 1, [MOVE]: 1 },
-        { [WORK]: 4, [CARRY]: 1, [MOVE]: 2 },
-        { [WORK]: 6, [CARRY]: 1, [MOVE]: 3 },
-        { [WORK]: 7, [CARRY]: 1, [MOVE]: 4 },
-        { [WORK]: 8, [CARRY]: 1, [MOVE]: 5 },
-        { [WORK]: 8, [CARRY]: 1, [MOVE]: 5 },
-        { [WORK]: 8, [CARRY]: 1, [MOVE]: 5 },
-        { [WORK]: 8, [CARRY]: 1, [MOVE]: 5 },
-    ],
+    processer: carryBodyConfigs,
+    scout: Array.from({ length: 8 }, () => ({ [MOVE]: 1 })),
     manager: [
         { [CARRY]: 2, [MOVE]: 1 },
         { [CARRY]: 3, [MOVE]: 1 },
@@ -177,14 +187,16 @@ export const bodyConfigs: { [role in CreepRoleConstant]: BodySet[] } = {
         { [MOVE]: 30, [ATTACK]: 20 }
     ],
     integrate: [
-        { [TOUGH]: 2, [RANGED_ATTACK]: 36, [MOVE]: 10, [HEAL]: 2 },
-        { [TOUGH]: 0, [MOVE]: 5, [RANGED_ATTACK]: 5, [HEAL]: 0 },
-        { [TOUGH]: 0, [MOVE]: 5, [RANGED_ATTACK]: 5, [HEAL]: 0 },
-        { [TOUGH]: 0, [MOVE]: 5, [RANGED_ATTACK]: 5, [HEAL]: 0 },
-        { [TOUGH]: 0, [MOVE]: 5, [RANGED_ATTACK]: 5, [HEAL]: 0 },
-        { [TOUGH]: 0, [MOVE]: 5, [RANGED_ATTACK]: 5, [HEAL]: 0 },
-        { [TOUGH]: 7, [RANGED_ATTACK]: 19, [MOVE]: 10, [HEAL]: 14 },
-        { [TOUGH]: 7, [RANGED_ATTACK]: 19, [MOVE]: 10, [HEAL]: 14 },
+        { [TOUGH]: 0, [MOVE]: 0, [RANGED_ATTACK]: 0, [HEAL]: 0 },
+        { [TOUGH]: 0, [MOVE]: 0, [RANGED_ATTACK]: 0, [HEAL]: 0 },
+        { [TOUGH]: 0, [MOVE]: 0, [RANGED_ATTACK]: 0, [HEAL]: 0 },
+        { [TOUGH]: 0, [MOVE]: 0, [RANGED_ATTACK]: 0, [HEAL]: 0 },
+        { [TOUGH]: 0, [MOVE]: 0, [RANGED_ATTACK]: 0, [HEAL]: 0 },
+        { [TOUGH]: 0, [MOVE]: 0, [RANGED_ATTACK]: 0, [HEAL]: 0 },
+        { [TOUGH]: 0, [MOVE]: 0, [RANGED_ATTACK]: 0, [HEAL]: 0 },
+        // { [TOUGH]: 2, [RANGED_ATTACK]: 36, [MOVE]: 10, [HEAL]: 2 }, // 防御
+        // { [TOUGH]: 7, [RANGED_ATTACK]: 19, [MOVE]: 10, [HEAL]: 14 }, // 7级房进攻
+        { [TOUGH]: 8, [MOVE]: 10, [RANGED_ATTACK]: 15, [HEAL]: 17 }, // 四级要塞
     ],
     healer: [
         { [MOVE]: 2, [HEAL]: 2 },
@@ -207,6 +219,16 @@ export const bodyConfigs: { [role in CreepRoleConstant]: BodySet[] } = {
         { [ATTACK]: 7, [MOVE]: 7 },
         { [ATTACK]: 40, [MOVE]: 10 },
         { [ATTACK]: 40, [MOVE]: 10 }
+    ],
+    rdefender: [
+        { [RANGED_ATTACK]: 2, [MOVE]: 2 },
+        { [RANGED_ATTACK]: 3, [MOVE]: 3 },
+        { [RANGED_ATTACK]: 4, [MOVE]: 4 },
+        { [RANGED_ATTACK]: 5, [MOVE]: 5 },
+        { [RANGED_ATTACK]: 6, [MOVE]: 6 },
+        { [RANGED_ATTACK]: 7, [MOVE]: 7 },
+        { [RANGED_ATTACK]: 40, [MOVE]: 10 },
+        { [RANGED_ATTACK]: 40, [MOVE]: 10 }
     ]
 }
 

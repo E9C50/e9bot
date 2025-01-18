@@ -3,15 +3,21 @@
 creep对穿+跨房间寻路+寻路缓存
 跑的比香港记者还快从你做起
 应用此模块会导致creep.moveTo可选参数中这些项失效：reusePath、serializeMemory、noPathFinding、ignore、avoid、serialize
+
 保留creep.moveTo中其他全部可选参数如visualizePathStyle、range、ignoreDestructibleStructures、ignoreCreeps、ignoreRoad等
+
 新增creep.moveTo中可选参数ignoreSwamps，会无视swamp与road的移动力损耗差异，一律与plain相同处理，用于方便pc和眼，默认false
 例：creep.moveTo(controller, {ignoreSwamps: true});
+
 新增creep.moveTo中可选参数bypassHostileCreeps，被creep挡路时若此项为true则绕过别人的creep，默认为true，设为false用于近战攻击
 例：creep.moveTo(controller, {bypassHostileCreeps: false});
+
 新增creep.moveTo中可选参数bypassRange，被creep挡路准备绕路时的绕路半径，默认为5
 例：creep.moveTo(controller, {bypassRange: 10});
+
 新增creep.moveTo中可选参数noPathDelay，寻得的路是不完全路径时的再次寻路延迟，默认为10
 例：creep.moveTo(controller, {noPathDelay: 5});
+
 新增返回值ERR_INVALID_ARGS，表示range或者bypassRange类型错误
 
 遇到己方creep自动进行对穿，遇到自己设置了不想被对穿的creep（或bypassHostileCreeps设为true时遇到他人creep）会自动绕过
@@ -68,6 +74,8 @@ require('超级移动优化').deletePathInRoom(roomName);
 5.在控制台输入require('超级移动优化').print()获取性能信息，鼓励发给作者用于优化
 */
 
+import { findPathAvoidRooms, observersFindPathIdList } from "settings";
+
 /***************************************
  *  模块参数
  */
@@ -84,14 +92,11 @@ let config = {
 let pathClearDelay = 3000;  // 清理相应时间内都未被再次使用的路径，同时清理死亡creep的缓存，设为undefined表示不清除缓存
 let hostileCostMatrixClearDelay = 500; // 自动清理相应时间前创建的其他玩家房间的costMatrix
 let coreLayoutRange = 3; // 核心布局半径，在离storage这个范围内频繁检查对穿（减少堵路的等待
-let avoidRooms = ['W11N15', 'W11N15', 'W13N17', 'W14N18', 'W22N21', 'E10N24', "E29S22", "E31S26", "E5N9", "E17N9", "E25N8", "E44S27", "E52S29", "E51S29"//,"E41S18","E42S19"
-    , "W11S42", "W17S58", "W16S59", "W18S56", "W20S41", "W19S40", "E2S42", "W11S54", "W14S54", "W31S58", "W29S39", "W29S31" // nanachi
-]      // 永不踏入这些房间 ,'E8N19','E8N18','W19N13'
-let avoidExits = {
-    'fromRoom': 'toRoom'
-}   // 【未启用】单向屏蔽房间的一些出口，永不从fromRoom踏入toRoom
+
+let avoidRooms = findPathAvoidRooms
+let observers = observersFindPathIdList
+let avoidExits = { 'fromRoom': 'toRoom' }   // 【未启用】单向屏蔽房间的一些出口，永不从fromRoom踏入toRoom
 /** @type {{id:string, roomName:string, taskQueue:{path:MyPath, idx:number, roomName:string}[]}[]} */
-let observers = ['id'];  // 如果想用ob寻路，把ob的id放这里
 
 /***************************************
  *  局部缓存

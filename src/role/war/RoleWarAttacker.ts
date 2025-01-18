@@ -11,12 +11,6 @@ export default (data: CreepData): ICreepConfig => ({
             // 处理boost
             return true
         }
-
-        if (creepData.team != undefined) {
-            // 处理组队逻辑
-            return true
-        }
-
         return true
     },
     source(creep) {
@@ -45,7 +39,7 @@ export default (data: CreepData): ICreepConfig => ({
         // if (creep.pos.isNearTo(closestEnemy)) {
         //     creep.attack(closestEnemy)
         // } else
-         if (structure != undefined && creep.pos.isNearTo(structure)) {
+        if (structure != undefined && creep.pos.isNearTo(structure)) {
             creep.attack(structure)
         }
         return true

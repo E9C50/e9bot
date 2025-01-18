@@ -10,15 +10,6 @@ export default class SpawnExtension extends StructureSpawn {
     public doWork(): void {
         if (this.spawning) return
 
-        const nearbyCreeps = this.pos.findInRange(FIND_MY_CREEPS, 1)
-        for (let name in nearbyCreeps) {
-            let creep = nearbyCreeps[name]
-            if (creep.memory.needRecycle) {
-                this.recycleCreep(creep)
-                return
-            }
-        }
-
         // 循环creepConfig，筛选出未孵化的creep，并按照优先级排序
         const creepConfigCache = this.room.memory.creepConfig
         var creepSpawnQueue = Object.keys(creepConfigCache)

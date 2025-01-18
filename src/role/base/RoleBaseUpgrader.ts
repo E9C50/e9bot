@@ -1,4 +1,3 @@
-import { defaultConrtollerSign } from "settings"
 import { getDistance } from "utils"
 
 export default (data: CreepData): ICreepConfig => ({
@@ -65,11 +64,11 @@ export default (data: CreepData): ICreepConfig => ({
         }
 
         // 签名
-        if (creep.room.controller.sign?.text != defaultConrtollerSign) {
+        if (creep.room.memory.roomSignText != undefined && creep.room.controller.sign?.text != creep.room.memory.roomSignText) {
             if (distance > 1) {
                 creep.moveTo(creep.room.controller)
             } else {
-                creep.signController(creep.room.controller, defaultConrtollerSign)
+                creep.signController(creep.room.controller, creep.room.memory.roomSignText)
             }
         }
         return true

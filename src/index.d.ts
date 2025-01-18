@@ -24,13 +24,14 @@ type WarRoleRangedAttacker = 'rAttacker'
 type WarRoleDismantler = 'dismantler'
 type WarRoleIntegrate = 'integrate'
 type WarRoleDefender = 'defender'
+type WarRoleRangedDefender = 'rdefender'
 
 
 // 所有的 creep 角色
 type CreepRoleConstant = BaseRoleHarvester | BaseRoleFiller | BaseRoleUpgrader | BaseRoleBuilder | BaseRoleRepairer
     | BaseRoleMiner | BaseRoleScout | AdvancedRoleManager | AdvancedRoleProcesser | AdvancedRoleClaimer
     | AdvancedRoleReserver | AdvancedRoleRemoteHarvester | AdvancedRoleRemoteFiller | AdvancedRoleRemoteBuilder
-    | WarRoleAttacker | WarRoleHealer | WarRoleRangedAttacker | WarRoleDismantler | WarRoleIntegrate | WarRoleDefender
+    | WarRoleAttacker | WarRoleHealer | WarRoleRangedAttacker | WarRoleDismantler | WarRoleIntegrate | WarRoleDefender | WarRoleRangedDefender
 
 // Creep 工作逻辑集合 包含了每个角色应该做的工作
 type CreepWork = { [role in CreepRoleConstant]: (data: CreepData) => ICreepConfig }
@@ -46,6 +47,11 @@ declare module NodeJS {
         }
     }
 }
+
+// 小队类型
+type TeamTypeDuo = 'duo'
+type TeamTypeQuad = 'quad'
+type TeamTypeConstant = TeamTypeDuo | TeamTypeQuad
 
 interface Memory {
     warMode: { [room: string]: boolean }
@@ -100,6 +106,17 @@ interface Room {
     controllerLink?: StructureLink
 }
 
+interface RoomPosition {
+    getFreeSpace(): RoomPosition[]
+    directionToPos(direction: DirectionConstant): RoomPosition | undefined
+}
+
+// 小队基本工作接口定义
+interface ITeamConfig {
+    prepare: (creep: Creep) => boolean
+    doWork: (creep: Creep) => boolean
+}
+
 // Creep 基本工作接口定义
 interface ICreepConfig {
     // 每次死后都会进行判断，只有返回 true 时才会重新发布孵化任务
@@ -121,14 +138,16 @@ interface Creep {
     transferToTarget(transferTarget: Structure, resourceType: ResourceConstant): boolean
     takeFromTarget(takeTarget: Structure, resourceType: ResourceConstant, amount?: number): boolean
     pickupDroppedResource(allSource: boolean, range: number): boolean
+
+    requireCross(direction: DirectionConstant): Boolean
+    mutualCross(direction: DirectionConstant): OK | ERR_BUSY | ERR_NOT_FOUND
+    batterMove(target: DirectionConstant | Creep): CreepMoveReturnCode | ERR_INVALID_TARGET | ERR_NOT_IN_RANGE
+    farMoveToRoom(targetRoom: string, fleeEnemy?: boolean): CreepMoveReturnCode | ERR_NO_PATH | ERR_NOT_IN_RANGE | ERR_INVALID_TARGET
 }
 
-interface Source {
-    freeSpaceCount: number
-}
-
-interface Mineral {
-    freeSpaceCount: number
+interface MoveToOpts {
+    bypassRange?: number
+    bypassHostileCreeps?: boolean
 }
 
 interface Structure {
@@ -155,25 +174,6 @@ type BoostLabConfig = {
     resourceType: MineralBoostConstant
     bodyPart: BodyPartConstant
 }
-
-// interface RoomCustomMemory {
-//     reserving?: string[]
-//     remoteHarvester?: string[]
-//     remoteFiller?: { [roomName: string]: string }
-//     remoteBuilder?: { [roomName: string]: string }
-
-//     claimer?: string[]
-//     reserver?: string[]
-//     dismantle?: string[]
-//     attacker?: string[]
-//     healer?: string[]
-//     integrate?: string[]
-
-//     processTaksQueue?: string[]
-
-//     repairerCount?: number
-//     computeRoomCenterShow?: number
-// }
 
 interface IRoomPositionList {
     managerPos?: RoomPosition
@@ -216,16 +216,25 @@ interface ILabConfig {
     }
 }
 
+interface TeamConfig {
+    teamFlag: string
+    teamType: TeamTypeConstant
+    creepNameList: string[]
+}
+
 interface RoomMemory {
     structureIdList: {}
     defenderCostMatrix: number[]
 
-    freeSpaceCount: { [sourceId: string]: number }
     creepConfig: { [creepName: string]: CreepMemory }
+    teamConfig: { [teamId: string]: TeamConfig }
 
     resourceAmount: { [resourceType: string]: number }
     terminalAmount: { [resourceType: string]: number }
 
+    restrictedPos?: { [creepName: string]: RoomPosition }
+
+    roomSignText?: string
     enemyTarget?: string
     creepSpawnQueue: string[]
 
@@ -254,7 +263,9 @@ interface CreepMemory {
     dontPullMe?: boolean
     needBoost?: boolean
     needRecycle?: boolean
-    pathCache?: PathFinderPath
+    pathCache?: string
+    routeCache?: string[]
+    prePos?: string
 }
 
 interface EmptyData { }
@@ -278,9 +289,9 @@ interface RemoteFillerData { sourceFlag: string, targetFlag: string, withdrawTar
 interface RemoteBuilderData { sourceFlag: string, targetFlag: string, buildTarget?: string }
 interface RemoteHarvesterData { sourceId: string, targetRoom: string, buildTarget?: string }
 
-interface HealerData { targetFlag: string, targetCreep?: string, team?: string }
-interface AttackerData { targetFlag: string, team?: string }
-interface IntegrateData { targetFlag: string, team?: string, attackEnemy?: string }
+interface AttackerData { targetFlag: string }
+interface HealerData { targetFlag: string, targetCreep?: string }
+interface IntegrateData { targetFlag: string, attackEnemy?: string }
 
 interface BodySet {
     [MOVE]?: number

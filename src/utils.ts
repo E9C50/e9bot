@@ -97,7 +97,12 @@ export const getClosestTarget = function <T extends Creep | Structure | Construc
     return closest
 }
 
-// 以给定中心位置，获取指定位置相对该中心的相反位置
+/**
+ * 以给定中心位置，获取指定位置相对该中心的相反位置
+ * @param center
+ * @param target
+ * @returns
+ */
 export const getOppositePosition = function (center: RoomPosition, target: RoomPosition): RoomPosition {
     var oppositeX = Math.max(2 * center.x - target.x, 0)
     var oppositeY = Math.max(2 * center.y - target.y, 0)
@@ -109,6 +114,15 @@ export const getOppositePosition = function (center: RoomPosition, target: RoomP
     if (oppositeY > 49) oppositeY = 49
 
     return new RoomPosition(oppositeX, oppositeY, center.roomName);
+}
+
+/**
+* 获取指定方向的相反方向
+*
+* @param direction 目标方向
+*/
+export function getOppositeDirection(direction: DirectionConstant): DirectionConstant {
+    return <DirectionConstant>((direction + 3) % 8 + 1)
 }
 
 /**
@@ -157,4 +171,21 @@ export function log(content: string, prefixes: string[] = [], color: colorEnum =
     if (notify) Game.notify(logContent)
 
     return OK
+}
+
+/**
+ * 压缩 PathFinder 返回的路径数组
+ * @param positions
+ * @returns
+ */
+export function serializeMovePath(positions: RoomPosition[]): string {
+    if (positions.length == 0) return ''
+    return positions.map((pos, index) => {
+        // 最后一个位置就不用再移动
+        if (index >= positions.length - 1) return null
+        // 由于房间边缘地块会有重叠，所以这里筛除掉重叠的步骤
+        if (pos.roomName != positions[index + 1].roomName) return null
+        // 获取到下个位置的方向
+        return pos.getDirectionTo(positions[index + 1])
+    }).join('')
 }

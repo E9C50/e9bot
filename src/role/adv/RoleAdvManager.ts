@@ -44,6 +44,10 @@ export default (data: CreepData): ICreepConfig => ({
     },
     target(creep) {
         creep.memory.dontPullMe = true;
+        if (creep.room.memory.restrictedPos != undefined) {
+            creep.room.memory.restrictedPos[creep.name] = creep.pos;
+        }
+
         if (creep.room.centerLink == undefined || creep.room.storage == undefined) {
             return false
         }

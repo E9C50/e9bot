@@ -69,9 +69,13 @@ export default (data: CreepData): ICreepConfig => ({
             }
         }
 
-        const findCreeps = creep.pos.findInRange(FIND_HOSTILE_CREEPS, 1)
-        if (findCreeps.length > 0) {
-            creep.attack(findCreeps[0])
+        const findCreepsIn3 = creep.pos.findInRange(FIND_HOSTILE_CREEPS, 3)
+        const findCreepsIn1 = creep.pos.findInRange(FIND_HOSTILE_CREEPS, 1)
+        if (findCreepsIn3.length > 0) {
+            creep.rangedAttack(findCreepsIn3[0])
+        }
+        if (findCreepsIn1.length > 0) {
+            creep.rangedMassAttack()
         }
         return true
     },

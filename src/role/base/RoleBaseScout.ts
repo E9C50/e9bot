@@ -1,5 +1,3 @@
-import { getDistance } from "utils"
-
 export default (data: CreepData): ICreepConfig => ({
     isNeed: (room: Room, creepName: string) => {
         return true

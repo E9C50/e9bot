@@ -41,4 +41,20 @@ export default class ConsoleExtension {
             return '房间不可见'
         }
     }
+
+    /**
+     * 显示核弹信息
+     */
+    public showNukers(): string {
+        let html = '<html><style>tr,th,td{text-align:center} table{width:120%}</style>';
+        html += '<body><table border="1"><thead><tr><th>RoomName</th><th>Cooldown</th><th>Ready</th><th>LeftTime</th></tr></thead><tbody>'
+        Object.values(Game.rooms).forEach(room => {
+            if (room.nuker != undefined) {
+                const ready = room.nuker.cooldown == 0 ? '✅' : '❌';
+                html += `<tr><td>${room.name}</td><td>${room.nuker.cooldown}</td><td>${ready}</td><td>${(room.nuker.cooldown * 2.5 / 60 / 60).toFixed(2)} h</td></tr>`;
+            }
+        });
+        html += '</tbody></table></body></html>';
+        return html;
+    }
 }

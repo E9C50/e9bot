@@ -1,50 +1,6 @@
 import RoleBaseBuilder from "role/base/RoleBaseBuilder"
-import RoleBaseRepairer from "role/base/RoleBaseRepairer";
 import RoleBaseUpgrader from "role/base/RoleBaseUpgrader";
 import { getClosestTarget, getDistance } from "utils"
-
-
-function tempMoveTo(creep: Creep, target: RoomPosition) {
-    let goals = [{ pos: target, range: 1 }]
-    let ret = PathFinder.search(
-        creep.pos, goals,
-        {
-            plainCost: 2,
-            swampCost: 10,
-            roomCallback: function (roomName) {
-                let room = Game.rooms[roomName];
-                let costs = new PathFinder.CostMatrix;
-                if (!room) return costs
-
-                room.find(FIND_STRUCTURES).forEach(function (struct) {
-                    if (struct.structureType === STRUCTURE_ROAD) {
-                        // 相对于平原，寻路时将更倾向于道路
-                        costs.set(struct.pos.x, struct.pos.y, 1);
-                    } else if (struct.structureType !== STRUCTURE_CONTAINER &&
-                        (struct.structureType !== STRUCTURE_RAMPART ||
-                            !struct.my)) {
-                        // 不能穿过无法行走的建筑
-                        costs.set(struct.pos.x, struct.pos.y, 0xff);
-                    }
-                });
-
-                // 躲避房间中的 creep
-                room.find(FIND_HOSTILE_CREEPS).forEach(function (creep) {
-                    for (let x = creep.pos.x - 3; x <= creep.pos.x + 3; x++) {
-                        for (let y = creep.pos.y - 3; y <= creep.pos.y + 3; y++) {
-                            costs.set(x, y, 0xff);
-                        }
-                    }
-                });
-
-                return costs;
-            },
-        }
-    );
-
-    let pos = ret.path[0];
-    creep.move(creep.pos.getDirectionTo(pos));
-}
 
 export default (data: CreepData): ICreepConfig => ({
     isNeed: (room: Room, creepName: string) => {

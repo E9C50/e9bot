@@ -1,4 +1,4 @@
-import { baseLayout, boostConfig, creepWhiteList, reactionConfig, reactionSource } from "settings"
+import { baseLayout, boostConfig, creepWhiteList, reactionConfig, reactionSource, roomSignTextList } from "settings"
 import { getClosestTarget, getDistance } from "utils"
 
 /**
@@ -244,9 +244,18 @@ function findTowerEnemy(room: Room): void {
         return
     }
 
-    Memory.warMode[room.name] = true
-    console.log(room.name, '战争模式已开启')
-    console.log(`notify_您的房间[${room.name}] 发现敌人 所有者[${room.enemies[0].owner.username}]`)
+    // 筛选值得开启战争模式的Creeps
+    const enemyList = room.enemies.filter(enemy => {
+        const isNotNpc = enemy.owner.username != 'Invader' && enemy.owner.username != 'Source Keeper'
+        const isAttacker = enemy.body.filter(body => body.type == 'attack' || body.type == 'ranged_attack' || body.type == 'work').length > 0
+        return isNotNpc && isAttacker
+    })
+
+    if (enemyList.length > 0) {
+        Memory.warMode[room.name] = true
+        console.log(room.name, '战争模式已开启')
+        console.log(`notify_您的房间[${room.name}] 发现敌人 所有者[${room.enemies[0].owner.username}]`)
+    }
 
     // 查找离ram最近的敌人
     var closestRange = Infinity
@@ -297,6 +306,15 @@ function cacheRoomResourceInfo(room: Room): void {
     }
 }
 
+function updateRoomSign(room: Room) {
+    if (room.memory.roomSignText == undefined) {
+        const existsSigns = Object.values(Game.rooms).map(item => item.memory.roomSignText)
+        const unusedSigns = roomSignTextList.filter(item => !existsSigns.includes(item));
+        const randomIndex = Math.floor(Math.random() * unusedSigns.length);
+        room.memory.roomSignText = unusedSigns[randomIndex]
+    }
+}
+
 export const roomController = function (): void {
     for (const roomName in Game.rooms) {
         const room: Room = Game.rooms[roomName];
@@ -317,10 +335,11 @@ export const roomController = function (): void {
 
         if (Memory.warMode == undefined) Memory.warMode = {}
         if (room.memory.roomLabConfig == undefined) room.memory.roomLabConfig = { labReactionQueue: [], singleLabConfig: {} }
+
         if (room.memory.roomStructurePos == undefined) room.memory.roomStructurePos = {}
         if (room.memory.structureIdList == undefined) room.memory.structureIdList = {}
-        if (room.memory.freeSpaceCount == undefined) room.memory.freeSpaceCount = {}
         if (room.memory.resourceAmount == undefined) room.memory.resourceAmount = {}
+        if (room.memory.restrictedPos == undefined) room.memory.restrictedPos = {}
         if (room.memory.roomPosition == undefined) room.memory.roomPosition = {}
         if (room.memory.roomFillJob == undefined) room.memory.roomFillJob = {}
 
@@ -349,5 +368,8 @@ export const roomController = function (): void {
 
         // 更新房间内敌人信息
         findTowerEnemy(room)
+
+        // 更新房间签名
+        updateRoomSign(room)
     }
 }
