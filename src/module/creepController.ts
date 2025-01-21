@@ -410,7 +410,6 @@ export const creepWorkController = function (): void {
     // Creeps执行工作
     var workCpu: [string, number][] = []
     Object.values(Game.creeps).forEach(creep => {
-        if (creep.spawning) return
         if (creep.memory.isTeam) return
         if (Object.values(Memory.warMode).filter(warMode => warMode).length > 0 && !warModeRole.includes(creep.memory.role)) return
 

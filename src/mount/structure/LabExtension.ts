@@ -40,25 +40,36 @@ export default class LabExtension extends StructureLab {
 
         // 如果是boost模式，且boost配置的元素和当前元素不一致，就取出
         const labConfig = this.room.memory.roomLabConfig
+        const labReactionQueue = labConfig.labReactionQueue
         const thisLabConfig = labConfig.singleLabConfig[this.id]
         const boostMode = thisLabConfig != undefined && thisLabConfig.boostMode
         if (boostMode && this.mineralType != undefined && thisLabConfig.resourceType != this.mineralType) {
             this.room.memory.roomFillJob.labOut.push(this.id)
         }
 
-        // 如果不是boost模式，并且不是sourceLab，那么超过1000就取出
+        // 如果不是boost模式，并且不是sourceLab，那么超过1000，或者与当前配方不一致就取出
         if (!boostMode && this.id != labConfig.sourceLab1 && this.id != labConfig.sourceLab2
-            && this.mineralType != undefined && this.store[this.mineralType] > 1000) {
+            && this.mineralType != undefined && labReactionQueue != undefined && labReactionQueue.length > 0
+            && (this.store[this.mineralType] > 2000 || this.mineralType != labReactionQueue[0])) {
             this.room.memory.roomFillJob.labOut.push(this.id)
         }
 
+        // 如果不是boost模式，并且是sourceLab，并且和配置类型不一致，那就取出
+        if (!boostMode && labReactionQueue != undefined && labReactionQueue.length > 0 && (this.id == labConfig.sourceLab1 || this.id == labConfig.sourceLab2)) {
+            const reactionConfig = reactionSource[labReactionQueue[0]]
+            if ((this.id == labConfig.sourceLab1 && this.mineralType != undefined && this.mineralType != reactionConfig[0])
+                || this.id == labConfig.sourceLab2 && this.mineralType != undefined && this.mineralType != reactionConfig[1]) {
+                this.room.memory.roomFillJob.labOut.push(this.id)
+            }
+        }
+
         // 如果有反应配置，则处理sourceLab
-        if (labConfig.labReactionQueue.length > 0) {
-            const reactionConfig = reactionSource[this.room.memory.roomLabConfig.labReactionQueue[0]]
-            if (this.id == labConfig.sourceLab1) {
+        if (labReactionQueue != undefined && labReactionQueue.length > 0) {
+            const reactionConfig = reactionSource[labReactionQueue[0]]
+            if (this.id == labConfig.sourceLab1 && (this.mineralType == undefined || this.store.getFreeCapacity(this.mineralType) > 1000)) {
                 this.room.memory.roomFillJob.labInMineral.push({ labId: this.id, resourceType: reactionConfig[0] })
             }
-            if (this.id == labConfig.sourceLab2) {
+            if (this.id == labConfig.sourceLab2 && (this.mineralType == undefined || this.store.getFreeCapacity(this.mineralType) > 1000)) {
                 this.room.memory.roomFillJob.labInMineral.push({ labId: this.id, resourceType: reactionConfig[1] })
             }
         }

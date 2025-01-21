@@ -1,5 +1,3 @@
-import { boostTypeEnum } from "settings"
-
 function singleWork(creep: Creep, data: TeamConfig) {
     if (creep == undefined) return
     if (creep.spawning == undefined) return
@@ -17,16 +15,11 @@ export default (data: TeamConfig): ITeamConfig => ({
         const targetFlag = Game.flags[data.teamFlag]
         if (targetFlag == undefined) return false
 
-        const boostList = [
-            boostTypeEnum.BoostTypeRangedAttack, boostTypeEnum.BoostTypeHeal,
-            boostTypeEnum.BoostTypeMove, boostTypeEnum.BoostTypeTough
-        ]
-
         var allBoosted = false
         const creep1 = Game.creeps[data.creepNameList[0]]
         const creep2 = Game.creeps[data.creepNameList[1]]
-        if (creep1 != undefined) allBoosted = creep1.goBoost(boostList)
-        if (creep2 != undefined) allBoosted = allBoosted && creep2.goBoost(boostList)
+        if (creep1 != undefined) allBoosted = creep1.goBoost()
+        if (creep2 != undefined) allBoosted = allBoosted && creep2.goBoost()
 
         return allBoosted
     },

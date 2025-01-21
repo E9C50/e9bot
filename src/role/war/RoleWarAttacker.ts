@@ -1,4 +1,3 @@
-import { boostTypeEnum } from "settings"
 import { getClosestTarget } from "utils"
 
 export default (data: CreepData): ICreepConfig => ({
@@ -8,7 +7,7 @@ export default (data: CreepData): ICreepConfig => ({
     },
     prepare(creep) {
         if (!creep.memory.ready && creep.memory.needBoost) {
-            return creep.goBoost([boostTypeEnum.BoostTypeAttack, boostTypeEnum.BoostTypeMove])
+            return creep.goBoost()
         }
         return true
     },

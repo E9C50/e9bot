@@ -29,20 +29,24 @@ function processFlagPos(flagName: string, memoryKey: string): void {
     // }
 }
 
-function processFlagStructure(flagName: string, memoryKey: string): void {
-    if (Game.flags[flagName] != undefined) {
-        const roomName = Game.flags[flagName].pos.roomName;
-        Game.rooms[roomName].memory.roomStructurePos[memoryKey] = Game.flags[flagName].pos.lookFor(LOOK_STRUCTURES)[0].id;
-        Game.flags[flagName].remove();
+function processFlagStructure(): void {
+    if (Game.flags['repairTower'] != undefined) {
+        const roomName = Game.flags['repairTower'].pos.roomName;
+        Game.rooms[roomName].memory.roomStructurePos['towerAllowRepair'] = Game.flags['repairTower'].pos.lookFor(LOOK_STRUCTURES)[0].id;
+        Game.flags['repairTower'].remove();
     }
-    // if (Game.time % 10 == 0) {
-    //     for (let roomName in Game.rooms) {
-    //         if (!Game.rooms[roomName].my) return
-    //         if (Game.flags[flagName] == undefined && Game.rooms[roomName].memory.structureIdList[memoryKey] == undefined) {
-    //             console.log(`房间 [${roomName}] 请放置旗帜 ${flagName} 用于设置 ${memoryKey} 建筑`)
-    //         }
-    //     }
-    // }
+
+    if (Game.flags['lab1'] != undefined) {
+        const roomName = Game.flags['lab1'].pos.roomName;
+        Game.rooms[roomName].memory.roomLabConfig.sourceLab1 = Game.flags['lab1'].pos.lookFor(LOOK_STRUCTURES)[0].id;
+        Game.flags['lab1'].remove();
+    }
+
+    if (Game.flags['lab2'] != undefined) {
+        const roomName = Game.flags['lab2'].pos.roomName;
+        Game.rooms[roomName].memory.roomLabConfig.sourceLab2 = Game.flags['lab2'].pos.lookFor(LOOK_STRUCTURES)[0].id;
+        Game.flags['lab2'].remove();
+    }
 }
 
 export function mountWork() {
@@ -61,10 +65,5 @@ export function mountWork() {
     assignPrototype(StructureFactory, FactoryExtension)
     assignPrototype(StructurePowerSpawn, PowerSpawnExtension)
 
-    processFlagPos('managerPos', 'managerPos')
-    processFlagPos('centerPos', 'centerPos')
-
-    processFlagStructure('lab1', 'sourceLab1')
-    processFlagStructure('lab2', 'sourceLab2')
-    processFlagStructure('repairTower', 'towerAllowRepair')
+    processFlagStructure()
 }

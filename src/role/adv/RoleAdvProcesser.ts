@@ -9,7 +9,7 @@ export default (data: CreepData): ICreepConfig => ({
         const fillJobs = creep.room.memory.roomFillJob
 
         // 检查有没有掉落的资源需要捡
-        if (creep.pickupDroppedResource(true, 40)) return true
+        // if (creep.pickupDroppedResource(true, 40)) return true
 
         // 身上有东西就先放下
         if (creep.room.storage != undefined && creep.store.getUsedCapacity() > 0) {

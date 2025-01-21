@@ -319,18 +319,18 @@ export const baseLayout: { [level: number]: {} } = {
 }
 
 export const reactionConfig = {
-    [RESOURCE_CATALYZED_GHODIUM_ACID]: 10000,        // WORK     +100% upgradeController 效率但不增加其能量消耗
-    [RESOURCE_CATALYZED_GHODIUM_ALKALIDE]: 10000,    // TOUGH    70% 伤害减免
-    [RESOURCE_CATALYZED_KEANIUM_ACID]: 10000,        // CARRY    +150 容量
-    [RESOURCE_CATALYZED_KEANIUM_ALKALIDE]: 10000,    // R_A      +300% rangedAttack 和 rangedMassAttack 效率
-    [RESOURCE_CATALYZED_LEMERGIUM_ACID]: 10000,      // WORK     +100% repair 和 build 效率但不增加其能量消耗
-    [RESOURCE_CATALYZED_LEMERGIUM_ALKALIDE]: 10000,  // HEAL     +300% heal and rangedHeal 效率
-    [RESOURCE_CATALYZED_UTRIUM_ACID]: 10000,         // ATTACK   +300% attack 效率
-    [RESOURCE_CATALYZED_UTRIUM_ALKALIDE]: 10000,     // WORK     +600% harvest 效率
-    [RESOURCE_CATALYZED_ZYNTHIUM_ACID]: 10000,       // WORK     +300% dismantle 效率
-    [RESOURCE_CATALYZED_ZYNTHIUM_ALKALIDE]: 10000,   // MOVE     +300% fatigue(疲劳值) 减低速度
+    [RESOURCE_CATALYZED_GHODIUM_ACID]: 100000,        // WORK     +100% upgradeController 效率但不增加其能量消耗
+    [RESOURCE_CATALYZED_GHODIUM_ALKALIDE]: 100000,    // TOUGH    70% 伤害减免
+    [RESOURCE_CATALYZED_KEANIUM_ACID]: 100000,        // CARRY    +150 容量
+    [RESOURCE_CATALYZED_KEANIUM_ALKALIDE]: 100000,    // R_A      +300% rangedAttack 和 rangedMassAttack 效率
+    [RESOURCE_CATALYZED_LEMERGIUM_ACID]: 100000,      // WORK     +100% repair 和 build 效率但不增加其能量消耗
+    [RESOURCE_CATALYZED_LEMERGIUM_ALKALIDE]: 100000,  // HEAL     +300% heal and rangedHeal 效率
+    [RESOURCE_CATALYZED_UTRIUM_ACID]: 100000,         // ATTACK   +300% attack 效率
+    [RESOURCE_CATALYZED_UTRIUM_ALKALIDE]: 100000,     // WORK     +600% harvest 效率
+    [RESOURCE_CATALYZED_ZYNTHIUM_ACID]: 100000,       // WORK     +300% dismantle 效率
+    [RESOURCE_CATALYZED_ZYNTHIUM_ALKALIDE]: 100000,   // MOVE     +300% fatigue(疲劳值) 减低速度
 
-    [RESOURCE_GHODIUM]: 10000,                       // Nuker    !!!
+    [RESOURCE_GHODIUM]: 100000,                       // Nuker    !!!
 
     // [RESOURCE_GHODIUM_ACID]: 10000,
     // [RESOURCE_GHODIUM_ALKALIDE]: 10000,
@@ -357,6 +357,18 @@ export const reactionConfig = {
     // [RESOURCE_ZYNTHIUM_KEANITE]: 10000,
     // [RESOURCE_UTRIUM_LEMERGITE]: 10000,
     // [RESOURCE_HYDROXIDE]: 10000,
+}
+
+// 角色对应的需要boost的配置
+export const roleBoostConfig: { [role in CreepRoleConstant]?: BoostTypeConstant[] } = {
+    healer: [boostTypeEnum.BoostTypeHeal, boostTypeEnum.BoostTypeMove],
+    attacker: [boostTypeEnum.BoostTypeAttack, boostTypeEnum.BoostTypeMove],
+    defender: [boostTypeEnum.BoostTypeAttack, boostTypeEnum.BoostTypeMove],
+    rdefender: [boostTypeEnum.BoostTypeRangedAttack, boostTypeEnum.BoostTypeMove],
+    integrate: [
+        boostTypeEnum.BoostTypeRangedAttack, boostTypeEnum.BoostTypeHeal,
+        boostTypeEnum.BoostTypeMove, boostTypeEnum.BoostTypeTough
+    ],
 }
 
 // boost类型对应BodyPart

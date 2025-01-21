@@ -1,5 +1,3 @@
-import { boostTypeEnum } from "settings"
-
 export default (data: CreepData): ICreepConfig => ({
     isNeed: (room: Room, creepName: string) => {
         const creepData: HealerData = data as HealerData
@@ -7,7 +5,7 @@ export default (data: CreepData): ICreepConfig => ({
     },
     prepare(creep) {
         if (!creep.memory.ready && creep.memory.needBoost) {
-            return creep.goBoost([boostTypeEnum.BoostTypeHeal, boostTypeEnum.BoostTypeMove])
+            return creep.goBoost()
         }
         return true
     },

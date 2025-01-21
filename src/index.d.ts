@@ -139,7 +139,7 @@ interface Creep {
     takeFromTarget(takeTarget: Structure, resourceType: ResourceConstant, amount?: number): boolean
     pickupDroppedResource(allSource: boolean, range: number): boolean
 
-    goBoost(boostList: BoostTypeConstant[]): boolean
+    goBoost(): boolean
 
     requireCross(direction: DirectionConstant): Boolean
     mutualCross(direction: DirectionConstant): OK | ERR_BUSY | ERR_NOT_FOUND
@@ -231,6 +231,7 @@ interface ILabConfig {
     sourceLab1?: string
     sourceLab2?: string
 
+    needBoostTypeList: BoostTypeConstant[]
     labReactionQueue: ResourceConstant[]
     singleLabConfig: {
         [labId: string]: {

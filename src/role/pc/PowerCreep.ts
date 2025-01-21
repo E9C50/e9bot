@@ -33,7 +33,7 @@ export const powerSpawnController = function (): void {
 
         // 不在指定房间，就过去
         if (pc.room.name != pcFlag.pos.roomName) {
-            pc.moveTo(new RoomPosition(25, 25, pc.room.name))
+            pc.moveTo(new RoomPosition(25, 25, pcFlag.pos.roomName))
             return
         }
 

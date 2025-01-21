@@ -128,8 +128,16 @@ export const visualController = function (): void {
 
             const source = reactionSource[room.memory.roomLabConfig.labReactionQueue[0]]
 
-            if (lab1) room.visual.text(source[0], lab1.pos.x, lab1.pos.y, { align: 'center', color: 'blue' });
-            if (lab2) room.visual.text(source[1], lab2.pos.x, lab2.pos.y, { align: 'center', color: 'blue' });
+            if (lab1) room.visual.text(source[0], lab1.pos.x, lab1.pos.y, { align: 'center', color: 'blue', font: 0.3 });
+            if (lab2) room.visual.text(source[1], lab2.pos.x, lab2.pos.y, { align: 'center', color: 'blue', font: 0.3 });
+        }
+
+        // 显示需要搬出来的lab
+        if (room.memory.roomFillJob.labOut != undefined) {
+            room.memory.roomFillJob.labOut.forEach(outId => {
+                const outLab = Game.getObjectById<StructureLab>(outId)
+                if (outLab) room.visual.text('🔁', outLab.pos.x, outLab.pos.y, { align: 'center', color: 'yellow', font: 0.3 });
+            })
         }
 
         showCostMatrix(room)

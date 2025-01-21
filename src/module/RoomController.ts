@@ -1,4 +1,4 @@
-import { baseLayout, boostConfig, creepWhiteList, reactionConfig, reactionSource, roomSignTextList } from "settings"
+import { baseLayout, boostConfig, creepWhiteList, reactionConfig, reactionSource, roleBoostConfig, roomSignTextList } from "settings"
 import { getClosestTarget, getDistance } from "utils"
 
 /**
@@ -49,9 +49,17 @@ function updateLabReactionConfig(room: Room): void {
     if (Game.time % 10 != 0) return
     if (room.labs.length == 0) return
     // 如果房间没有配置好两个sourceLab，就跳过
-    if (room.memory.roomLabConfig.sourceLab1 == undefined || !room.memory.roomLabConfig.sourceLab2 == undefined) return
+    if (room.memory.roomLabConfig.sourceLab1 == undefined || room.memory.roomLabConfig.sourceLab2 == undefined) return
 
-    if (room.memory.roomLabConfig.labReactionQueue.length > 0 && !checkReactionReady(room, room.memory.roomLabConfig.labReactionQueue[0])) {
+    // 获取两个lab
+    const lab1 = Game.getObjectById(room.memory.roomLabConfig.sourceLab1) as StructureLab;
+    const lab2 = Game.getObjectById(room.memory.roomLabConfig.sourceLab2) as StructureLab;
+
+    if (room.memory.roomLabConfig.labReactionQueue.length > 0 &&
+        !checkReactionReady(room, room.memory.roomLabConfig.labReactionQueue[0]) &&
+        lab1.mineralType != undefined && lab2.mineralType != undefined &&
+        lab1.store[lab1.mineralType] > 10 && lab2.store[lab2.mineralType] > 10) {
+
         console.log(`Lab合成配置更新前：${room.memory.roomLabConfig.labReactionQueue}`)
         room.memory.roomLabConfig.labReactionQueue.shift()
         console.log(`Lab合成配置更新后：${room.memory.roomLabConfig.labReactionQueue}`)
@@ -63,6 +71,9 @@ function updateLabReactionConfig(room: Room): void {
         if ((room.memory.resourceAmount[config] || 0) >= reactionConfig[config]) continue
         const readyReactionList = getReadyChildReaction(room, config as ResourceConstant)
         if (!readyReactionList.includes(config as ResourceConstant)) continue
+
+        if (lab1.mineralType != undefined && lab2.mineralType != undefined
+            && lab1.store[lab1.mineralType] > 10 && lab2.store[lab2.mineralType] > 10) continue
 
         console.log(`Lab合成配置更新前：${room.memory.roomLabConfig.labReactionQueue}`)
         room.memory.roomLabConfig.labReactionQueue = readyReactionList
@@ -78,24 +89,30 @@ function updateLabBoostConfig(room: Room): void {
     const labConfig = room.memory.roomLabConfig
     labConfig.singleLabConfig = {}
 
-    Object.keys(boostConfig).forEach(configType => {
-        if (boostConfig[configType].length > 0) {
+    // 根据当前creep需求配置，获取需要boost的资源
+    const creepRoleList = Object.values(room.memory.creepConfig).map(config => config.role)
+    const needBoostTypeList = creepRoleList.reduce<BoostTypeConstant[]>((acc, role) => acc.concat(roleBoostConfig[role] || []), []);
+    if (needBoostTypeList == undefined) return
+
+    room.memory.roomLabConfig.needBoostTypeList = needBoostTypeList
+    room.memory.roomLabConfig.needBoostTypeList.forEach(boostType => {
+        if (boostConfig[boostType].length > 0) {
             const emptyLabId = room.labs.filter(lab => lab.id != labConfig.sourceLab1 && lab.id != labConfig.sourceLab2 && (labConfig.singleLabConfig[lab.id] == undefined || !labConfig.singleLabConfig[lab.id].boostMode))[0]?.id
 
             if (emptyLabId == undefined) return
-            const resourceTypeT3 = boostConfig[configType][2]
+            const resourceTypeT3 = boostConfig[boostType][2]
             if ((room.memory.resourceAmount[resourceTypeT3] || 0) > 0) {
-                labConfig.singleLabConfig[emptyLabId] = { resourceType: resourceTypeT3, boostMode: true, boostType: configType as BoostTypeConstant }
+                labConfig.singleLabConfig[emptyLabId] = { resourceType: resourceTypeT3, boostMode: true, boostType: boostType }
                 return
             }
-            const resourceTypeT2 = boostConfig[configType][1]
+            const resourceTypeT2 = boostConfig[boostType][1]
             if ((room.memory.resourceAmount[resourceTypeT2] || 0) > 0) {
-                labConfig.singleLabConfig[emptyLabId] = { resourceType: resourceTypeT2, boostMode: true, boostType: configType as BoostTypeConstant }
+                labConfig.singleLabConfig[emptyLabId] = { resourceType: resourceTypeT2, boostMode: true, boostType: boostType }
                 return
             }
-            const resourceTypeT1 = boostConfig[configType][0]
+            const resourceTypeT1 = boostConfig[boostType][0]
             if ((room.memory.resourceAmount[resourceTypeT1] || 0) > 0) {
-                labConfig.singleLabConfig[emptyLabId] = { resourceType: resourceTypeT1, boostMode: true, boostType: configType as BoostTypeConstant }
+                labConfig.singleLabConfig[emptyLabId] = { resourceType: resourceTypeT1, boostMode: true, boostType: boostType }
                 return
             }
         }
@@ -306,6 +323,21 @@ function cacheRoomResourceInfo(room: Room): void {
     }
 }
 
+function processTerminalResource(room: Room) {
+    if (Game.time % 10 != 0) return
+    if (room.terminal == undefined) return
+    const centerStorage = 'E35N3'
+
+    // 终端默认留存资源
+    room.memory.terminalAmount['energy'] = 50000
+    room.memory.terminalAmount[room.mineral.mineralType] = 100000
+
+    // 不是中央仓库的，把房间产的矿发到中央仓库
+    if (room.name != centerStorage && room.terminal.store[room.mineral.mineralType] > 30000) {
+        room.terminal.send(room.mineral.mineralType, room.terminal.store[room.mineral.mineralType] - 30000, centerStorage)
+    }
+}
+
 function updateRoomSign(room: Room) {
     if (room.memory.roomSignText == undefined) {
         const existsSigns = Object.values(Game.rooms).map(item => item.memory.roomSignText)
@@ -358,20 +390,23 @@ export const roomController = function (): void {
             console.log('更新建筑缓存', roomName)
         }
 
+        if (!room.my) continue;
+
         if (Memory.warMode == undefined) Memory.warMode = {}
-        if (room.memory.roomLabConfig == undefined) room.memory.roomLabConfig = { labReactionQueue: [], singleLabConfig: {} }
+        if (room.memory.roomLabConfig == undefined) room.memory.roomLabConfig = {
+            labReactionQueue: [], singleLabConfig: {}, needBoostTypeList: []
+        }
 
         if (room.memory.roomStructurePos == undefined) room.memory.roomStructurePos = {}
         if (room.memory.structureIdList == undefined) room.memory.structureIdList = {}
         if (room.memory.resourceAmount == undefined) room.memory.resourceAmount = {}
+        if (room.memory.terminalAmount == undefined) room.memory.terminalAmount = {}
         if (room.memory.restrictedPos == undefined) room.memory.restrictedPos = {}
         if (room.memory.roomPosition == undefined) room.memory.roomPosition = {}
         if (room.memory.roomFillJob == undefined) room.memory.roomFillJob = {}
         if (room.memory.teamConfig == undefined) room.memory.teamConfig = {}
 
         room.memory.roomFillJob.labInMineral = []
-
-        if (!room.my) continue;
 
         // 自动开启安全模式
         autoEnableSafeMode(room)
@@ -387,6 +422,9 @@ export const roomController = function (): void {
 
         // 缓存房间资源信息
         cacheRoomResourceInfo(room)
+
+        // 处理资源平衡
+        processTerminalResource(room)
 
         // 更新Lab Boost配置
         updateLabBoostConfig(room)
