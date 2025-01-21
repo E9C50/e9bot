@@ -1,4 +1,5 @@
-import { getClosestTarget, getDistance } from "utils"
+import { boostTypeEnum } from "settings"
+import { getClosestTarget } from "utils"
 
 export default (data: CreepData): ICreepConfig => ({
     isNeed: (room: Room, creepName: string) => {
@@ -6,29 +7,8 @@ export default (data: CreepData): ICreepConfig => ({
     },
     prepare(creep) {
         creep.memory.needBoost = true
-        if (creep.memory.needBoost) {
-            // 处理boost
-            const boostConfig = creep.room.memory.roomLabConfig.singleLabConfig
-            for (let index in creep.body) {
-                const bodyPart = creep.body[index]
-                if (bodyPart.boost == undefined) {
-                    for (let labId in boostConfig) {
-                        if (boostConfig[labId].boostPart == bodyPart.type) {
-                            const boostLab: StructureLab = Game.getObjectById(labId) as StructureLab
-                            if (boostLab.mineralType == undefined || boostLab.store[boostLab.mineralType] < 100) {
-                                creep.moveTo(creep.room.spawns[0])
-                                return false
-                            }
-                            if (getDistance(creep.pos, boostLab.pos) > 1) {
-                                creep.moveTo(boostLab)
-                                return false
-                            }
-                        }
-                    }
-                    return false
-                }
-            }
-            return true
+        if (!creep.memory.ready && creep.memory.needBoost) {
+            return creep.goBoost([boostTypeEnum.BoostTypeAttack, boostTypeEnum.BoostTypeMove])
         }
         return true
     },

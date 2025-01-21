@@ -1,15 +1,13 @@
-import { getClosestTarget, getDistance } from "utils"
+import { boostTypeEnum } from "settings"
 
 export default (data: CreepData): ICreepConfig => ({
     isNeed: (room: Room, creepName: string) => {
-        const creepData: AttackerData = data as AttackerData
+        const creepData: HealerData = data as HealerData
         return Game.flags[creepData.targetFlag] != undefined
     },
     prepare(creep) {
-        const creepData: AttackerData = data as AttackerData
-        if (creep.memory.needBoost) {
-            // 处理boost
-            return true
+        if (!creep.memory.ready && creep.memory.needBoost) {
+            return creep.goBoost([boostTypeEnum.BoostTypeHeal, boostTypeEnum.BoostTypeMove])
         }
         return true
     },

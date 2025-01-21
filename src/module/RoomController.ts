@@ -78,24 +78,24 @@ function updateLabBoostConfig(room: Room): void {
     const labConfig = room.memory.roomLabConfig
     labConfig.singleLabConfig = {}
 
-    Object.keys(boostConfig.WAR).forEach(configPart => {
-        if (boostConfig.WAR[configPart].length > 0) {
+    Object.keys(boostConfig).forEach(configType => {
+        if (boostConfig[configType].length > 0) {
             const emptyLabId = room.labs.filter(lab => lab.id != labConfig.sourceLab1 && lab.id != labConfig.sourceLab2 && (labConfig.singleLabConfig[lab.id] == undefined || !labConfig.singleLabConfig[lab.id].boostMode))[0]?.id
 
             if (emptyLabId == undefined) return
-            const resourceTypeT3 = boostConfig.WAR[configPart][2]
+            const resourceTypeT3 = boostConfig[configType][2]
             if ((room.memory.resourceAmount[resourceTypeT3] || 0) > 0) {
-                labConfig.singleLabConfig[emptyLabId] = { resourceType: resourceTypeT3, boostMode: true, boostPart: configPart as BodyPartConstant }
+                labConfig.singleLabConfig[emptyLabId] = { resourceType: resourceTypeT3, boostMode: true, boostType: configType as BoostTypeConstant }
                 return
             }
-            const resourceTypeT2 = boostConfig.WAR[configPart][1]
+            const resourceTypeT2 = boostConfig[configType][1]
             if ((room.memory.resourceAmount[resourceTypeT2] || 0) > 0) {
-                labConfig.singleLabConfig[emptyLabId] = { resourceType: resourceTypeT2, boostMode: true, boostPart: configPart as BodyPartConstant }
+                labConfig.singleLabConfig[emptyLabId] = { resourceType: resourceTypeT2, boostMode: true, boostType: configType as BoostTypeConstant }
                 return
             }
-            const resourceTypeT1 = boostConfig.WAR[configPart][0]
+            const resourceTypeT1 = boostConfig[configType][0]
             if ((room.memory.resourceAmount[resourceTypeT1] || 0) > 0) {
-                labConfig.singleLabConfig[emptyLabId] = { resourceType: resourceTypeT1, boostMode: true, boostPart: configPart as BodyPartConstant }
+                labConfig.singleLabConfig[emptyLabId] = { resourceType: resourceTypeT1, boostMode: true, boostType: configType as BoostTypeConstant }
                 return
             }
         }
@@ -315,6 +315,31 @@ function updateRoomSign(room: Room) {
     }
 }
 
+function autoEnableSafeMode(room: Room) {
+    const controller = room.controller
+    if (controller == undefined) return
+    if (controller.safeModeAvailable == 0) return
+    if (controller.safeModeCooldown == undefined) return
+    if (controller.safeModeCooldown > 0) return
+    if (room.enemies.length == 0) return
+
+    if (room.storage != undefined && room.storage.hits < room.storage.hitsMax) {
+        controller.activateSafeMode()
+        console.log(`notify_您的房间[${room.name}] [storage]受到攻击，安全模式已激活`)
+        return
+    }
+    if (room.terminal != undefined && room.terminal.hits < room.terminal.hitsMax) {
+        controller.activateSafeMode()
+        console.log(`notify_您的房间[${room.name}] [terminal]受到攻击，安全模式已激活`)
+        return
+    }
+    if (room.spawns.length == 1 && room.spawns[0].hits < room.spawns[0].hitsMax) {
+        controller.activateSafeMode()
+        console.log(`notify_您的房间[${room.name}] [spawns]受到攻击，安全模式已激活`)
+        return
+    }
+}
+
 export const roomController = function (): void {
     for (const roomName in Game.rooms) {
         const room: Room = Game.rooms[roomName];
@@ -342,11 +367,14 @@ export const roomController = function (): void {
         if (room.memory.restrictedPos == undefined) room.memory.restrictedPos = {}
         if (room.memory.roomPosition == undefined) room.memory.roomPosition = {}
         if (room.memory.roomFillJob == undefined) room.memory.roomFillJob = {}
+        if (room.memory.teamConfig == undefined) room.memory.teamConfig = {}
 
         room.memory.roomFillJob.labInMineral = []
 
         if (!room.my) continue;
 
+        // 自动开启安全模式
+        autoEnableSafeMode(room)
 
         // 自动计算RoomCenter
         autoComputeCenterPos(room)

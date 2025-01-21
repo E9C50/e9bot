@@ -148,12 +148,15 @@ export default class RoomExtension extends Room {
         } else {
             const walls: Structure[] = [...this.ramparts, ...this.walls].filter(structure => {
                 var filterRam = true;
+                var filterWall = true;
                 if (structure.structureType == STRUCTURE_RAMPART) {
                     filterRam = structure.hits < 25000000 || structure.pos.lookFor(LOOK_STRUCTURES).filter(stru =>
                         stru.structureType != STRUCTURE_ROAD && stru.structureType != STRUCTURE_RAMPART
                     ).length == 0
+                } else {
+                    filterWall = structure.hits < 1000000
                 }
-                return structure.hits < structure.hitsMax && filterRam
+                return structure.hits < structure.hitsMax && filterRam && filterWall
             })
             this.memory.structureIdList[memoryKey] = walls.map(source => source.id)
             return walls

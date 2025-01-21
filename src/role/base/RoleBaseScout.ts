@@ -14,6 +14,7 @@ export default (data: CreepData): ICreepConfig => ({
 
         // 优先去标点位置
         const targetFlag = Game.flags[creepData.targetFlag]
+
         if (targetFlag != undefined && !creep.pos.isEqualTo(targetFlag.pos)) {
             creep.moveTo(targetFlag)
             return true

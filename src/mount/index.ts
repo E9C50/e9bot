@@ -10,6 +10,7 @@ import NukerExtension from "./structure/NukerExtension"
 import FactoryExtension from "./structure/FactoryExtension"
 import ConsoleExtension from "./extension/ConsoleExtension"
 import PositionExtension from "./extension/PositionExtension"
+import PowerCreepExtension from "./extension/PowerCreepExtension"
 
 function processFlagPos(flagName: string, memoryKey: string): void {
     if (Game.flags[flagName] != undefined) {
@@ -49,6 +50,7 @@ export function mountWork() {
 
     assignPrototype(Room, RoomExtension)
     assignPrototype(Creep, CreepExtension)
+    assignPrototype(PowerCreep, PowerCreepExtension)
     assignPrototype(RoomPosition, PositionExtension)
 
     assignPrototype(StructureLab, LabExtension)

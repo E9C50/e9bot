@@ -22,7 +22,11 @@ export default (data: CreepData): ICreepConfig => ({
     },
     source(creep) {
         const creepData: FillerData = data as FillerData
-        var sourceTarget: Structure = Game.getObjectById(creepData.sourceId) as Structure
+        var sourceTarget = Game.getObjectById<AnyStoreStructure>(creepData.sourceId)
+
+        if (sourceTarget != undefined && sourceTarget.store[RESOURCE_ENERGY] == 0) {
+            sourceTarget = null
+        }
 
         // 如果没有空余容量了，就开始工作
         if (creep.store.getFreeCapacity() == 0) {
@@ -31,13 +35,15 @@ export default (data: CreepData): ICreepConfig => ({
         }
 
         // 检查有没有掉落的资源需要捡
-        // if (creep.pickupDroppedResource(false, 40)) return true
+        if (creep.pickupDroppedResource(true, 40)) return true
 
         // 如果没有指定目标容器，就随便找一个
         if (sourceTarget == undefined) {
-            const energySources: Structure[] = [...creep.room.containers, ...creep.room.links]
-                .filter(item => item != undefined && item.store[RESOURCE_ENERGY] > 0)
+            var energySources: AnyStoreStructure[] = [...creep.room.containers, ...creep.room.links]
             if (creep.room.storage != undefined) energySources.push(creep.room.storage)
+            if (creep.room.terminal != undefined) energySources.push(creep.room.terminal)
+
+            energySources = energySources.filter(item => item != undefined && item.store[RESOURCE_ENERGY] > 0)
 
             sourceTarget = getClosestTarget(creep.pos, energySources)
             if (sourceTarget == undefined) {
@@ -59,6 +65,11 @@ export default (data: CreepData): ICreepConfig => ({
     target(creep) {
         const creepData: FillerData = data as FillerData
         const fillJobs = creep.room.memory.roomFillJob
+
+        if (creep.room.storage != undefined && creep.store.getUsedCapacity() > creep.store[RESOURCE_ENERGY]) {
+            creep.transferToTarget(creep.room.storage, Object.keys(creep.store)[0] as ResourceConstant)
+            return true
+        }
 
         // 如果没有能量了，就切换为采集状态
         if (creep.store[RESOURCE_ENERGY] == 0) {

@@ -1,4 +1,5 @@
-import { getClosestTarget, getDistance } from "utils"
+import { boostTypeEnum } from "settings"
+import { getClosestTarget } from "utils"
 
 export default (data: CreepData): ICreepConfig => ({
     isNeed: (room: Room, creepName: string) => {
@@ -6,29 +7,8 @@ export default (data: CreepData): ICreepConfig => ({
     },
     prepare(creep) {
         creep.memory.needBoost = true
-        if (creep.memory.needBoost) {
-            // 处理boost
-            const boostConfig = creep.room.memory.roomLabConfig.singleLabConfig
-            for (let index in creep.body) {
-                const bodyPart = creep.body[index]
-                if (bodyPart.boost == undefined) {
-                    for (let labId in boostConfig) {
-                        if (boostConfig[labId].boostPart == bodyPart.type) {
-                            const boostLab: StructureLab = Game.getObjectById(labId) as StructureLab
-                            if (boostLab.mineralType == undefined || boostLab.store[boostLab.mineralType] < 100) {
-                                creep.moveTo(creep.room.spawns[0])
-                                return false
-                            }
-                            if (getDistance(creep.pos, boostLab.pos) > 1) {
-                                creep.moveTo(boostLab)
-                                return false
-                            }
-                        }
-                    }
-                    return false
-                }
-            }
-            return true
+        if (!creep.memory.ready && creep.memory.needBoost) {
+            return creep.goBoost([boostTypeEnum.BoostTypeRangedAttack, boostTypeEnum.BoostTypeMove])
         }
         return true
     },
@@ -69,13 +49,15 @@ export default (data: CreepData): ICreepConfig => ({
             }
         }
 
-        const findCreepsIn3 = creep.pos.findInRange(FIND_HOSTILE_CREEPS, 3)
         const findCreepsIn1 = creep.pos.findInRange(FIND_HOSTILE_CREEPS, 1)
-        if (findCreepsIn3.length > 0) {
-            creep.rangedAttack(findCreepsIn3[0])
-        }
         if (findCreepsIn1.length > 0) {
             creep.rangedMassAttack()
+            return true
+        }
+        const findCreepsIn3 = creep.pos.findInRange(FIND_HOSTILE_CREEPS, 3)
+        if (findCreepsIn3.length > 0) {
+            creep.rangedAttack(findCreepsIn3[0])
+            return true
         }
         return true
     },

@@ -1,3 +1,4 @@
+import { roleAdvEnum, roleBaseEnum } from "settings"
 import { getClosestTarget, getDistance } from "utils"
 
 export default (data: CreepData): ICreepConfig => ({
@@ -24,13 +25,7 @@ export default (data: CreepData): ICreepConfig => ({
             return true
         }
 
-        if (creep.room.name == 'E37N7' && sourcePos.roomName == 'E35N3' && !creep.pos.isNearTo(creep.room.spawns[0])) {
-            creep.moveTo(creep.room.spawns[0])
-            creep.memory.needRecycle = true
-            return true
-        }
-
-        // if (creep.pickupDroppedResource(false, 50)) return true
+        if (creep.pickupDroppedResource(true, 50)) return true
 
         // 如果不在目标房间，则去往目标房间
         if (creep.room.name != sourcePos.roomName) {
@@ -169,11 +164,17 @@ export default (data: CreepData): ICreepConfig => ({
         ].filter(item => item != undefined && item.store.getFreeCapacity(RESOURCE_ENERGY) > 0) as Structure[]
         if (structureList.length > 0) {
             targetStructure = getClosestTarget(creep.pos, structureList)
-        } else {
-            targetStructure = creep.room.spawns[0]
         }
 
-        if (!targetStructure) {
+        if (targetStructure == undefined) {
+            targetStructure = creep.pos.findClosestByRange(FIND_MY_CREEPS, {
+                filter: creep => creep.memory.role == roleAdvEnum.RBUILDER ||
+                    creep.memory.role == roleBaseEnum.BUILDER || creep.memory.role == roleBaseEnum.UPGRADER
+            })
+        }
+
+        if (targetStructure == undefined && creep.room.sources.length > 0) {
+            creep.moveTo(creep.room.sources[0])
             return true
         }
 

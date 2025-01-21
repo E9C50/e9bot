@@ -6,14 +6,11 @@ export const creepWhiteList = ['an_w', 'NoName_', 'MoSaSa', 'Kaoruko', 'keqing']
 
 // 永不踏入这些房间
 export const findPathAvoidRooms = [
-    'E36N5', // 要塞
+    // 'E36N5', // 要塞
     'E39N4', 'E38N1', 'E39N1', 'E32N2', 'E33N5', 'E39N7'
 ]
 export const enableObserversFindPath = true
 export const observersFindPathIdList = [
-    '6787d30d1d4221eac2004302',
-    '6779ca1adbeeb60e63b5038f',
-    '67883badb94d0b4edde751ba'
 ]
 
 export const defaultReserverSign = 'RESERVED BY E9C50, PLEASE STAY AWAY ⚠️⚠️⚠️'
@@ -32,6 +29,21 @@ export const roomSignTextList = [
     '善用兵者，避其锐气，击其惰归。',
     '不战而屈人之兵，善之善者也。',
 ]
+
+export enum boostTypeEnum {
+    BoostTypeMove = 'boostMove',
+    BoostTypeCarry = 'boostCarry',
+
+    BoostTypeBuild = 'boostBuild',
+    BoostTypeUpgrade = 'boostUpgrade',
+    BoostTypeHarvest = 'boostHarvest',
+    BoostTypeDismantle = 'boostDismantle',
+
+    BoostTypeHeal = 'boostHeal',
+    BoostTypeTough = 'boostTough',
+    BoostTypeAttack = 'boostAttack',
+    BoostTypeRangedAttack = 'boostRAttack',
+}
 
 export enum roleBaseEnum {
     HARVESTER = 'harvester',
@@ -62,6 +74,8 @@ export enum roleWarEnum {
     DEFENDER = 'defender',
     RDEFENDER = 'rdefender'
 }
+
+export const roleTeam = 'team'
 
 export const warModeRole: CreepRoleConstant[] = [
     roleBaseEnum.FILLER, roleBaseEnum.REPAIRER, roleAdvEnum.PROCESSER, roleAdvEnum.MANAGER,
@@ -196,7 +210,8 @@ export const bodyConfigs: { [role in CreepRoleConstant]: BodySet[] } = {
         { [TOUGH]: 0, [MOVE]: 0, [RANGED_ATTACK]: 0, [HEAL]: 0 },
         // { [TOUGH]: 2, [RANGED_ATTACK]: 36, [MOVE]: 10, [HEAL]: 2 }, // 防御
         // { [TOUGH]: 7, [RANGED_ATTACK]: 19, [MOVE]: 10, [HEAL]: 14 }, // 7级房进攻
-        { [TOUGH]: 8, [MOVE]: 10, [RANGED_ATTACK]: 15, [HEAL]: 17 }, // 四级要塞
+        // { [TOUGH]: 8, [MOVE]: 10, [RANGED_ATTACK]: 15, [HEAL]: 17 }, // 四级要塞
+        { [TOUGH]: 2, [RANGED_ATTACK]: 25, [HEAL]: 13, [MOVE]: 10 }, // 一级要塞
     ],
     healer: [
         { [MOVE]: 2, [HEAL]: 2 },
@@ -305,14 +320,14 @@ export const baseLayout: { [level: number]: {} } = {
 
 export const reactionConfig = {
     [RESOURCE_CATALYZED_GHODIUM_ACID]: 10000,        // WORK     +100% upgradeController 效率但不增加其能量消耗
-    // [RESOURCE_CATALYZED_GHODIUM_ALKALIDE]: 10000,    // TOUGH    70% 伤害减免
+    [RESOURCE_CATALYZED_GHODIUM_ALKALIDE]: 10000,    // TOUGH    70% 伤害减免
     [RESOURCE_CATALYZED_KEANIUM_ACID]: 10000,        // CARRY    +150 容量
-    // [RESOURCE_CATALYZED_KEANIUM_ALKALIDE]: 10000,    // R_A      +300% rangedAttack 和 rangedMassAttack 效率
-    // [RESOURCE_CATALYZED_LEMERGIUM_ACID]: 10000,      // WORK     +100% repair 和 build 效率但不增加其能量消耗
-    // [RESOURCE_CATALYZED_LEMERGIUM_ALKALIDE]: 10000,  // HEAL     +300% heal and rangedHeal 效率
-    // [RESOURCE_CATALYZED_UTRIUM_ACID]: 10000,         // ATTACK   +300% attack 效率
-    // [RESOURCE_CATALYZED_UTRIUM_ALKALIDE]: 10000,     // WORK     +600% harvest 效率
-    // [RESOURCE_CATALYZED_ZYNTHIUM_ACID]: 10000,       // WORK     +300% dismantle 效率
+    [RESOURCE_CATALYZED_KEANIUM_ALKALIDE]: 10000,    // R_A      +300% rangedAttack 和 rangedMassAttack 效率
+    [RESOURCE_CATALYZED_LEMERGIUM_ACID]: 10000,      // WORK     +100% repair 和 build 效率但不增加其能量消耗
+    [RESOURCE_CATALYZED_LEMERGIUM_ALKALIDE]: 10000,  // HEAL     +300% heal and rangedHeal 效率
+    [RESOURCE_CATALYZED_UTRIUM_ACID]: 10000,         // ATTACK   +300% attack 效率
+    [RESOURCE_CATALYZED_UTRIUM_ALKALIDE]: 10000,     // WORK     +600% harvest 效率
+    [RESOURCE_CATALYZED_ZYNTHIUM_ACID]: 10000,       // WORK     +300% dismantle 效率
     [RESOURCE_CATALYZED_ZYNTHIUM_ALKALIDE]: 10000,   // MOVE     +300% fatigue(疲劳值) 减低速度
 
     [RESOURCE_GHODIUM]: 10000,                       // Nuker    !!!
@@ -344,44 +359,32 @@ export const reactionConfig = {
     // [RESOURCE_HYDROXIDE]: 10000,
 }
 
-// 升级 work: [RESOURCE_GHODIUM_HYDRIDE, RESOURCE_GHODIUM_ACID, RESOURCE_CATALYZED_GHODIUM_ACID],
-// 建筑 work: [RESOURCE_CATALYZED_LEMERGIUM_ACID, RESOURCE_LEMERGIUM_ACID, RESOURCE_LEMERGIUM_HYDRIDE],
-export const boostConfig: BoostConfig = {
-    WAR: {
-        move: [
-            RESOURCE_ZYNTHIUM_OXIDE, RESOURCE_ZYNTHIUM_ALKALIDE, RESOURCE_CATALYZED_ZYNTHIUM_ALKALIDE
-        ],
-        attack: [
-            RESOURCE_UTRIUM_HYDRIDE, RESOURCE_UTRIUM_ACID, RESOURCE_CATALYZED_UTRIUM_ACID
-        ],
-        ranged_attack: [
-            RESOURCE_KEANIUM_OXIDE, RESOURCE_KEANIUM_ALKALIDE, RESOURCE_CATALYZED_KEANIUM_ALKALIDE
-        ],
-        heal: [
-            RESOURCE_LEMERGIUM_OXIDE, RESOURCE_LEMERGIUM_ALKALIDE, RESOURCE_CATALYZED_LEMERGIUM_ALKALIDE
-        ],
-        tough: [
-            RESOURCE_GHODIUM_OXIDE, RESOURCE_GHODIUM_ALKALIDE, RESOURCE_CATALYZED_GHODIUM_ALKALIDE
-        ],
-        work: [
-            // RESOURCE_GHODIUM_HYDRIDE, RESOURCE_GHODIUM_ACID, RESOURCE_CATALYZED_GHODIUM_ACID // 升级
-            RESOURCE_CATALYZED_LEMERGIUM_ACID, RESOURCE_LEMERGIUM_ACID, RESOURCE_LEMERGIUM_HYDRIDE // 建筑
-        ],
-        carry: [
-            RESOURCE_KEANIUM_HYDRIDE, RESOURCE_KEANIUM_ACID, RESOURCE_CATALYZED_KEANIUM_ACID
-        ],
-        claim: []
-    },
-    WORK: {
-        move: [],
-        attack: [],
-        ranged_attack: [],
-        heal: [],
-        tough: [],
-        work: [],
-        carry: [],
-        claim: []
-    }
+// boost类型对应BodyPart
+export const boostBodyPart: BoostBodyPartConfig = {
+    boostMove: MOVE,
+    boostCarry: CARRY,
+    boostBuild: WORK,
+    boostUpgrade: WORK,
+    boostHarvest: WORK,
+    boostDismantle: WORK,
+    boostHeal: HEAL,
+    boostTough: TOUGH,
+    boostAttack: ATTACK,
+    boostRAttack: RANGED_ATTACK
+}
+
+// boost所需化合物配置
+export const boostConfig: BoostResourceConfig = {
+    boostMove: [RESOURCE_ZYNTHIUM_OXIDE, RESOURCE_ZYNTHIUM_ALKALIDE, RESOURCE_CATALYZED_ZYNTHIUM_ALKALIDE],
+    boostCarry: [RESOURCE_KEANIUM_HYDRIDE, RESOURCE_KEANIUM_ACID, RESOURCE_CATALYZED_KEANIUM_ACID],
+    boostBuild: [RESOURCE_CATALYZED_LEMERGIUM_ACID, RESOURCE_LEMERGIUM_ACID, RESOURCE_LEMERGIUM_HYDRIDE],
+    boostUpgrade: [RESOURCE_GHODIUM_HYDRIDE, RESOURCE_GHODIUM_ACID, RESOURCE_CATALYZED_GHODIUM_ACID],
+    boostHarvest: [RESOURCE_UTRIUM_OXIDE, RESOURCE_UTRIUM_ALKALIDE, RESOURCE_CATALYZED_UTRIUM_ALKALIDE],
+    boostDismantle: [RESOURCE_ZYNTHIUM_HYDRIDE, RESOURCE_ZYNTHIUM_ACID, RESOURCE_CATALYZED_ZYNTHIUM_ACID],
+    boostHeal: [RESOURCE_LEMERGIUM_OXIDE, RESOURCE_LEMERGIUM_ALKALIDE, RESOURCE_CATALYZED_LEMERGIUM_ALKALIDE],
+    boostTough: [RESOURCE_GHODIUM_OXIDE, RESOURCE_GHODIUM_ALKALIDE, RESOURCE_CATALYZED_GHODIUM_ALKALIDE],
+    boostAttack: [RESOURCE_UTRIUM_HYDRIDE, RESOURCE_UTRIUM_ACID, RESOURCE_CATALYZED_UTRIUM_ACID],
+    boostRAttack: [RESOURCE_KEANIUM_OXIDE, RESOURCE_KEANIUM_ALKALIDE, RESOURCE_CATALYZED_KEANIUM_ALKALIDE]
 }
 
 // 从反应目标产物获取其底物的对应表

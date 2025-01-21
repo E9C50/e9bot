@@ -1,4 +1,4 @@
-import { getDistance } from "utils"
+import { getClosestTarget, getDistance } from "utils"
 
 export default (data: CreepData): ICreepConfig => ({
     isNeed: (room: Room, creepName: string) => {
@@ -15,10 +15,14 @@ export default (data: CreepData): ICreepConfig => ({
         }
 
         const creepData: UpgraderData = data as UpgraderData
-        var sourceTarget: StructureContainer | StructureStorage = Game.getObjectById(creepData.sourceId) as StructureContainer | StructureStorage
+        var sourceTarget: AnyStoreStructure = Game.getObjectById(creepData.sourceId) as AnyStoreStructure
 
-        if (sourceTarget == undefined) {
-            sourceTarget = creep.room.containers.filter(item => item != undefined)[0]
+        if (sourceTarget == undefined || sourceTarget.store[RESOURCE_ENERGY] == 0) {
+            var anyStoreStructure: AnyStoreStructure[] = [...creep.room.containers]
+            if (creep.room.storage != undefined) anyStoreStructure.push(creep.room.storage)
+            if (creep.room.terminal != undefined) anyStoreStructure.push(creep.room.terminal)
+            anyStoreStructure = anyStoreStructure.filter(item => item != undefined && item.store[RESOURCE_ENERGY] > 0)
+            sourceTarget = getClosestTarget(creep.pos, anyStoreStructure)
             if (sourceTarget == undefined) {
                 creep.say('❓')
                 return false
@@ -51,11 +55,23 @@ export default (data: CreepData): ICreepConfig => ({
         // 升级
         const distance = getDistance(creep.pos, creep.room.controller.pos)
         if (distance > 3) {
-            creep.moveTo(creep.room.controller)
+            if (creep.room.terminal != undefined && getDistance(creep.room.terminal.pos, creep.room.controller.pos) < 5) {
+                creep.moveTo(creep.room.terminal)
+            } else {
+                creep.moveTo(creep.room.controller)
+            }
         } else {
             creep.upgradeController(creep.room.controller)
             if (creep.room.terminal != undefined && getDistance(creep.pos, creep.room.terminal.pos) < 5) {
                 if (getDistance(creep.pos, creep.room.terminal.pos) == 1) {
+                    if (creep.pos.x != creep.room.terminal.pos.x && creep.pos.y != creep.room.terminal.pos.y) {
+                        creep.room.terminal.pos.getFreeSpace().forEach(space => {
+                            if (creep.room.terminal != undefined && !creep.room.terminal.pos.isEqualTo(space) && space.lookFor(LOOK_CREEPS).length == 0 &&
+                                (space.x == creep.room.terminal.pos.x || space.y == creep.room.terminal.pos.y)) {
+                                creep.moveTo(space)
+                            }
+                        })
+                    }
                     creep.withdraw(creep.room.terminal, RESOURCE_ENERGY)
                 } else {
                     creep.moveTo(creep.room.terminal)

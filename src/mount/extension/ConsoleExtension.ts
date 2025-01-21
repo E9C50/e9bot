@@ -35,7 +35,11 @@ export default class ConsoleExtension {
     public removeConstructionSites(roomName: string): string {
         const room = Game.rooms[roomName]
         if (room != undefined) {
-            room.constructionSites.forEach(constructionSite => constructionSite.remove())
+            room.constructionSites.forEach(constructionSite => {
+                if (constructionSite.progress == 0) {
+                    constructionSite.remove()
+                }
+            })
             return '已移除所有建筑工地'
         } else {
             return '房间不可见'

@@ -1,4 +1,4 @@
-import { findPathAvoidRooms } from "settings";
+import { boostBodyPart, findPathAvoidRooms } from "settings";
 import { getDistance, getOppositeDirection, getOppositePosition, serializeMovePath } from "utils";
 
 export default class CreepExtension extends Creep {
@@ -101,51 +101,24 @@ export default class CreepExtension extends Creep {
     public farMoveToRoom(targetRoom: string, fleeEnemy?: boolean): CreepMoveReturnCode | ERR_NO_PATH | ERR_NOT_IN_RANGE | ERR_INVALID_TARGET {
         if (this.fatigue > 0) return ERR_TIRED
         if (this.room.name == targetRoom) {
-            this.memory.routeCache = undefined
             this.memory.pathCache = undefined
             return OK
         }
         const creep = this
         var target = new RoomPosition(25, 25, targetRoom)
 
-        // 如果全局房间路径不存在，就查询（主要是为了避开玩家和要塞房间）
-        if (this.memory.routeCache == undefined) {
-            const roomRoute = Game.map.findRoute(this.room, targetRoom, {
-                routeCallback(roomName, fromRoomName) {
-                    if (findPathAvoidRooms.includes(roomName)) {
-                        return Infinity;
-                    }
-                    return 1;
-                }
-            });
-            if (roomRoute == ERR_NO_PATH) return ERR_NO_PATH
-            this.memory.routeCache = roomRoute.map(r => r.room)
-        }
-
-        if (this.memory.pathCache == undefined || this.memory.routeCache[0] == this.room.name) {
-            // 如果还没到指定房间，那么就先去下一个房间
-            if (this.memory.routeCache[0] == this.room.name) {
-                this.memory.routeCache.shift()
-            }
-            if (this.memory.routeCache.length > 0) {
-                const exitDirection = this.room.findExitTo(this.memory.routeCache[0]);
-                if (exitDirection !== ERR_NO_PATH && exitDirection != ERR_INVALID_ARGS) {
-                    const exitPositions = this.room.find(exitDirection); // 找到所有该方向的出口
-                    const closestExit = this.pos.findClosestByPath(exitPositions) // 找到最近的出口
-                    if (!closestExit) {
-                        return ERR_NO_PATH
-                    }
-                    target = closestExit
-                }
-            }
-
+        if (this.memory.pathCache == undefined) {
             let pathFind = PathFinder.search(
                 this.pos, [{ pos: target, range: 1 }],
                 {
                     plainCost: 2,
-                    swampCost: 50,
+                    swampCost: 10,
                     roomCallback: function (roomName) {
                         let costs = new PathFinder.CostMatrix;
+
+                        if (findPathAvoidRooms.includes(roomName)) {
+                            return false
+                        }
 
                         let room = Game.rooms[roomName];
                         if (!room) return costs
@@ -186,9 +159,6 @@ export default class CreepExtension extends Creep {
         }
 
         if (this.memory.pathCache) {
-            if (this.memory.routeCache.length == 0) {
-                this.memory.routeCache = undefined
-            }
             // 没有路径视为到达目的地
             if (this.memory.pathCache.length == 0) {
                 this.memory.pathCache = undefined
@@ -201,7 +171,6 @@ export default class CreepExtension extends Creep {
             if (moveResult == OK) {
                 this.memory.pathCache = this.memory.pathCache.substring(1)
             } else {
-                this.memory.routeCache = undefined
                 this.memory.pathCache = undefined
             }
             return moveResult
@@ -267,7 +236,7 @@ export default class CreepExtension extends Creep {
      * @param direction
      * @returns
      */
-    public requireCross(direction: DirectionConstant): Boolean {
+    public requireCross(direction: DirectionConstant): boolean {
         // this 下没有 memory 说明 creep 已经凉了，直接移动即可
         if (!this.memory) return true
 
@@ -281,5 +250,40 @@ export default class CreepExtension extends Creep {
         this.say('👌')
         this.move(direction)
         return true
+    }
+
+    /**
+     * boost
+     * @param boostList
+     */
+    public goBoost(boostList: BoostTypeConstant[]): boolean {
+        const boostConfig = this.room.memory.roomLabConfig.singleLabConfig
+
+        boostList = boostList.filter(boostType =>
+            this.body.filter(body => body.type == boostBodyPart[boostType] && !body.boost).length > 0
+        )
+
+        if (boostList.length == 0) {
+            this.memory.ready = true
+            return true
+        }
+
+        for (let labId in boostConfig) {
+            if (boostList.includes(boostConfig[labId].boostType)) {
+                const boostLab: StructureLab = Game.getObjectById(labId) as StructureLab
+                if (boostLab.mineralType == undefined || boostLab.store[boostLab.mineralType] < 100) {
+                    this.moveTo(this.room.spawns[0])
+                    return false
+                }
+
+                if (getDistance(this.pos, boostLab.pos) > 1) {
+                    this.moveTo(boostLab)
+                    return false
+                } else {
+                    boostLab.boostCreep(this)
+                }
+            }
+        }
+        return false
     }
 }

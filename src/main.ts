@@ -1,4 +1,5 @@
 import './utils/BetterMove'
+import './utils/RoomResource'
 
 import { mountWork } from "mount"
 import { profile } from './utils/CodeProfiler'
@@ -8,7 +9,8 @@ import { roomController } from './module/RoomController'
 import { visualController } from "./module/VisualController"
 import { obScannerController } from './module/ObserverController'
 import { structureWorkController } from "./module/StructureController"
-import { creepNumberController, creepWorkController } from "./module/CreepController"
+import { creepNumberController, creepWorkController, teamWorkController } from "./module/CreepController"
+import { powerSpawnController } from 'role/pc/PowerCreep'
 
 profile.profileEnable();
 
@@ -39,6 +41,18 @@ export const loop = ErrorMapper.wrapLoop(() => {
     creepWorkController()
 
     if (debug) console.log(`Creep 工作控制 CPU 使用量：${(Game.cpu.getUsed() - cpu).toFixed(2)}`)
+    cpu = Game.cpu.getUsed()
+
+    // PowerCreep工作控制
+    powerSpawnController()
+
+    if (debug) console.log(`PowerCreep工作控制 CPU 使用量：${(Game.cpu.getUsed() - cpu).toFixed(2)}`)
+    cpu = Game.cpu.getUsed()
+
+    // 小队工作控制
+    teamWorkController()
+
+    if (debug) console.log(`小队工作控制 CPU 使用量：${(Game.cpu.getUsed() - cpu).toFixed(2)}`)
     cpu = Game.cpu.getUsed()
 
     // 建筑工作控制

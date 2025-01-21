@@ -435,6 +435,94 @@ function generateCostMatrix(room, pos) {
             }
         }
     }
+    if (room.name == 'E37N6') {
+        noStructureCostMat.set(2, 38, unWalkableCCost);
+        noStructureCostMat.set(2, 39, unWalkableCCost);
+        noStructureCostMat.set(2, 40, unWalkableCCost);
+        noStructureCostMat.set(2, 41, unWalkableCCost);
+
+        structureCostMat.set(2, 38, unWalkableCCost);
+        structureCostMat.set(2, 39, unWalkableCCost);
+        structureCostMat.set(2, 40, unWalkableCCost);
+        structureCostMat.set(2, 41, unWalkableCCost);
+    }
+    if (room.name == 'E37N7') {
+        noStructureCostMat.set(1, 10, unWalkableCCost);
+        noStructureCostMat.set(1, 11, unWalkableCCost);
+        noStructureCostMat.set(1, 12, unWalkableCCost);
+        noStructureCostMat.set(1, 13, unWalkableCCost);
+        noStructureCostMat.set(1, 14, unWalkableCCost);
+        noStructureCostMat.set(1, 15, unWalkableCCost);
+        noStructureCostMat.set(1, 16, unWalkableCCost);
+        noStructureCostMat.set(1, 17, unWalkableCCost);
+        noStructureCostMat.set(1, 18, unWalkableCCost);
+        noStructureCostMat.set(1, 19, unWalkableCCost);
+
+        structureCostMat.set(1, 10, unWalkableCCost);
+        structureCostMat.set(1, 11, unWalkableCCost);
+        structureCostMat.set(1, 12, unWalkableCCost);
+        structureCostMat.set(1, 13, unWalkableCCost);
+        structureCostMat.set(1, 14, unWalkableCCost);
+        structureCostMat.set(1, 15, unWalkableCCost);
+        structureCostMat.set(1, 16, unWalkableCCost);
+        structureCostMat.set(1, 17, unWalkableCCost);
+        structureCostMat.set(1, 18, unWalkableCCost);
+        structureCostMat.set(1, 19, unWalkableCCost);
+    }
+    if (room.name == 'E36N5') {
+        noStructureCostMat.set(38, 14, unWalkableCCost);
+        noStructureCostMat.set(39, 14, unWalkableCCost);
+        noStructureCostMat.set(40, 14, unWalkableCCost);
+        noStructureCostMat.set(41, 14, unWalkableCCost);
+
+        structureCostMat.set(38, 14, unWalkableCCost);
+        structureCostMat.set(39, 14, unWalkableCCost);
+        structureCostMat.set(40, 14, unWalkableCCost);
+        structureCostMat.set(41, 14, unWalkableCCost);
+    }
+    if (room.name == 'E36N6') {
+        structureCostMat.set(44, 46, unWalkableCCost);
+        structureCostMat.set(45, 46, unWalkableCCost);
+
+        structureCostMat.set(34, 11, unWalkableCCost);
+        structureCostMat.set(35, 11, unWalkableCCost);
+        structureCostMat.set(36, 11, unWalkableCCost);
+
+        noStructureCostMat.set(44, 46, unWalkableCCost);
+        noStructureCostMat.set(45, 46, unWalkableCCost);
+
+        noStructureCostMat.set(34, 11, unWalkableCCost);
+        noStructureCostMat.set(35, 11, unWalkableCCost);
+        noStructureCostMat.set(36, 11, unWalkableCCost);
+    }
+    if (room.name == 'E35N5') {
+        structureCostMat.set(24, 1, unWalkableCCost);
+        structureCostMat.set(25, 1, unWalkableCCost);
+        structureCostMat.set(26, 1, unWalkableCCost);
+        structureCostMat.set(27, 1, unWalkableCCost);
+        structureCostMat.set(28, 1, unWalkableCCost);
+
+        structureCostMat.set(48, 19, unWalkableCCost);
+        structureCostMat.set(48, 18, unWalkableCCost);
+        structureCostMat.set(48, 17, unWalkableCCost);
+        structureCostMat.set(48, 16, unWalkableCCost);
+        structureCostMat.set(48, 15, unWalkableCCost);
+        structureCostMat.set(48, 14, unWalkableCCost);
+
+
+        noStructureCostMat.set(24, 1, unWalkableCCost);
+        noStructureCostMat.set(25, 1, unWalkableCCost);
+        noStructureCostMat.set(26, 1, unWalkableCCost);
+        noStructureCostMat.set(27, 1, unWalkableCCost);
+        noStructureCostMat.set(28, 1, unWalkableCCost);
+
+        noStructureCostMat.set(48, 19, unWalkableCCost);
+        noStructureCostMat.set(48, 18, unWalkableCCost);
+        noStructureCostMat.set(48, 17, unWalkableCCost);
+        noStructureCostMat.set(48, 16, unWalkableCCost);
+        noStructureCostMat.set(48, 15, unWalkableCCost);
+        noStructureCostMat.set(48, 14, unWalkableCCost);
+    }
     for (let s of totalStructures) {
         if (s.structureType == STRUCTURE_INVADER_CORE) {  // 第1种可能无敌的建筑
             if (s.ticksToDeploy) {
@@ -1426,6 +1514,7 @@ observers = observers.reduce((temp, id) => {
 
 // Creep.prototype.move = wrapFn(config.changeMove? betterMove : originMove, 'move');
 Creep.prototype.moveTo = wrapFn(config.changeMoveTo ? betterMoveTo : originMoveTo, 'moveTo');
+PowerCreep.prototype.moveTo = wrapFn(config.changeMoveTo ? betterMoveTo : originMoveTo, 'moveTo');
 // RoomPosition.prototype.findClosestByPath = wrapFn(config.changeFindClostestByPath? betterFindClosestByPath : originFindClosestByPath, 'findClosestByPath');
 // Creep.prototype.flee()和RoomPosition.prototype.findClosestByPath()将在v0.9或v1.0版本加入
 
@@ -1445,6 +1534,7 @@ global.BetterMove = {
     creepPathCache: creepPathCache,
     setChangeMoveTo(bool) {
         Creep.prototype.moveTo = wrapFn(bool ? betterMoveTo : originMoveTo, 'moveTo');
+        PowerCreep.prototype.moveTo = wrapFn(bool ? betterMoveTo : originMoveTo, 'moveTo');
         analyzeCPU.moveTo = { sum: 0, calls: 0 };
         testCacheHits = 0;
         testCacheMiss = 0;
@@ -1579,17 +1669,27 @@ global.BetterMove = {
     // clear: clearUnused
 }
 
-
-
-
-
-
-
-
 if (!Creep.prototype.$moveTo) {
     Creep.prototype.originMoveTo = originMoveTo;
     Creep.prototype.$moveTo = Creep.prototype.moveTo;
     Creep.prototype.moveTo = function (...e) {
+        if (this.memory.lastPos && this.memory.lastPos.x == this.pos.x && this.memory.lastPos.y == this.pos.y) {
+            this.memory.lastPos.time += 1;
+            if (this.memory.lastPos.time > 6)
+                this.memory.dontPullMe = true;
+        } else {
+            this.memory.dontPullMe = false;
+            this.memory.lastPos = { x: this.pos.x, y: this.pos.y, time: 0 }
+        }
+        // this.say(this.memory.lastPos.time)
+        return this.$moveTo(...e)
+    };
+}
+
+if (!PowerCreep.prototype.$moveTo) {
+    PowerCreep.prototype.originMoveTo = originMoveTo;
+    PowerCreep.prototype.$moveTo = PowerCreep.prototype.moveTo;
+    PowerCreep.prototype.moveTo = function (...e) {
         if (this.memory.lastPos && this.memory.lastPos.x == this.pos.x && this.memory.lastPos.y == this.pos.y) {
             this.memory.lastPos.time += 1;
             if (this.memory.lastPos.time > 6)

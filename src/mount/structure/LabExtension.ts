@@ -28,22 +28,6 @@ export default class LabExtension extends StructureLab {
         this.runReaction(lab1, lab2);
     }
 
-    private boostCreepWork(): void {
-        if (this.room.memory.roomLabConfig.singleLabConfig[this.id] == undefined) return
-        if (!this.room.memory.roomLabConfig.singleLabConfig[this.id].boostMode) return
-
-        const labBoostBody = this.room.memory.roomLabConfig.singleLabConfig[this.id].boostPart
-        const nearbyCreeps = this.pos.findInRange(FIND_MY_CREEPS, 1)
-        for (let name in nearbyCreeps) {
-            let creep = nearbyCreeps[name]
-            if (creep.memory.needBoost && creep.body.filter(body => !body.boost && body.type == labBoostBody).length > 0) {
-                console.log(this.boostCreep(creep), this.mineralType)
-                return
-            }
-        }
-        return
-    }
-
     public init(): void {
         if (this.room.memory.roomFillJob.labOut == undefined) this.room.memory.roomFillJob.labOut = []
         if (this.room.memory.roomFillJob.labInEnergy == undefined) this.room.memory.roomFillJob.labInEnergy = []
@@ -87,7 +71,7 @@ export default class LabExtension extends StructureLab {
     public doWork(): void {
         const thisLabConfig = this.room.memory.roomLabConfig.singleLabConfig[this.id]
         if (thisLabConfig != undefined && thisLabConfig.boostMode) {
-            this.boostCreepWork()
+            // this.boostCreepWork()
         } else {
             this.labReactionWork()
         }

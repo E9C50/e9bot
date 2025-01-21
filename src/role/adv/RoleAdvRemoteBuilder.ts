@@ -7,7 +7,7 @@ export default (data: CreepData): ICreepConfig => ({
         return true
     },
     prepare(creep) {
-        // if (creep.room.name != 'E37N7') creep.memory.needBoost = true
+        // if (creep.room.name == 'E35N3') creep.memory.needBoost = true
         // if (creep.memory.needBoost) {
         //     // 处理boost
         //     const boostConfig = creep.room.memory.roomLabConfig.singleLabConfig
@@ -17,7 +17,7 @@ export default (data: CreepData): ICreepConfig => ({
         //             for (let labId in boostConfig) {
         //                 if (boostConfig[labId].boostPart == bodyPart.type) {
         //                     const boostLab: StructureLab = Game.getObjectById(labId) as StructureLab
-        //                     if (boostLab.mineralType == undefined || boostLab.store[boostLab.mineralType] < 100) {
+        //                     if (boostLab.mineralType == undefined || boostLab.store[boostLab.mineralType] < 100 || boostLab.store[RESOURCE_ENERGY] < 100) {
         //                         creep.moveTo(creep.room.spawns[0])
         //                         return false
         //                     }
@@ -46,19 +46,12 @@ export default (data: CreepData): ICreepConfig => ({
         const sourceStructure = Game.getObjectById(creepData.sourceFlag) as Source
         const targetPos = sourceFlag || sourceStructure
 
-        if (targetPos == undefined) {
-            creep.moveTo(creep.room.spawns[0])
-            creep.memory.needRecycle = true
-            return true
-        }
-
         if (creep.room.name != targetPos.room?.name) {
             creep.moveTo(targetPos)
-            // tempMoveTo(creep, targetPos.pos)
             return false
         }
 
-        if (creep.pickupDroppedResource(false, 40)) return true
+        // if (creep.pickupDroppedResource(false, 40)) return true
 
         // 如果房间有可搬运的能量，直接去搬
         var resourceTargets: AnyStoreStructure[] = [creep.room.storage, creep.room.terminal, ...creep.room.containers].filter(item => item != undefined) as AnyStoreStructure[]
@@ -86,6 +79,8 @@ export default (data: CreepData): ICreepConfig => ({
 
         if (sourceTarget.energy > 0) {
             creep.harvest(sourceTarget)
+        } else {
+            creep.memory.working = true
         }
         return true
     },
@@ -94,12 +89,6 @@ export default (data: CreepData): ICreepConfig => ({
         const targetFlag = Game.flags[creepData.targetFlag]
         const targetStructure = Game.getObjectById(creepData.targetFlag) as Source
         const targetPos = targetFlag || targetStructure
-
-        if (targetPos == undefined) {
-            creep.moveTo(creep.room.spawns[0])
-            creep.memory.needRecycle = true
-            return true
-        }
 
         if (creep.room.name != targetPos.room?.name) {
             creep.moveTo(targetPos)

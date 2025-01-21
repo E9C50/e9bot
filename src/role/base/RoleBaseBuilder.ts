@@ -17,10 +17,17 @@ export default (data: CreepData): ICreepConfig => ({
         }
 
         const creepData: BuilderData = data as BuilderData
-        var sourceTarget: StructureContainer | StructureStorage = Game.getObjectById(creepData.sourceId) as StructureContainer | StructureStorage
+        var sourceTarget: AnyStoreStructure = Game.getObjectById(creepData.sourceId) as AnyStoreStructure
 
-        if (sourceTarget == undefined) {
-            sourceTarget = creep.room.containers.filter(item => item != undefined)[0]
+        // 如果没有指定目标容器，就随便找一个
+        if (sourceTarget == undefined || sourceTarget.store[RESOURCE_ENERGY] == 0) {
+            var energySources: AnyStoreStructure[] = [...creep.room.containers, ...creep.room.links]
+            if (creep.room.storage != undefined) energySources.push(creep.room.storage)
+            if (creep.room.terminal != undefined) energySources.push(creep.room.terminal)
+
+            energySources = energySources.filter(item => item != undefined && item.store[RESOURCE_ENERGY] > 0)
+
+            sourceTarget = getClosestTarget(creep.pos, energySources)
             if (sourceTarget == undefined) {
                 creep.say('❓')
                 return false
@@ -28,8 +35,7 @@ export default (data: CreepData): ICreepConfig => ({
             creepData.sourceId = sourceTarget.id
         }
 
-
-        if (creep.pickupDroppedResource(false, 40)) return true
+        // if (creep.pickupDroppedResource(false, 40)) return true
         // if (sourceTarget != undefined && sourceTarget.store[RESOURCE_ENERGY] == 0) {
         //     if (creep.pickupDroppedResource(false, 20)) return true
         // }
@@ -76,9 +82,9 @@ export default (data: CreepData): ICreepConfig => ({
         const buildTargets: ConstructionSite[] = creep.room.constructionSites
 
         // 如果没有建筑工地并且需要升级，就去升级
-        if (buildTargets.length == 0 && creep.room.my && creep.room.level < 8) {
-            return RoleBaseUpgrader(creep.memory.data).target(creep)
-        }
+        // if (buildTargets.length == 0 && creep.room.my && creep.room.level < 8) {
+        //     return RoleBaseUpgrader(creep.memory.data).target(creep)
+        // }
 
         // 如果没有建筑工地也不需要升级，就去干修理的活
         if (buildTargets.length == 0) {

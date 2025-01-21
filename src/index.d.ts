@@ -26,15 +26,15 @@ type WarRoleIntegrate = 'integrate'
 type WarRoleDefender = 'defender'
 type WarRoleRangedDefender = 'rdefender'
 
-
 // 所有的 creep 角色
-type CreepRoleConstant = BaseRoleHarvester | BaseRoleFiller | BaseRoleUpgrader | BaseRoleBuilder | BaseRoleRepairer
-    | BaseRoleMiner | BaseRoleScout | AdvancedRoleManager | AdvancedRoleProcesser | AdvancedRoleClaimer
-    | AdvancedRoleReserver | AdvancedRoleRemoteHarvester | AdvancedRoleRemoteFiller | AdvancedRoleRemoteBuilder
-    | WarRoleAttacker | WarRoleHealer | WarRoleRangedAttacker | WarRoleDismantler | WarRoleIntegrate | WarRoleDefender | WarRoleRangedDefender
+type CreepRoleBaseConstant = BaseRoleHarvester | BaseRoleFiller | BaseRoleUpgrader | BaseRoleBuilder | BaseRoleRepairer | BaseRoleMiner | BaseRoleScout
+type CreepRoleAdvConstant = AdvancedRoleManager | AdvancedRoleProcesser | AdvancedRoleClaimer | AdvancedRoleReserver | AdvancedRoleRemoteHarvester | AdvancedRoleRemoteFiller | AdvancedRoleRemoteBuilder
+type CreepRoleWarConstant = WarRoleAttacker | WarRoleHealer | WarRoleRangedAttacker | WarRoleDismantler | WarRoleIntegrate | WarRoleDefender | WarRoleRangedDefender
+type CreepRoleConstant = CreepRoleBaseConstant | CreepRoleAdvConstant | CreepRoleWarConstant
 
 // Creep 工作逻辑集合 包含了每个角色应该做的工作
 type CreepWork = { [role in CreepRoleConstant]: (data: CreepData) => ICreepConfig }
+type TeamWork = { [role in TeamTypeConstant]: (data: TeamConfig) => ITeamConfig }
 
 // 所有 Creep 角色的 Data 数据
 type CreepData = EmptyData | HarvesterData | MineralData | FillerData | BuilderData | RepairerData
@@ -113,8 +113,8 @@ interface RoomPosition {
 
 // 小队基本工作接口定义
 interface ITeamConfig {
-    prepare: (creep: Creep) => boolean
-    doWork: (creep: Creep) => boolean
+    prepare: () => boolean
+    doWork: () => boolean
 }
 
 // Creep 基本工作接口定义
@@ -139,10 +139,19 @@ interface Creep {
     takeFromTarget(takeTarget: Structure, resourceType: ResourceConstant, amount?: number): boolean
     pickupDroppedResource(allSource: boolean, range: number): boolean
 
+    goBoost(boostList: BoostTypeConstant[]): boolean
+
     requireCross(direction: DirectionConstant): Boolean
     mutualCross(direction: DirectionConstant): OK | ERR_BUSY | ERR_NOT_FOUND
     batterMove(target: DirectionConstant | Creep): CreepMoveReturnCode | ERR_INVALID_TARGET | ERR_NOT_IN_RANGE
     farMoveToRoom(targetRoom: string, fleeEnemy?: boolean): CreepMoveReturnCode | ERR_NO_PATH | ERR_NOT_IN_RANGE | ERR_INVALID_TARGET
+}
+
+// PowerCreep函数定义
+interface PowerCreep {
+    takeOps(): void
+    isRoomHaveOps(): boolean
+    isPowerAvailable(power: PowerConstant): boolean
 }
 
 interface MoveToOpts {
@@ -160,14 +169,30 @@ interface IReactionSource {
     [targetResourceName: string]: (MineralConstant | MineralCompoundConstant)[]
 }
 
-type BoostConfigMode = 'WAR' | 'WORK'
+// Boost类型配置
+type BoostTypeMove = 'boostMove'
+type BoostTypeCarry = 'boostCarry'
 
-type BoostConfig = {
-    [type in BoostConfigMode]: BoostResourceConfig
+type BoostTypeBuild = 'boostBuild'
+type BoostTypeUpgrade = 'boostUpgrade'
+type BoostTypeHarvest = 'boostHarvest'
+type BoostTypeDismantle = 'boostDismantle'
+
+type BoostTypeHeal = 'boostHeal'
+type BoostTypeTough = 'boostTough'
+type BoostTypeAttack = 'boostAttack'
+type BoostTypeRangedAttack = 'boostRAttack'
+
+type BoostTypeConstant = BoostTypeMove | BoostTypeCarry
+    | BoostTypeBuild | BoostTypeUpgrade | BoostTypeHarvest | BoostTypeDismantle
+    | BoostTypeHeal | BoostTypeTough | BoostTypeAttack | BoostTypeRangedAttack
+
+type BoostBodyPartConfig = {
+    [type in BoostTypeConstant]: BodyPartConstant
 }
 
 type BoostResourceConfig = {
-    [type in BodyPartConstant]: ResourceConstant[]
+    [type in BoostTypeConstant]: ResourceConstant[]
 }
 
 type BoostLabConfig = {
@@ -210,7 +235,7 @@ interface ILabConfig {
     singleLabConfig: {
         [labId: string]: {
             boostMode: boolean
-            boostPart: BodyPartConstant
+            boostType: BoostTypeConstant
             resourceType: ResourceConstant
         }
     }
@@ -220,6 +245,10 @@ interface TeamConfig {
     teamFlag: string
     teamType: TeamTypeConstant
     creepNameList: string[]
+
+    healTarget?: string
+    attackTarget?: string
+    dismantleTarget?: string
 }
 
 interface RoomMemory {
@@ -261,11 +290,14 @@ interface CreepMemory {
     spawnPriority: number
     data: CreepData
     dontPullMe?: boolean
+    isTeam?: boolean
     needBoost?: boolean
-    needRecycle?: boolean
     pathCache?: string
-    routeCache?: string[]
     prePos?: string
+}
+
+interface PowerCreepMemory {
+    needRenew: boolean
 }
 
 interface EmptyData { }

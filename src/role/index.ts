@@ -14,10 +14,9 @@ import RoleBaseScout from "./base/RoleBaseScout"
 import RoleBaseUpgrader from "./base/RoleBaseUpgrader"
 import RoleWarAttacker from "./war/RoleWarAttacker"
 import RoleWarDefender from "./war/RoleWarDefender"
-import RoleWarDefenderRanged from "./war/RoleWarRangedDefender"
+import RoleWarDefenderRanged from "./war/RoleWarDefenderRanged"
 import RoleWarHealer from "./war/RoleWarHealer"
 import RoleWarIntegrate from "./war/RoleWarIntegrate"
-import RoleWarRangedDefender from "./war/RoleWarRangedDefender"
 
 const notImplemented = function (data: CreepData): ICreepConfig {
     throw new Error("Function not implemented.")
@@ -46,7 +45,7 @@ const creepWork: CreepWork = {
     dismantler: notImplemented,
     integrate: RoleWarIntegrate,
     defender: RoleWarDefender,
-    rdefender: RoleWarRangedDefender
+    rdefender: RoleWarDefenderRanged,
 }
 
 export default creepWork
