@@ -1,5 +1,5 @@
 /test/*
-/scripts/*
+/scripts/__pycache__/*
 # yarn lock file
 /yarn.lock
 
