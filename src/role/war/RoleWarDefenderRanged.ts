@@ -1,5 +1,13 @@
 import { getClosestTarget } from "utils"
 
+function callTower(target: Creep) {
+    if (target.room.towers.filter(tower => tower.store[RESOURCE_ENERGY] > 0).length == target.room.towers.length) {
+        target.room.towers.forEach(tower => {
+            tower.attack(target)
+        })
+    }
+}
+
 export default (data: CreepData): ICreepConfig => ({
     isNeed: (room: Room, creepName: string) => {
         return true
@@ -16,12 +24,17 @@ export default (data: CreepData): ICreepConfig => ({
         return true
     },
     target(creep) {
-        if (creep.room.memory.enemyTarget != undefined) {
-            const enemyTarget = Game.getObjectById(creep.room.memory.enemyTarget) as Creep
+        const creepData: DefenderData = data as DefenderData
+        let enemyTargetId: string = creepData.targetEnemy
+
+        if (enemyTargetId != undefined) {
+            const enemyTarget = Game.getObjectById(enemyTargetId) as Creep
+
             if (enemyTarget == undefined) {
-                creep.room.memory.enemyTarget = undefined
+                creep.say('❓')
                 return true
             }
+
             const closestRamOrWall = getClosestTarget(enemyTarget.pos, [...creep.room.ramparts, ...creep.room.walls])
             if (closestRamOrWall != undefined) {
                 const result = creep.moveTo(closestRamOrWall.pos.x, closestRamOrWall.pos.y, {
@@ -51,11 +64,13 @@ export default (data: CreepData): ICreepConfig => ({
         const findCreepsIn1 = creep.pos.findInRange(FIND_HOSTILE_CREEPS, 1)
         if (findCreepsIn1.length > 0) {
             creep.rangedMassAttack()
+            callTower(findCreepsIn1[0])
             return true
         }
         const findCreepsIn3 = creep.pos.findInRange(FIND_HOSTILE_CREEPS, 3)
         if (findCreepsIn3.length > 0) {
             creep.rangedAttack(findCreepsIn3[0])
+            callTower(findCreepsIn3[0])
             return true
         }
         return true

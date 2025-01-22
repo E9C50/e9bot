@@ -65,5 +65,8 @@ export function mountWork() {
     assignPrototype(StructureFactory, FactoryExtension)
     assignPrototype(StructurePowerSpawn, PowerSpawnExtension)
 
+    processFlagPos('managerPos', 'managerPos')
+    processFlagPos('centerPos', 'centerPos')
+
     processFlagStructure()
 }

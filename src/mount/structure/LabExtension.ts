@@ -66,10 +66,12 @@ export default class LabExtension extends StructureLab {
         // 如果有反应配置，则处理sourceLab
         if (labReactionQueue != undefined && labReactionQueue.length > 0) {
             const reactionConfig = reactionSource[labReactionQueue[0]]
-            if (this.id == labConfig.sourceLab1 && (this.mineralType == undefined || this.store.getFreeCapacity(this.mineralType) > 1000)) {
+            const amount1 = this.room.storage == undefined ? 0 : this.room.storage.store[reactionConfig[0]]
+            const amount2 = this.room.storage == undefined ? 0 : this.room.storage.store[reactionConfig[1]]
+            if (this.id == labConfig.sourceLab1 && amount1 > 0 && (this.mineralType == undefined || this.store.getFreeCapacity(this.mineralType) > 1000)) {
                 this.room.memory.roomFillJob.labInMineral.push({ labId: this.id, resourceType: reactionConfig[0] })
             }
-            if (this.id == labConfig.sourceLab2 && (this.mineralType == undefined || this.store.getFreeCapacity(this.mineralType) > 1000)) {
+            if (this.id == labConfig.sourceLab2 && amount2 > 0 && (this.mineralType == undefined || this.store.getFreeCapacity(this.mineralType) > 1000)) {
                 this.room.memory.roomFillJob.labInMineral.push({ labId: this.id, resourceType: reactionConfig[1] })
             }
         }

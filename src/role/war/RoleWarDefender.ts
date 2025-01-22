@@ -16,12 +16,16 @@ export default (data: CreepData): ICreepConfig => ({
         return true
     },
     target(creep) {
-        if (creep.room.memory.enemyTarget != undefined) {
-            const enemyTarget = Game.getObjectById(creep.room.memory.enemyTarget) as Creep
+        const creepData: DefenderData = data as DefenderData
+        let enemyTargetId: string = creepData.targetEnemy
+
+        if (enemyTargetId != undefined) {
+            const enemyTarget = Game.getObjectById(enemyTargetId) as Creep
             if (enemyTarget == undefined) {
-                creep.room.memory.enemyTarget = undefined
+                creep.say('❓')
                 return true
             }
+
             const closestRamOrWall = getClosestTarget(enemyTarget.pos, [...creep.room.ramparts, ...creep.room.walls])
             if (closestRamOrWall != undefined) {
                 const result = creep.moveTo(closestRamOrWall.pos.x, closestRamOrWall.pos.y, {

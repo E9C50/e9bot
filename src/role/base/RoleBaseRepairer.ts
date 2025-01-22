@@ -6,6 +6,9 @@ export default (data: CreepData): ICreepConfig => ({
         return room.storage != undefined && room.storage.store[RESOURCE_ENERGY] > 10000 && room.wallsNeedRepair.length > 0
     },
     prepare(creep) {
+        if (creep.room.level == 8) {
+            creep.goBoost()
+        }
         return true
     },
     source(creep) {
@@ -44,7 +47,9 @@ export default (data: CreepData): ICreepConfig => ({
         // 找到要修复的建筑
         var repairTarget = Game.getObjectById<Structure>(creepData.repairTarget || '');
         if (repairTarget == undefined || repairTarget.hits == repairTarget.hitsMax) {
-            const repairTargets = [...creep.room.wallsNeedRepair, ...creep.room.structuresNeedRepair].sort((a, b) => a.hits - b.hits)
+            let repairTargets = creep.room.wallsNeedRepair
+            if (!Memory.warMode[creep.room.name]) repairTargets = repairTargets.concat(creep.room.structuresNeedRepair)
+            repairTargets = repairTargets.sort((a, b) => a.hits - b.hits)
             if (repairTargets.length > 0) creepData.repairTarget = repairTargets[0].id
         }
 

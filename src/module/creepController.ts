@@ -86,8 +86,6 @@ function releaseBaseCreepConfig(): void {
                 if (room.controller && room.controller.level == 8) upgradeCount = 1;
                 upgradeCount = Math.min(upgradeCount, 8);
 
-                if (room.name == 'E37N7') upgradeCount = 8
-
                 for (let i = 0; i < upgradeCount; i++) {
                     const creepMemory: UpgraderData = { sourceId: room.storage.id }
                     const creepName: string = room.name + '_UPGRADER_STORAGE_' + i
@@ -328,6 +326,26 @@ function releaseJobsCreepConfig(): void {
     }
 }
 
+function analyzeEnemyGroups(enemies) {
+    const groups: Creep[][] = [];
+    for (const enemy of enemies) {
+        let addedToGroup = false;
+        for (const group of groups) {
+            const closestInGroup = enemy.pos.findClosestByRange(group);
+            if (closestInGroup && enemy.pos.getRangeTo(closestInGroup) <= 3) {
+                group.push(enemy);
+                addedToGroup = true
+            }
+        }
+
+        if (!addedToGroup) {
+            groups.push([enemy]);
+        }
+    }
+
+    return groups;
+}
+
 function releaseWarCreepConfig(): void {
     for (const roomName in Game.rooms) {
         const room: Room = Game.rooms[roomName];
@@ -336,22 +354,42 @@ function releaseWarCreepConfig(): void {
         // 守卫者，根据敌人情况发布不同的守卫
         const enemyList = room.enemies.filter(enemy => enemy.owner.username != 'Invader' && enemy.owner.username != 'Source Keeper')
         if (enemyList.length > 0) {
-            let haveWork: boolean = false
-            let haveRange: boolean = false
+            const enemyGroup = analyzeEnemyGroups(enemyList)
 
-            enemyList.forEach(enemy => {
-                const bodyList = enemy.body.map(b => b.type)
-                haveWork = haveWork || bodyList.includes(WORK)
-                haveRange = haveRange || bodyList.includes(RANGED_ATTACK)
-            })
+            for (let i = 0; i < enemyGroup.length; i++) {
+                let enemyAttackCount: number = 0
+                let enemyRangeCount: number = 0
+                let enemyHealCount: number = 0
+                let enemyWorkCount: number = 0
 
-            if (haveWork) {
-                const dCreepName = room.name + '_DEFENDER_' + 0
-                addCreepConfig(room, roleWarEnum.DEFENDER, dCreepName, {});
-            }
-            if (haveRange) {
-                const rCreepName = room.name + '_RDEFENDER_' + 0
-                addCreepConfig(room, roleWarEnum.RDEFENDER, rCreepName, {});
+                enemyGroup[i].forEach(enemy => {
+                    enemy.body.map(b => b.type).forEach(body => {
+                        if (body == WORK) enemyWorkCount += 1
+                        if (body == HEAL) enemyHealCount += 1
+                        if (body == ATTACK) enemyAttackCount += 1
+                        if (body == RANGED_ATTACK) enemyRangeCount += 1
+                    })
+                })
+
+                // 有红球或者黄球，则每个分组出一个红球
+                if (enemyWorkCount > 0) {
+                    const memory: DefenderData = { targetEnemy: enemyGroup[i][0].id }
+                    const dCreepName = room.name + '_DEFENDER_' + i
+                    const creepNameHash = addCreepConfig(room, roleWarEnum.DEFENDER, dCreepName, memory);
+                    if (Game.creeps[creepNameHash] != undefined && Game.creeps[Game.creeps[creepNameHash].memory.data['targetEnemy']] == undefined) {
+                        Game.creeps[creepNameHash].memory.data['targetEnemy'] = enemyGroup[i][0].id
+                    }
+                }
+
+                // 每个分组，每40个Heal出一个蓝球
+                for (let j = 0; j < enemyHealCount / 40; j++) {
+                    const memory: DefenderData = { targetEnemy: enemyGroup[i][0].id }
+                    const rCreepName = room.name + '_RDEFENDER_' + i + j
+                    const creepNameHash = addCreepConfig(room, roleWarEnum.RDEFENDER, rCreepName, memory);
+                    if (Game.creeps[creepNameHash] != undefined && Game.creeps[Game.creeps[creepNameHash].memory.data['targetEnemy']] == undefined) {
+                        Game.creeps[creepNameHash].memory.data['targetEnemy'] = enemyGroup[i][0].id
+                    }
+                }
             }
         }
 
@@ -386,7 +424,7 @@ export const creepNumberController = function (): void {
         }
     }
 
-    if (Game.time % 10 != 0) return
+    // if (Game.time % 5 != 0) return
 
     // 重置发布配置
     Object.values(Game.rooms).forEach(room => {

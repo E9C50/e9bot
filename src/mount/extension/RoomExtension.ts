@@ -345,4 +345,14 @@ export default class RoomExtension extends Room {
         const memoryKey = STRUCTURE_MEMORYKEY_PERFIX + 'STRUCTURE_POWER_BANK'
         return this.getStructures<StructurePowerBank>(STRUCTURE_POWER_BANK, privateKey, memoryKey)
     }
+
+    public sendResource(targetRoom: string, resourceType: ResourceConstant, amount: number): boolean {
+        const jobId = this.name + targetRoom + resourceType + amount
+        this.memory.terminalSendJob[jobId] = {
+            targetRoom: targetRoom,
+            resourceType: resourceType,
+            amount: amount
+        }
+        return true
+    }
 }

@@ -1,4 +1,4 @@
-import { baseLayout, boostConfig, creepWhiteList, reactionConfig, reactionSource, roleBoostConfig, roomSignTextList } from "settings"
+import { baseLayout, boostConfig, boostTypeEnum, creepWhiteList, reactionConfig, reactionSource, roleBoostConfig, roomSignTextList } from "settings"
 import { getClosestTarget, getDistance } from "utils"
 
 /**
@@ -19,7 +19,7 @@ function getReadyChildReaction(room: Room, reactionTarget: ResourceConstant): Re
     const targetAmount = room.memory.resourceAmount[reactionTarget] || 0
 
     var childList: ResourceConstant[] = [...child1List, ...child2List]
-    if ((childList.includes(child[0]) || child1Amount >= 5) && (childList.includes(child[1]) || child2Amount >= 5)
+    if ((childList.includes(child[0]) || child1Amount >= 3000) && (childList.includes(child[1]) || child2Amount >= 3000)
         && targetAmount < (reactionConfig[reactionTarget] || 3000)) {
         childList = childList.concat([reactionTarget])
     }
@@ -37,7 +37,7 @@ function checkReactionReady(room: Room, reactionTarget: ResourceConstant): boole
     const child1Amount = room.memory.resourceAmount[child[0]] || 0
     const child2Amount = room.memory.resourceAmount[child[1]] || 0
     const targetAmount = room.memory.resourceAmount[reactionTarget] || 0
-    return (child1Amount >= 5 && child2Amount >= 5) && targetAmount < (reactionConfig[reactionTarget] || 3000)
+    return (child1Amount >= 3000 && child2Amount >= 3000) && targetAmount < (reactionConfig[reactionTarget] || 3000)
 }
 
 /**
@@ -56,13 +56,11 @@ function updateLabReactionConfig(room: Room): void {
     const lab2 = Game.getObjectById(room.memory.roomLabConfig.sourceLab2) as StructureLab;
 
     if (room.memory.roomLabConfig.labReactionQueue.length > 0 &&
-        !checkReactionReady(room, room.memory.roomLabConfig.labReactionQueue[0]) &&
-        lab1.mineralType != undefined && lab2.mineralType != undefined &&
-        lab1.store[lab1.mineralType] > 10 && lab2.store[lab2.mineralType] > 10) {
+        !checkReactionReady(room, room.memory.roomLabConfig.labReactionQueue[0])) {
 
-        console.log(`Lab合成配置更新前：${room.memory.roomLabConfig.labReactionQueue}`)
+        console.log(`${room.name} Lab合成配置更新前：${room.memory.roomLabConfig.labReactionQueue}`)
         room.memory.roomLabConfig.labReactionQueue.shift()
-        console.log(`Lab合成配置更新后：${room.memory.roomLabConfig.labReactionQueue}`)
+        console.log(`${room.name} Lab合成配置更新后：${room.memory.roomLabConfig.labReactionQueue}`)
     }
 
     if (room.memory.roomLabConfig.labReactionQueue.length > 0) return
@@ -73,12 +71,12 @@ function updateLabReactionConfig(room: Room): void {
         if (!readyReactionList.includes(config as ResourceConstant)) continue
 
         if (lab1.mineralType != undefined && lab2.mineralType != undefined
-            && lab1.store[lab1.mineralType] > 10 && lab2.store[lab2.mineralType] > 10) continue
+            && lab1.store[lab1.mineralType] > 3000 && lab2.store[lab2.mineralType] > 3000) continue
 
-        console.log(`Lab合成配置更新前：${room.memory.roomLabConfig.labReactionQueue}`)
+        console.log(`${room.name} Lab合成配置更新前：${room.memory.roomLabConfig.labReactionQueue}`)
         room.memory.roomLabConfig.labReactionQueue = readyReactionList
-        console.log(`Lab合成配置更新后：${room.memory.roomLabConfig.labReactionQueue}`)
-        console.log(`notify_Lab合成配置更新：${room.memory.roomLabConfig.labReactionQueue}`)
+        console.log(`${room.name} Lab合成配置更新后：${room.memory.roomLabConfig.labReactionQueue}`)
+        console.log(`${room.name} notify_Lab合成配置更新：${room.memory.roomLabConfig.labReactionQueue}`)
         return
     }
 }
@@ -91,7 +89,8 @@ function updateLabBoostConfig(room: Room): void {
 
     // 根据当前creep需求配置，获取需要boost的资源
     const creepRoleList = Object.values(room.memory.creepConfig).map(config => config.role)
-    const needBoostTypeList = creepRoleList.reduce<BoostTypeConstant[]>((acc, role) => acc.concat(roleBoostConfig[role] || []), []);
+    let needBoostTypeList = creepRoleList.reduce<BoostTypeConstant[]>((acc, role) => acc.concat(roleBoostConfig[role] || []), []);
+
     if (needBoostTypeList == undefined) return
 
     room.memory.roomLabConfig.needBoostTypeList = needBoostTypeList
@@ -274,20 +273,9 @@ function findTowerEnemy(room: Room): void {
         console.log(`notify_您的房间[${room.name}] 发现敌人 所有者[${room.enemies[0].owner.username}]`)
     }
 
-    // 查找离ram最近的敌人
-    var closestRange = Infinity
-    var closestTarget = room.enemies[0]
-    room.enemies.forEach(enemy => {
-        room.ramparts.forEach(ram => {
-            const range = getDistance(enemy.pos, ram.pos)
-            if (range < closestRange) {
-                closestRange = range
-                closestTarget = enemy
-            }
-        })
-    })
-
-    room.memory.enemyTarget = closestTarget.id
+    // 获取入侵者
+    const npcList = room.enemies.filter(enemy => enemy.owner.username == 'Invader')
+    if (npcList.length > 0) room.memory.npcTarget = npcList[0].id
 }
 
 function cacheRoomResourceInfo(room: Room): void {
@@ -324,16 +312,42 @@ function cacheRoomResourceInfo(room: Room): void {
 }
 
 function processTerminalResource(room: Room) {
-    if (Game.time % 10 != 0) return
     if (room.terminal == undefined) return
     const centerStorage = 'E35N3'
+
+    room.memory.terminalAmount = {}
 
     // 终端默认留存资源
     room.memory.terminalAmount['energy'] = 50000
     room.memory.terminalAmount[room.mineral.mineralType] = 100000
 
+    // 终端发送任务
+    for (let jobId in room.memory.terminalSendJob) {
+        const sendTargetRoom = room.memory.terminalSendJob[jobId].targetRoom
+        const resourceType = room.memory.terminalSendJob[jobId].resourceType
+        let sendAmount = room.memory.terminalSendJob[jobId].amount
+        if (room.memory.terminalAmount[resourceType] == undefined) room.memory.terminalAmount[resourceType] = 0
+        room.memory.terminalAmount[resourceType] += sendAmount
+
+        if (room.terminal.store.getFreeCapacity() == 0 && room.terminal.store[resourceType] > 0) {
+            sendAmount = room.terminal.store[resourceType]
+        }
+
+        if (room.terminal.store[resourceType] >= sendAmount && room.terminal.cooldown == 0) {
+            const result = room.terminal.send(resourceType, sendAmount, sendTargetRoom)
+            if (result == OK) {
+                // room.memory.terminalAmount[resourceType] -= sendAmount
+                room.memory.terminalSendJob[jobId].amount -= sendAmount
+                if (room.memory.terminalSendJob[jobId].amount <= 0) {
+                    delete room.memory.terminalSendJob[jobId]
+                }
+            }
+        }
+    }
+
+    if (Game.time % 10 != 0) return
     // 不是中央仓库的，把房间产的矿发到中央仓库
-    if (room.name != centerStorage && room.terminal.store[room.mineral.mineralType] > 30000) {
+    if (room.name != centerStorage && room.terminal.store[room.mineral.mineralType] > 30000 && room.terminal.cooldown == 0) {
         room.terminal.send(room.mineral.mineralType, room.terminal.store[room.mineral.mineralType] - 30000, centerStorage)
     }
 }
@@ -399,8 +413,9 @@ export const roomController = function (): void {
 
         if (room.memory.roomStructurePos == undefined) room.memory.roomStructurePos = {}
         if (room.memory.structureIdList == undefined) room.memory.structureIdList = {}
-        if (room.memory.resourceAmount == undefined) room.memory.resourceAmount = {}
+        if (room.memory.terminalSendJob == undefined) room.memory.terminalSendJob = {}
         if (room.memory.terminalAmount == undefined) room.memory.terminalAmount = {}
+        if (room.memory.resourceAmount == undefined) room.memory.resourceAmount = {}
         if (room.memory.restrictedPos == undefined) room.memory.restrictedPos = {}
         if (room.memory.roomPosition == undefined) room.memory.roomPosition = {}
         if (room.memory.roomFillJob == undefined) room.memory.roomFillJob = {}

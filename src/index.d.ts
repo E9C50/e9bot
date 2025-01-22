@@ -104,6 +104,8 @@ interface Room {
 
     centerLink?: StructureLink
     controllerLink?: StructureLink
+
+    sendResource(targetRoom: string, resourceType: ResourceConstant, amount: number): boolean
 }
 
 interface RoomPosition {
@@ -261,11 +263,18 @@ interface RoomMemory {
 
     resourceAmount: { [resourceType: string]: number }
     terminalAmount: { [resourceType: string]: number }
+    terminalSendJob: {
+        [jobId: string]: {
+            amount: number
+            targetRoom: string
+            resourceType: ResourceConstant
+        }
+    }
 
     restrictedPos?: { [creepName: string]: RoomPosition }
 
     roomSignText?: string
-    enemyTarget?: string
+    npcTarget?: string
     creepSpawnQueue: string[]
 
     // roomCustom: RoomCustomMemory
@@ -325,6 +334,9 @@ interface RemoteHarvesterData { sourceId: string, targetRoom: string, buildTarge
 interface AttackerData { targetFlag: string }
 interface HealerData { targetFlag: string, targetCreep?: string }
 interface IntegrateData { targetFlag: string, attackEnemy?: string }
+
+interface DefenderData { targetEnemy: string }
+
 
 interface BodySet {
     [MOVE]?: number

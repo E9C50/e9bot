@@ -131,6 +131,20 @@ export const powerSpawnController = function (): void {
             }
         }
 
+        // Tower加成技能
+        if (pc.isPowerAvailable(PWR_OPERATE_TOWER)) {
+            for (let index in pc.room.towers) {
+                if (pc.room.towers[index].effects == undefined || pc.room.towers[index].effects.length == 0) {
+                    if (getDistance(pc.pos, pc.room.towers[index].pos) >= 3) {
+                        pc.moveTo(pc.room.towers[index])
+                        return
+                    }
+                    pc.usePower(PWR_OPERATE_TOWER, pc.room.towers[index])
+                    return
+                }
+            }
+        }
+
         // 没有可用技能就去旗子等
         if (getDistance(pc.pos, pcFlag.pos) > 1) {
             pc.moveTo(pcFlag)

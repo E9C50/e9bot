@@ -1,4 +1,3 @@
-import { boostTypeEnum } from "settings"
 import { getClosestTarget, getDistance } from "utils"
 
 export default (data: CreepData): ICreepConfig => ({
@@ -6,9 +5,6 @@ export default (data: CreepData): ICreepConfig => ({
         return true
     },
     prepare(creep) {
-        // if (creep.room.name == 'E37N7' && creep.ticksToLive != undefined && creep.ticksToLive > 1000) {
-        //     return creep.goBoost([boostTypeEnum.BoostTypeUpgrade])
-        // }
         return true
     },
     source(creep) {

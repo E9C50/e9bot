@@ -48,10 +48,6 @@ export default class SpawnExtension extends StructureSpawn {
 
             var bodyConfig = bodyConfigs[creepMemory.role];
 
-            if (this.room.name == 'E37N7' && creepMemory.role == roleBaseEnum.UPGRADER) {
-                bodyConfig = Array.from({ length: 8 }, () => ({ [WORK]: 39, [CARRY]: 1, [MOVE]: 10 }))
-            }
-
             const bodyPart: BodyPartConstant[] = getBodyConfig(this.room, bodyConfig, forceSpawn);
             const spawnResult = this.spawnCreep(bodyPart, creepName, { memory: creepMemory })
             if (spawnResult == OK) creepSpawnQueue.shift()

@@ -1,4 +1,4 @@
-import { boostBodyPart, findPathAvoidRooms, roleBoostConfig } from "settings";
+import { boostBodyPart, boostTypeEnum, findPathAvoidRooms, roleBaseEnum, roleBoostConfig } from "settings";
 import { getDistance, getOppositeDirection, getOppositePosition, serializeMovePath } from "utils";
 
 export default class CreepExtension extends Creep {
@@ -258,6 +258,7 @@ export default class CreepExtension extends Creep {
      */
     public goBoost(): boolean {
         let boostList = roleBoostConfig[this.memory.role]
+
         if (boostList == undefined || boostList.length == 0) return true
         const boostConfig = this.room.memory.roomLabConfig.singleLabConfig
         if (this.spawning) return false
