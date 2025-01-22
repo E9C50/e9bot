@@ -20,11 +20,6 @@ export default (data: CreepData): ICreepConfig => ({
         const sourceTarget = Game.getObjectById(creepData.sourceFlag) as Source
         const sourcePos = sourceFlag?.pos || sourceTarget?.pos
 
-        if (sourcePos == undefined) {
-            creep.say('❓')
-            return true
-        }
-
         if (creep.pickupDroppedResource(true, 50)) return true
 
         // 如果不在目标房间，则去往目标房间
@@ -142,7 +137,7 @@ export default (data: CreepData): ICreepConfig => ({
         }
 
         if (creep.room.name != targetPos.roomName) {
-            creep.moveTo(targetPos)
+            creep.moveTo(targetPos, { visualizePathStyle: {} })
             return true
         }
 
@@ -158,9 +153,9 @@ export default (data: CreepData): ICreepConfig => ({
 
         // 搬运到最近的storage、link、container
         var targetStructure;
-        const structureList: Structure[] = [
-            creep.room.storage, ...creep.room.links, ...creep.room.containers,
-            ...creep.room.towers, ...creep.room.spawns, ...creep.room.extensions
+        const structureList: Structure[] = [creep.room.storage
+            // creep.room.storage, ...creep.room.links, ...creep.room.containers,
+            // ...creep.room.towers, ...creep.room.spawns, ...creep.room.extensions
         ].filter(item => item != undefined && item.store.getFreeCapacity(RESOURCE_ENERGY) > 0) as Structure[]
         if (structureList.length > 0) {
             targetStructure = getClosestTarget(creep.pos, structureList)

@@ -272,26 +272,26 @@ function releaseJobsCreepConfig(): void {
         }
 
         // 发布外房搬运工
-        // for (let i = 0; i < 20; i++) {
-        //     const sourceFlag = Game.flags[room.name + '_RF_S' + i]
-        //     const targetFlag = Game.flags[room.name + '_RF_T' + i]
-        //     if (sourceFlag != undefined && targetFlag != undefined) {
-        //         const remoteFillerMemory: RemoteFillerData = { sourceFlag: room.name + '_RF_S' + i, targetFlag: room.name + '_RF_T' + i }
-        //         const creepName = room.name + '_RFILLER_' + room.name + '_RF_S' + i + '_' + room.name + '_RF_T' + i
-        //         addCreepConfig(room, roleAdvEnum.RFILLER, creepName, remoteFillerMemory);
-        //     }
-        // }
+        for (let i = 0; i < 20; i++) {
+            const sourceFlag = Game.flags[room.name + '_RF_S' + i]
+            const targetFlag = Game.flags[room.name + '_RF_T' + i]
+            if (sourceFlag != undefined && targetFlag != undefined) {
+                const remoteFillerMemory: RemoteFillerData = { sourceFlag: room.name + '_RF_S' + i, targetFlag: room.name + '_RF_T' + i }
+                const creepName = room.name + '_RFILLER_' + room.name + '_RF_S' + i + '_' + room.name + '_RF_T' + i
+                addCreepConfig(room, roleAdvEnum.RFILLER, creepName, remoteFillerMemory);
+            }
+        }
 
         // 发布外房Worker
-        // for (let i = 0; i < 20; i++) {
-        //     const sourceFlag = Game.flags[room.name + '_RB_S' + i]
-        //     const targetFlag = Game.flags[room.name + '_RB_T' + i]
-        //     if (sourceFlag != undefined && targetFlag != undefined) {
-        //         const remoteBuilderMemory: RemoteBuilderData = { sourceFlag: room.name + '_RB_S' + i, targetFlag: room.name + '_RB_T' + i }
-        //         const creepName = room.name + '_RBUILDER_' + room.name + '_RB_S' + i + '_' + room.name + '_RB_T' + i
-        //         addCreepConfig(room, roleAdvEnum.RBUILDER, creepName, remoteBuilderMemory);
-        //     }
-        // }
+        for (let i = 0; i < 20; i++) {
+            const sourceFlag = Game.flags[room.name + '_RB_S' + i]
+            const targetFlag = Game.flags[room.name + '_RB_T' + i]
+            if (sourceFlag != undefined && targetFlag != undefined) {
+                const remoteBuilderMemory: RemoteBuilderData = { sourceFlag: room.name + '_RB_S' + i, targetFlag: room.name + '_RB_T' + i }
+                const creepName = room.name + '_RBUILDER_' + room.name + '_RB_S' + i + '_' + room.name + '_RB_T' + i
+                addCreepConfig(room, roleAdvEnum.RBUILDER, creepName, remoteBuilderMemory);
+            }
+        }
 
         // // 发布 healer
         // if (roomCustom.healer != undefined) {

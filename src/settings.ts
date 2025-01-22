@@ -6,7 +6,6 @@ export const creepWhiteList = ['an_w', 'NoName_', 'MoSaSa', 'Kaoruko', 'keqing']
 
 // 永不踏入这些房间
 export const findPathAvoidRooms = [
-    // 'E36N5', // 要塞
     'E39N4', 'E38N1', 'E39N1', 'E32N2', 'E33N5', 'E39N7'
 ]
 export const enableObserversFindPath = true
@@ -125,7 +124,7 @@ const workerBodyConfigs = [
     { [WORK]: 6, [CARRY]: 6, [MOVE]: 6 },
     { [WORK]: 7, [CARRY]: 7, [MOVE]: 7 },
     { [WORK]: 12, [CARRY]: 6, [MOVE]: 9 },
-    { [WORK]: 20, [CARRY]: 8, [MOVE]: 14 }
+    { [WORK]: 20, [CARRY]: 10, [MOVE]: 20 }
 ]
 
 const carryBodyConfigs = [

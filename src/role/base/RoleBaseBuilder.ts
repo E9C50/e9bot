@@ -1,6 +1,7 @@
 import { getClosestTarget, getDistance } from 'utils'
 import RoleBaseRepairer from './RoleBaseRepairer'
 import RoleBaseUpgrader from './RoleBaseUpgrader'
+import RoleBaseHarvester from './RoleBaseHarvester'
 
 export default (data: CreepData): ICreepConfig => ({
     isNeed: (room: Room, creepName: string) => {
@@ -22,6 +23,8 @@ export default (data: CreepData): ICreepConfig => ({
         // 如果没有指定目标容器，就随便找一个
         if (sourceTarget == undefined || sourceTarget.store[RESOURCE_ENERGY] == 0) {
             var energySources: AnyStoreStructure[] = [...creep.room.containers, ...creep.room.links]
+
+            energySources = [...energySources, ...creep.room.spawns, ...creep.room.extensions]
             if (creep.room.storage != undefined) energySources.push(creep.room.storage)
             if (creep.room.terminal != undefined) energySources.push(creep.room.terminal)
 

@@ -53,8 +53,8 @@ export default (data: CreepData): ICreepConfig => ({
         if (!creep.room.controller) return false
 
         // 升级
-        const distance = getDistance(creep.pos, creep.room.controller.pos)
-        if (distance > 3) {
+        const distanceController = getDistance(creep.pos, creep.room.controller.pos)
+        if (distanceController > 3) {
             if (creep.room.terminal != undefined && getDistance(creep.room.terminal.pos, creep.room.controller.pos) < 5) {
                 creep.moveTo(creep.room.terminal)
             } else {
@@ -62,26 +62,14 @@ export default (data: CreepData): ICreepConfig => ({
             }
         } else {
             creep.upgradeController(creep.room.controller)
-            if (creep.room.terminal != undefined && getDistance(creep.pos, creep.room.terminal.pos) < 5) {
-                if (getDistance(creep.pos, creep.room.terminal.pos) == 1) {
-                    if (creep.pos.x != creep.room.terminal.pos.x && creep.pos.y != creep.room.terminal.pos.y) {
-                        creep.room.terminal.pos.getFreeSpace().forEach(space => {
-                            if (creep.room.terminal != undefined && !creep.room.terminal.pos.isEqualTo(space) && space.lookFor(LOOK_CREEPS).length == 0 &&
-                                (space.x == creep.room.terminal.pos.x || space.y == creep.room.terminal.pos.y)) {
-                                creep.moveTo(space)
-                            }
-                        })
-                    }
-                    creep.withdraw(creep.room.terminal, RESOURCE_ENERGY)
-                } else {
-                    creep.moveTo(creep.room.terminal)
-                }
+            if (creep.room.terminal != undefined && creep.pos.isNearTo(creep.room.terminal)) {
+                creep.withdraw(creep.room.terminal, RESOURCE_ENERGY)
             }
         }
 
         // 签名
         if (creep.room.memory.roomSignText != undefined && creep.room.controller.sign?.text != creep.room.memory.roomSignText) {
-            if (distance > 1) {
+            if (distanceController > 1) {
                 creep.moveTo(creep.room.controller)
             } else {
                 creep.signController(creep.room.controller, creep.room.memory.roomSignText)

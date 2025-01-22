@@ -435,94 +435,6 @@ function generateCostMatrix(room, pos) {
             }
         }
     }
-    if (room.name == 'E37N6') {
-        noStructureCostMat.set(2, 38, unWalkableCCost);
-        noStructureCostMat.set(2, 39, unWalkableCCost);
-        noStructureCostMat.set(2, 40, unWalkableCCost);
-        noStructureCostMat.set(2, 41, unWalkableCCost);
-
-        structureCostMat.set(2, 38, unWalkableCCost);
-        structureCostMat.set(2, 39, unWalkableCCost);
-        structureCostMat.set(2, 40, unWalkableCCost);
-        structureCostMat.set(2, 41, unWalkableCCost);
-    }
-    if (room.name == 'E37N7') {
-        noStructureCostMat.set(1, 10, unWalkableCCost);
-        noStructureCostMat.set(1, 11, unWalkableCCost);
-        noStructureCostMat.set(1, 12, unWalkableCCost);
-        noStructureCostMat.set(1, 13, unWalkableCCost);
-        noStructureCostMat.set(1, 14, unWalkableCCost);
-        noStructureCostMat.set(1, 15, unWalkableCCost);
-        noStructureCostMat.set(1, 16, unWalkableCCost);
-        noStructureCostMat.set(1, 17, unWalkableCCost);
-        noStructureCostMat.set(1, 18, unWalkableCCost);
-        noStructureCostMat.set(1, 19, unWalkableCCost);
-
-        structureCostMat.set(1, 10, unWalkableCCost);
-        structureCostMat.set(1, 11, unWalkableCCost);
-        structureCostMat.set(1, 12, unWalkableCCost);
-        structureCostMat.set(1, 13, unWalkableCCost);
-        structureCostMat.set(1, 14, unWalkableCCost);
-        structureCostMat.set(1, 15, unWalkableCCost);
-        structureCostMat.set(1, 16, unWalkableCCost);
-        structureCostMat.set(1, 17, unWalkableCCost);
-        structureCostMat.set(1, 18, unWalkableCCost);
-        structureCostMat.set(1, 19, unWalkableCCost);
-    }
-    if (room.name == 'E36N5') {
-        noStructureCostMat.set(38, 14, unWalkableCCost);
-        noStructureCostMat.set(39, 14, unWalkableCCost);
-        noStructureCostMat.set(40, 14, unWalkableCCost);
-        noStructureCostMat.set(41, 14, unWalkableCCost);
-
-        structureCostMat.set(38, 14, unWalkableCCost);
-        structureCostMat.set(39, 14, unWalkableCCost);
-        structureCostMat.set(40, 14, unWalkableCCost);
-        structureCostMat.set(41, 14, unWalkableCCost);
-    }
-    if (room.name == 'E36N6') {
-        structureCostMat.set(44, 46, unWalkableCCost);
-        structureCostMat.set(45, 46, unWalkableCCost);
-
-        structureCostMat.set(34, 11, unWalkableCCost);
-        structureCostMat.set(35, 11, unWalkableCCost);
-        structureCostMat.set(36, 11, unWalkableCCost);
-
-        noStructureCostMat.set(44, 46, unWalkableCCost);
-        noStructureCostMat.set(45, 46, unWalkableCCost);
-
-        noStructureCostMat.set(34, 11, unWalkableCCost);
-        noStructureCostMat.set(35, 11, unWalkableCCost);
-        noStructureCostMat.set(36, 11, unWalkableCCost);
-    }
-    if (room.name == 'E35N5') {
-        structureCostMat.set(24, 1, unWalkableCCost);
-        structureCostMat.set(25, 1, unWalkableCCost);
-        structureCostMat.set(26, 1, unWalkableCCost);
-        structureCostMat.set(27, 1, unWalkableCCost);
-        structureCostMat.set(28, 1, unWalkableCCost);
-
-        structureCostMat.set(48, 19, unWalkableCCost);
-        structureCostMat.set(48, 18, unWalkableCCost);
-        structureCostMat.set(48, 17, unWalkableCCost);
-        structureCostMat.set(48, 16, unWalkableCCost);
-        structureCostMat.set(48, 15, unWalkableCCost);
-        structureCostMat.set(48, 14, unWalkableCCost);
-
-
-        noStructureCostMat.set(24, 1, unWalkableCCost);
-        noStructureCostMat.set(25, 1, unWalkableCCost);
-        noStructureCostMat.set(26, 1, unWalkableCCost);
-        noStructureCostMat.set(27, 1, unWalkableCCost);
-        noStructureCostMat.set(28, 1, unWalkableCCost);
-
-        noStructureCostMat.set(48, 19, unWalkableCCost);
-        noStructureCostMat.set(48, 18, unWalkableCCost);
-        noStructureCostMat.set(48, 17, unWalkableCCost);
-        noStructureCostMat.set(48, 16, unWalkableCCost);
-        noStructureCostMat.set(48, 15, unWalkableCCost);
-        noStructureCostMat.set(48, 14, unWalkableCCost);
-    }
     for (let s of totalStructures) {
         if (s.structureType == STRUCTURE_INVADER_CORE) {  // 第1种可能无敌的建筑
             if (s.ticksToDeploy) {
@@ -1709,37 +1621,37 @@ if (!PowerCreep.prototype.$moveTo) {
 //     return this.$move(...e)
 // };
 
-if (!Creep.prototype.$build) {
-    Creep.prototype.$build = Creep.prototype.build;
-    Creep.prototype.build = function (...e) {
-        this.memory.dontPullMe = true;
-        return this.$build(...e)
-    };
-}
+// if (!Creep.prototype.$build) {
+//     Creep.prototype.$build = Creep.prototype.build;
+//     Creep.prototype.build = function (...e) {
+//         this.memory.dontPullMe = true;
+//         return this.$build(...e)
+//     };
+// }
 
-if (!Creep.prototype.$repair) {
-    Creep.prototype.$repair = Creep.prototype.repair;
-    Creep.prototype.repair = function (...e) {
-        this.memory.dontPullMe = true;
-        return this.$repair(...e)
-    };
-}
+// if (!Creep.prototype.$repair) {
+//     Creep.prototype.$repair = Creep.prototype.repair;
+//     Creep.prototype.repair = function (...e) {
+//         this.memory.dontPullMe = true;
+//         return this.$repair(...e)
+//     };
+// }
 
-if (!Creep.prototype.$upgradeController) {
-    Creep.prototype.$upgradeController = Creep.prototype.upgradeController;
-    Creep.prototype.upgradeController = function (...e) {
-        this.memory.dontPullMe = true;
-        return this.$upgradeController(...e)
-    };
-}
+// if (!Creep.prototype.$upgradeController) {
+//     Creep.prototype.$upgradeController = Creep.prototype.upgradeController;
+//     Creep.prototype.upgradeController = function (...e) {
+//         this.memory.dontPullMe = true;
+//         return this.$upgradeController(...e)
+//     };
+// }
 
-if (!Creep.prototype.$dismantle) {
-    Creep.prototype.$dismantle = Creep.prototype.dismantle;
-    Creep.prototype.dismantle = function (...e) {
-        this.memory.dontPullMe = true;
-        return this.$dismantle(...e)
-    };
-}
+// if (!Creep.prototype.$dismantle) {
+//     Creep.prototype.$dismantle = Creep.prototype.dismantle;
+//     Creep.prototype.dismantle = function (...e) {
+//         this.memory.dontPullMe = true;
+//         return this.$dismantle(...e)
+//     };
+// }
 
 if (!Creep.prototype.$harvest) {
     Creep.prototype.$harvest = Creep.prototype.harvest;
@@ -1762,13 +1674,13 @@ if (!Creep.prototype.$harvest) {
     };
 }
 
-if (!Creep.prototype.$attack) {
-    Creep.prototype.$attack = Creep.prototype.attack;
-    Creep.prototype.attack = function (...e) {
-        this.memory.dontPullMe = true;
-        return this.$attack(...e)
-    };
-}
+// if (!Creep.prototype.$attack) {
+//     Creep.prototype.$attack = Creep.prototype.attack;
+//     Creep.prototype.attack = function (...e) {
+//         this.memory.dontPullMe = true;
+//         return this.$attack(...e)
+//     };
+// }
 
 // Creep.prototype.$withdraw=Creep.prototype.withdraw;
 // Creep.prototype.withdraw=function (...e) {

@@ -7,31 +7,6 @@ export default (data: CreepData): ICreepConfig => ({
         return true
     },
     prepare(creep) {
-        // if (creep.room.name == 'E35N3') creep.memory.needBoost = true
-        // if (creep.memory.needBoost) {
-        //     // 处理boost
-        //     const boostConfig = creep.room.memory.roomLabConfig.singleLabConfig
-        //     for (let index in creep.body) {
-        //         const bodyPart = creep.body[index]
-        //         if (bodyPart.boost == undefined) {
-        //             for (let labId in boostConfig) {
-        //                 if (boostConfig[labId].boostPart == bodyPart.type) {
-        //                     const boostLab: StructureLab = Game.getObjectById(labId) as StructureLab
-        //                     if (boostLab.mineralType == undefined || boostLab.store[boostLab.mineralType] < 100 || boostLab.store[RESOURCE_ENERGY] < 100) {
-        //                         creep.moveTo(creep.room.spawns[0])
-        //                         return false
-        //                     }
-        //                     if (getDistance(creep.pos, boostLab.pos) > 1) {
-        //                         creep.moveTo(boostLab)
-        //                         return false
-        //                     }
-        //                 }
-        //             }
-        //             return false
-        //         }
-        //     }
-        //     return true
-        // }
         return true
     },
     source(creep) {

@@ -1,5 +1,4 @@
-import { baseLayout, boostConfig, boostTypeEnum, creepWhiteList, reactionConfig, reactionSource, roleBoostConfig, roomSignTextList } from "settings"
-import { getClosestTarget, getDistance } from "utils"
+import { baseLayout, boostConfig, reactionConfig, reactionSource, roleBoostConfig, roomSignTextList } from "settings"
 
 /**
  * 获取底物反应列表

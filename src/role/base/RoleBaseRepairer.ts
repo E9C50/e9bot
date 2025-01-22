@@ -1,4 +1,4 @@
-import { getClosestTarget, getDistance } from "utils"
+import { getDistance } from "utils"
 import BaseRoleUpgrader from "./RoleBaseUpgrader"
 
 export default (data: CreepData): ICreepConfig => ({
