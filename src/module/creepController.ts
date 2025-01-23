@@ -413,6 +413,47 @@ function releaseWarCreepConfig(): void {
     }
 }
 
+function orderCreepSpawnQueue(): void {
+    for (let roomName in Game.rooms) {
+        const room: Room = Game.rooms[roomName];
+        if (!room.my) continue
+
+        // 循环creepConfig，筛选出未孵化的creep，并按照优先级排序
+        const creepConfigCache = room.memory.creepConfig
+        var creepSpawnQueue = Object.keys(creepConfigCache)
+            .filter(creepName => Game.creeps[creepName] == undefined)
+            .sort((a, b) => creepConfigCache[a].spawnPriority - creepConfigCache[b].spawnPriority)
+
+        if (creepSpawnQueue == undefined || creepSpawnQueue.length == 0) {
+            room.memory.creepSpawnQueue = []
+            continue
+        }
+
+        const fillers = Object.values(Game.creeps).filter(creep => creep.room.name == room.name && creep.memory.role == roleBaseEnum.FILLER)
+        const harvesters = Object.values(Game.creeps).filter(creep => creep.room.name == room.name && creep.memory.role == roleBaseEnum.HARVESTER)
+
+        // 如果有harvester，但是没有filler，则优先孵化一个对应的filler
+        if (room.containers.length > 0 && fillers.length == 0 && harvesters.length > 0) {
+            const container = room.containers.filter(container => container.store[RESOURCE_ENERGY] > 0)
+            const highPriority = creepSpawnQueue.filter(creepName => creepConfigCache[creepName].role == roleBaseEnum.FILLER &&
+                container.length > 0 && container[0].id == (creepConfigCache[creepName].data as FillerData).sourceId)[0]
+
+            if (highPriority) {
+                creepSpawnQueue = [highPriority, ...creepSpawnQueue.filter(creepName => creepName != highPriority)]
+            }
+        }
+
+        // 如果没有harvester，则优先孵化一个对应的harvester
+        if (harvesters.length == 0) {
+            const highPriority = creepSpawnQueue.filter(creepName => creepConfigCache[creepName].role == roleBaseEnum.HARVESTER)[0]
+            if (highPriority) {
+                creepSpawnQueue = [highPriority, ...creepSpawnQueue.filter(creepName => creepName != highPriority)]
+            }
+        }
+        room.memory.creepSpawnQueue = creepSpawnQueue
+    }
+}
+
 /**
  * Creep 的数量控制器
  */
@@ -439,6 +480,9 @@ export const creepNumberController = function (): void {
 
     // 发布战争相关配置
     releaseWarCreepConfig()
+
+    // 优先级排序
+    orderCreepSpawnQueue()
 }
 
 /**
@@ -468,7 +512,7 @@ export const creepWorkController = function (): void {
     });
 
     // Debug信息
-    const debug = true && Game.shard.name == 'shard3'
+    const debug = false && Game.shard.name == 'shard3'
     if (debug) {
         workCpu = workCpu.sort((a, b) => b[1] - a[1])
         for (let role in Object.keys(workCpu)) {

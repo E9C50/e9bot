@@ -149,15 +149,15 @@ export const bodyConfigs: { [role in CreepRoleConstant]: BodySet[] } = {
     rFiller: carryBodyConfigs,
     processer: carryBodyConfigs,
     scout: Array.from({ length: 8 }, () => ({ [MOVE]: 1 })),
-    manager: [
-        { [CARRY]: 2, [MOVE]: 1 },
-        { [CARRY]: 3, [MOVE]: 1 },
+    manager: [ // 已重新核对计算
         { [CARRY]: 5, [MOVE]: 1 },
-        { [CARRY]: 7, [MOVE]: 1 },
-        { [CARRY]: 11, [MOVE]: 1 },
-        { [CARRY]: 14, [MOVE]: 1 },
-        { [CARRY]: 26, [MOVE]: 1 },
-        { [CARRY]: 39, [MOVE]: 1 }
+        { [CARRY]: 10, [MOVE]: 1 },
+        { [CARRY]: 15, [MOVE]: 1 },
+        { [CARRY]: 25, [MOVE]: 1 },
+        { [CARRY]: 35, [MOVE]: 1 },
+        { [CARRY]: 45, [MOVE]: 1 },
+        { [CARRY]: 49, [MOVE]: 1 },
+        { [CARRY]: 49, [MOVE]: 1 }
     ],
     claimer: [
         { [WORK]: 1, [CLAIM]: 1, [CARRY]: 1, [MOVE]: 3, },
@@ -315,6 +315,28 @@ export const baseLayout: { [level: number]: {} } = {
         [STRUCTURE_POWER_SPAWN]: [[0, 2]],
         [STRUCTURE_NUKER]: [[0, -2]],
     }
+}
+
+export const defaultAutoResource = {
+    [RESOURCE_CATALYZED_GHODIUM_ALKALIDE]: 10000,     // tough
+    [RESOURCE_CATALYZED_KEANIUM_ALKALIDE]: 10000,     // rangedAttack
+    [RESOURCE_CATALYZED_LEMERGIUM_ACID]: 10000,       // build
+    [RESOURCE_CATALYZED_LEMERGIUM_ALKALIDE]: 10000,   // heal
+    [RESOURCE_CATALYZED_UTRIUM_ACID]: 10000,          // attack
+    [RESOURCE_CATALYZED_ZYNTHIUM_ALKALIDE]: 10000,    // fatigue
+
+    [RESOURCE_POWER]: 3000,
+    [RESOURCE_OPS]: 3000,
+
+    [RESOURCE_GHODIUM]: 10000,
+
+    [RESOURCE_CATALYST]: 10000,
+    [RESOURCE_LEMERGIUM]: 10000,
+    [RESOURCE_ZYNTHIUM]: 10000,
+    [RESOURCE_KEANIUM]: 10000,
+    [RESOURCE_UTRIUM]: 10000,
+    [RESOURCE_OXYGEN]: 10000,
+    [RESOURCE_HYDROGEN]: 10000,
 }
 
 export const reactionConfig = {

@@ -2,6 +2,19 @@
 
 'use strict';
 
+import ConsoleExtension from "mount/extension/ConsoleExtension";
+import CreepExtension from "mount/extension/CreepExtension";
+import PositionExtension from "mount/extension/PositionExtension";
+import PowerCreepExtension from "mount/extension/PowerCreepExtension";
+import RoomExtension from "mount/extension/RoomExtension";
+import FactoryExtension from "mount/structure/FactoryExtension";
+import LabExtension from "mount/structure/LabExtension";
+import LinkExtension from "mount/structure/LinkExtension";
+import NukerExtension from "mount/structure/NukerExtension";
+import PowerSpawnExtension from "mount/structure/PowerSpawnExtension";
+import SpawnExtension from "mount/structure/SpawnExtension";
+import TowerExtension from "mount/structure/TowerExtension";
+
 let usedOnStart = 0;
 let enabled = false;
 let depth = 0;
@@ -412,6 +425,20 @@ const Profiler = {
     { name: 'StructureTower', val: StructureTower },
     { name: 'StructureWall', val: StructureWall },
     { name: 'Tombstone', val: Tombstone },
+
+    { name: 'ConsoleExtension', val: ConsoleExtension },
+    { name: 'CreepExtension', val: CreepExtension },
+    { name: 'PositionExtension', val: PositionExtension },
+    { name: 'PowerCreepExtension', val: PowerCreepExtension },
+    { name: 'RoomExtension', val: RoomExtension },
+
+    { name: 'LabExtension', val: LabExtension },
+    { name: 'TowerExtension', val: TowerExtension },
+    { name: 'LinkExtension', val: LinkExtension },
+    { name: 'FactoryExtension', val: FactoryExtension },
+    { name: 'NukerExtension', val: NukerExtension },
+    { name: 'SpawnExtension', val: SpawnExtension },
+    { name: 'PowerSpawnExtension', val: PowerSpawnExtension },
   ],
 
   checkMapItem(functionName, map = Memory.profiler.map) {

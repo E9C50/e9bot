@@ -146,7 +146,7 @@ export const powerSpawnController = function (): void {
         }
 
         // 没有可用技能就去旗子等
-        if (getDistance(pc.pos, pcFlag.pos) > 1) {
+        if (!pc.pos.isEqualTo(pcFlag.pos)) {
             pc.moveTo(pcFlag)
             return
         }

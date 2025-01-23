@@ -1,4 +1,4 @@
-import { baseLayout, boostConfig, reactionConfig, reactionSource, roleBoostConfig, roomSignTextList } from "settings"
+import { baseLayout, boostConfig, defaultAutoResource, reactionConfig, reactionSource, roleAdvEnum, roleBoostConfig, roomSignTextList } from "settings"
 
 /**
  * 获取底物反应列表
@@ -308,17 +308,30 @@ function cacheRoomResourceInfo(room: Room): void {
             room.memory.resourceAmount[lab.mineralType] += lab.store[lab.mineralType]
         })
     }
+
+    Object.values(Game.creeps).forEach(creep => {
+        if (creep.room.name != room.name) return
+        if (creep.memory.role != roleAdvEnum.PROCESSER) return
+        Object.keys(creep.store).forEach(resType => {
+            if (room.memory.resourceAmount[resType] == undefined) {
+                room.memory.resourceAmount[resType] = 0
+            }
+            room.memory.resourceAmount[resType] += creep.store[resType]
+        })
+    })
 }
 
+// 终端资源自动平衡
 function processTerminalResource(room: Room) {
     if (room.terminal == undefined) return
     const centerStorage = 'E35N3'
 
-    room.memory.terminalAmount = {}
-
     // 终端默认留存资源
+    room.memory.terminalAmount = {}
     room.memory.terminalAmount['energy'] = 50000
-    room.memory.terminalAmount[room.mineral.mineralType] = 100000
+
+    if (room.name == 'E35N3') room.memory.terminalAmount['K'] = 91000
+    if (room.name == 'E35N1') room.memory.terminalAmount['L'] = 97800
 
     // 终端发送任务
     for (let jobId in room.memory.terminalSendJob) {
@@ -344,11 +357,34 @@ function processTerminalResource(room: Room) {
         }
     }
 
-    if (Game.time % 10 != 0) return
-    // 不是中央仓库的，把房间产的矿发到中央仓库
-    if (room.name != centerStorage && room.terminal.store[room.mineral.mineralType] > 30000 && room.terminal.cooldown == 0) {
-        room.terminal.send(room.mineral.mineralType, room.terminal.store[room.mineral.mineralType] - 30000, centerStorage)
+    // 以下操作都是非中央仓库房间，每100t处理一次
+    if (Game.time % 100 != 0) return
+    if (room.name == centerStorage) return
+
+    // 把房间产的矿发到中央仓库
+    const mineralAmount = room.memory.resourceAmount[room.mineral.mineralType]
+    const mineralJobExists = Object.values(room.memory.terminalSendJob)
+        .filter(job => job.resourceType == room.mineral.mineralType && job.targetRoom == centerStorage).length > 0
+    if (mineralAmount > 30000 && !mineralJobExists) {
+        room.sendResource(centerStorage, room.mineral.mineralType, mineralAmount - 30000)
+        console.log(`[${room.name}] -> [${centerStorage}] ${room.mineral.mineralType} ${mineralAmount - 30000}`)
     }
+
+    // 检查缺的资源，向中央仓库下单
+    Object.keys(defaultAutoResource).forEach(resType => {
+        if (room.memory.resourceAmount[resType] == undefined) room.memory.resourceAmount[resType] = 0
+        if (room.memory.resourceAmount[resType] < (defaultAutoResource[resType] * 0.6)) {
+            const jobExists = Object.values(Game.rooms[centerStorage].memory.terminalSendJob)
+                .filter(job => job.resourceType == resType && job.targetRoom == room.name).length > 0
+            const needAmount = defaultAutoResource[resType] - room.memory.resourceAmount[resType]
+            const centerHaveRes = Game.rooms[centerStorage].memory.resourceAmount[resType] > needAmount
+
+            if (centerHaveRes && !jobExists) {
+                Game.rooms[centerStorage].sendResource(room.name, resType as ResourceConstant, needAmount)
+                console.log(`[${centerStorage}] -> [${room.name}] ${resType} ${needAmount}`)
+            }
+        }
+    });
 }
 
 function updateRoomSign(room: Room) {
@@ -422,34 +458,66 @@ export const roomController = function (): void {
 
         room.memory.roomFillJob.labInMineral = []
 
+        const debug = true && Game.shard.name == 'shard3'
+        var cpu = Game.cpu.getUsed()
+
         // 自动开启安全模式
         autoEnableSafeMode(room)
+
+        if (debug && (Game.cpu.getUsed() - cpu) > 1) console.log(`自动开启安全模式 CPU 使用量：${(Game.cpu.getUsed() - cpu).toFixed(2)}`)
+        cpu = Game.cpu.getUsed()
 
         // 自动计算RoomCenter
         autoComputeCenterPos(room)
 
+        if (debug && (Game.cpu.getUsed() - cpu) > 1) console.log(`自动计算RoomCenter CPU 使用量：${(Game.cpu.getUsed() - cpu).toFixed(2)}`)
+        cpu = Game.cpu.getUsed()
+
         // 自动规划
         releaseConstructionSite(room)
+
+        if (debug && (Game.cpu.getUsed() - cpu) > 1) console.log(`自动规划 CPU 使用量：${(Game.cpu.getUsed() - cpu).toFixed(2)}`)
+        cpu = Game.cpu.getUsed()
 
         // 初始化建筑相关
         initialStructures(room)
 
+        if (debug && (Game.cpu.getUsed() - cpu) > 1) console.log(`初始化建筑相关 CPU 使用量：${(Game.cpu.getUsed() - cpu).toFixed(2)}`)
+        cpu = Game.cpu.getUsed()
+
         // 缓存房间资源信息
         cacheRoomResourceInfo(room)
+
+        if (debug && (Game.cpu.getUsed() - cpu) > 1) console.log(`缓存房间资源信息 CPU 使用量：${(Game.cpu.getUsed() - cpu).toFixed(2)}`)
+        cpu = Game.cpu.getUsed()
 
         // 处理资源平衡
         processTerminalResource(room)
 
-        // 更新Lab Boost配置
+        if (debug && (Game.cpu.getUsed() - cpu) > 1) console.log(`处理资源平衡 CPU 使用量：${(Game.cpu.getUsed() - cpu).toFixed(2)}`)
+        cpu = Game.cpu.getUsed()
+
+        // 更新LabBoost配置
         updateLabBoostConfig(room)
+
+        if (debug && (Game.cpu.getUsed() - cpu) > 1) console.log(`更新LabBoost配置 CPU 使用量：${(Game.cpu.getUsed() - cpu).toFixed(2)}`)
+        cpu = Game.cpu.getUsed()
 
         // 更新Lab反应配置
         updateLabReactionConfig(room)
 
+        if (debug && (Game.cpu.getUsed() - cpu) > 1) console.log(`更新Lab反应配置 CPU 使用量：${(Game.cpu.getUsed() - cpu).toFixed(2)}`)
+        cpu = Game.cpu.getUsed()
+
         // 更新房间内敌人信息
         findTowerEnemy(room)
 
+        if (debug && (Game.cpu.getUsed() - cpu) > 1) console.log(`更新房间内敌人信息 CPU 使用量：${(Game.cpu.getUsed() - cpu).toFixed(2)}`)
+        cpu = Game.cpu.getUsed()
+
         // 更新房间签名
         updateRoomSign(room)
+
+        if (debug && (Game.cpu.getUsed() - cpu) > 1) console.log(`更新房间签名 CPU 使用量：${(Game.cpu.getUsed() - cpu).toFixed(2)}`)
     }
 }

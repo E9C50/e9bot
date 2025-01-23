@@ -205,7 +205,11 @@ let pro = {
         let store = {};
         if (room.storage) pro.addStore(store, room.storage.store)
         if (room.terminal) pro.addStore(store, room.terminal.store)
-        // if(room.factory)pro.addStore(store,room.factory.store)
+        if (room.factory) pro.addStore(store, room.factory.store)
+
+        room.labs.forEach(lab => {
+            pro.addStore(store, lab.store)
+        })
         return store
     },
     addStore: (store, b) => { for (let v in b) if (b[v] > 0) store[v] = (store[v] || 0) + b[v]; return store },

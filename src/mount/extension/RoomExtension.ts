@@ -347,7 +347,7 @@ export default class RoomExtension extends Room {
     }
 
     public sendResource(targetRoom: string, resourceType: ResourceConstant, amount: number): boolean {
-        const jobId = this.name + targetRoom + resourceType + amount
+        const jobId = this.name + '_' + targetRoom + '_' + resourceType
         this.memory.terminalSendJob[jobId] = {
             targetRoom: targetRoom,
             resourceType: resourceType,
