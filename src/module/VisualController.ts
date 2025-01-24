@@ -57,12 +57,14 @@ function showCreepCountInfo(room: Room): void {
 
 function showCostMatrix(room: Room) {
     const flag = Game.flags['SCM']
-    if (flag != undefined && flag.pos.roomName == room.name && room.memory.defenderCostMatrix != undefined) {
+    if (flag == undefined) return
+
+    const costMatrix = room.getDefenderCostMatrix()
+    if (flag.pos.roomName == room.name && costMatrix != undefined) {
         for (let i = 0; i < 2500 - 1; i++) {
             const x = i % 50
             const y = Math.floor(i / 50)
-            const cost = room.memory.defenderCostMatrix[i]
-            // room.visual.text(text, x, y, { align: 'center' });
+            const cost = costMatrix[i]
             if (cost > 250) {
                 room.visual.circle(x, y, { fill: 'red', opacity: 0.2, radius: 0.55, stroke: 'red' });
             } else if (cost == 0) {
@@ -80,7 +82,14 @@ export const visualController = function (): void {
     for (const roomName in Game.rooms) {
         const room: Room = Game.rooms[roomName];
         if (!room.my) continue;
-        if (Game.flags['SV'] == undefined) continue;
+
+        showCostMatrix(room)
+
+        if (Game.flags['SV'] == undefined) continue
+        if (Game.flags['SV'].pos.roomName != room.name) continue
+
+        // 显示数量信息
+        showCreepCountInfo(room)
 
         // 显示Spawn孵化进度
         room.spawns.forEach(spawn => {
@@ -122,11 +131,11 @@ export const visualController = function (): void {
         // 显示Lab合成配置
         const sourceLab1 = room.memory.roomLabConfig.sourceLab1
         const sourceLab2 = room.memory.roomLabConfig.sourceLab2
-        if (sourceLab1 != undefined && sourceLab2 != undefined && room.memory.roomLabConfig.labReactionQueue[0]) {
+        if (sourceLab1 != undefined && sourceLab2 != undefined && room.memory.roomLabConfig.labReactionConfig) {
             const lab1 = Game.getObjectById<StructureLab>(sourceLab1)
             const lab2 = Game.getObjectById<StructureLab>(sourceLab2)
 
-            const source = reactionSource[room.memory.roomLabConfig.labReactionQueue[0]]
+            const source = reactionSource[room.memory.roomLabConfig.labReactionConfig]
 
             if (lab1) room.visual.text(source[0], lab1.pos.x, lab1.pos.y, { align: 'center', color: 'blue', font: 0.3 });
             if (lab2) room.visual.text(source[1], lab2.pos.x, lab2.pos.y, { align: 'center', color: 'blue', font: 0.3 });
@@ -139,8 +148,5 @@ export const visualController = function (): void {
                 if (outLab) room.visual.text('🔁', outLab.pos.x, outLab.pos.y, { align: 'center', color: 'yellow', font: 0.3 });
             })
         }
-
-        showCostMatrix(room)
-        showCreepCountInfo(room)
     }
 }

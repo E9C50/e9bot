@@ -79,15 +79,18 @@ export const loop = ErrorMapper.wrapLoop(() => {
     if (debug) console.log(`导出统计数据 CPU 使用量：${(Game.cpu.getUsed() - cpu).toFixed(2)}`)
     cpu = Game.cpu.getUsed()
 
+    // 利用空闲CPU生成Pixel
+    if (Game.cpu.bucket >= 10000 && typeof Game.cpu.generatePixel === 'function') {
+      Game.cpu.generatePixel();
+    }
+
+    if (debug) console.log(`搓Pixel CPU 使用量：${(Game.cpu.getUsed() - cpu).toFixed(2)}`)
+    cpu = Game.cpu.getUsed()
+
     if (debug) console.log(`Creeps 数量：${Object.keys(Game.creeps).length}`)
     if (debug) console.log(`总 CPU 使用量：${(Game.cpu.getUsed() - cpuInit).toFixed(2)}`)
     if (debug) console.log('------------------------------------------------')
   });
-
-  // 利用空闲CPU生成Pixel
-  if (typeof Game.cpu.generatePixel === 'function') {
-    Game.cpu.generatePixel();
-  }
 })
 
 console.log(`脚本初始化... Tick[${Game.time}] CPU[${Game.cpu.getUsed().toFixed(4)}] Bucket[${Game.cpu.bucket}]`)

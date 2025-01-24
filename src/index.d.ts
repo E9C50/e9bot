@@ -105,6 +105,8 @@ interface Room {
     centerLink?: StructureLink
     controllerLink?: StructureLink
 
+    getDefenderCostMatrix(): number[]
+    getResource(resType: ResourceConstant, storage?: boolean, terminal?: boolean, lab?: boolean, processer?: boolean)
     sendResource(targetRoom: string, resourceType: ResourceConstant, amount: number): boolean
 }
 
@@ -207,7 +209,7 @@ interface IRoomPositionList {
     centerPos?: RoomPosition
 }
 
-interface IRoomStructurePos {
+interface IRoomStructure {
     towerAllowRepair?: string
 }
 
@@ -232,9 +234,9 @@ interface IRoomFillJob {
 interface ILabConfig {
     sourceLab1?: string
     sourceLab2?: string
+    labReactionConfig?: ResourceConstant
 
     needBoostTypeList: BoostTypeConstant[]
-    labReactionQueue: ResourceConstant[]
     singleLabConfig: {
         [labId: string]: {
             boostMode: boolean
@@ -256,7 +258,7 @@ interface TeamConfig {
 
 interface RoomMemory {
     structureIdList: {}
-    defenderCostMatrix: number[]
+    defenderCostMatrix: string
 
     creepConfig: { [creepName: string]: CreepMemory }
     teamConfig: { [teamId: string]: TeamConfig }
@@ -279,7 +281,7 @@ interface RoomMemory {
 
     // roomCustom: RoomCustomMemory
     roomPosition: IRoomPositionList
-    roomStructurePos: IRoomStructurePos
+    roomStructure: IRoomStructure
 
     roomFillJob: IRoomFillJob
     roomLabConfig: ILabConfig

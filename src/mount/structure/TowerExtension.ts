@@ -8,7 +8,7 @@ export default class TowerExtension extends StructureTower {
 
     public doWork(): void {
         if (Memory.warMode[this.room.name]) return
-        var towerEnergy = this.store[RESOURCE_ENERGY];
+        // var towerEnergy = this.store[RESOURCE_ENERGY];
 
         // 检测需要治疗的单位
         // var needHealCreep = [...Object.values(Game.creeps), ...Object.values(Game.powerCreeps)]
@@ -26,17 +26,5 @@ export default class TowerExtension extends StructureTower {
                 return
             }
         }
-
-        // if (this.id != this.room.memory.roomStructurePos.towerAllowRepair || towerEnergy < 500) return
-
-        // 如果没有敌人，尝试修复建筑物，优先除墙外的血量最低的建筑，其次修墙
-        // var structure = this.room.structuresNeedRepair[0]
-        // if (!structure && this.room.memory.enableTowerRepairWall && this.store[RESOURCE_ENERGY] > 500) {
-        //     structure = this.room.wallsNeedRepair[0]
-        // }
-        // if (structure) {
-        //     this.repair(structure);
-        //     return
-        // }
     }
 }

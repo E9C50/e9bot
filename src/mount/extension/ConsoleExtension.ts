@@ -1,4 +1,4 @@
-import { reactionConfig, reactionSource } from "settings";
+import { reactionSource } from "settings";
 
 export default class ConsoleExtension {
     public help(): string {
@@ -51,7 +51,7 @@ export default class ConsoleExtension {
     /**
      * 显示房间信息
      */
-    public showRoomInfo(): string {
+    public info(): string {
         let html = '<html><style>tr,th,td{text-align:center} table{width:120%}</style>';
         html += '<body><table border="1"><thead><tr><th>房间名称</th><th>核弹就绪</th><th>核弹CD</th><th>核弹剩余时间</th><th>Lab配方</th><th>Lab工作状态</th></tr></thead><tbody>'
         Object.values(Game.rooms).forEach(room => {
@@ -66,7 +66,7 @@ export default class ConsoleExtension {
             if (room.labs.length > 0) {
                 let labWorking = false
                 const labConfig = room.memory.roomLabConfig
-                const labReaction = labConfig.labReactionQueue[0]
+                const labReaction = labConfig.labReactionConfig
                 if (labReaction != undefined && labConfig.sourceLab1 != undefined && labConfig.sourceLab2 != undefined) {
                     const lab1 = Game.getObjectById<StructureLab>(labConfig.sourceLab1)
                     const lab2 = Game.getObjectById<StructureLab>(labConfig.sourceLab2)
@@ -84,26 +84,6 @@ export default class ConsoleExtension {
     }
 
     /**
-     * 集中资源
-     */
-    public sendCenterResource(): boolean {
-        const centerRoom = 'E35N3'
-
-        Object.values(Game.rooms).forEach(room => {
-            if (!room.my) return
-            if (room.name == centerRoom) return
-
-            const resAmount = room.memory.resourceAmount
-            Object.keys(resAmount).forEach(resType => {
-                if (resType != RESOURCE_ENERGY) {
-                    room.sendResource(centerRoom, resType as ResourceConstant, resAmount[resType])
-                }
-            });
-        });
-        return true
-    }
-
-    /**
      * 清除终端发送任务
      */
     public clearSendJobs(): boolean {
@@ -118,7 +98,7 @@ export default class ConsoleExtension {
      */
     public clearCostMatrix(): boolean {
         Object.values(Game.rooms).forEach(room => {
-            room.memory.defenderCostMatrix = []
+            room.memory.defenderCostMatrix = ''
         })
         return true
     }

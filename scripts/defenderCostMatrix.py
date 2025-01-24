@@ -104,15 +104,16 @@ def process_room(room_name):
             room_terrain_list[index] = "2"
 
     room_terrain_list = process_matrix(room_terrain_list)
-    # 255 墙壁 254 Ram外围 10 危险区 2 城墙内部 0 平路
-    room_terrain_list = ["255" if x == "1" else x for x in room_terrain_list]
-    room_terrain_list = ["255" if x == "3" else x for x in room_terrain_list]
-    room_terrain_list = ["10" if x == "4" else x for x in room_terrain_list]
+    # 9 墙壁 9 Ram外围 8 危险区 2 城墙内部 0 平路
+    room_terrain_list = ["9" if x == "1" else x for x in room_terrain_list]
+    room_terrain_list = ["9" if x == "3" else x for x in room_terrain_list]
+    room_terrain_list = ["8" if x == "4" else x for x in room_terrain_list]
     room_terrain_list = ["2" if x == "2" else x for x in room_terrain_list]
 
-    print(room_terrain_list)
+    memory_text = "".join(map(str, room_terrain_list))
+    print(memory_text)
     ### 注意！！！此处为写入内存的路径
-    api.set_memory(f"rooms.{room_name}.defenderCostMatrix", room_terrain_list, "shard3")
+    api.set_memory(f"rooms.{room_name}.defenderCostMatrix", memory_text, "shard3")
 
 
 if __name__ == "__main__":

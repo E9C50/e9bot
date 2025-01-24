@@ -32,7 +32,7 @@ function processFlagPos(flagName: string, memoryKey: string): void {
 function processFlagStructure(): void {
     if (Game.flags['repairTower'] != undefined) {
         const roomName = Game.flags['repairTower'].pos.roomName;
-        Game.rooms[roomName].memory.roomStructurePos['towerAllowRepair'] = Game.flags['repairTower'].pos.lookFor(LOOK_STRUCTURES)[0].id;
+        Game.rooms[roomName].memory.roomStructure['towerAllowRepair'] = Game.flags['repairTower'].pos.lookFor(LOOK_STRUCTURES)[0].id;
         Game.flags['repairTower'].remove();
     }
 

@@ -1,6 +1,5 @@
 import jsSHA from "jssha";
-import { max, min } from "lodash";
-import { colorEnum, roleAdvEnum } from "settings";
+import { colorEnum } from "settings";
 
 /**
  * 把 obj2 的原型合并到 obj1 的原型上

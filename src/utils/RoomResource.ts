@@ -318,4 +318,4 @@ let pro = {
 }
 
 global.HelperRoomResource = pro
-global.showRes = pro.showAllRes
+global.res = pro.showAllRes

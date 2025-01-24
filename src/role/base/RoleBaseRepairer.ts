@@ -7,7 +7,7 @@ export default (data: CreepData): ICreepConfig => ({
     },
     prepare(creep) {
         if (creep.room.level == 8) {
-            creep.goBoost()
+            // creep.goBoost()
         }
         return true
     },

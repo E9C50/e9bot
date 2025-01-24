@@ -39,10 +39,11 @@ export default (data: CreepData): ICreepConfig => ({
             if (closestRamOrWall != undefined) {
                 const result = creep.moveTo(closestRamOrWall.pos.x, closestRamOrWall.pos.y, {
                     costCallback: function (roomName, costMatrix) {
+                        const defenderCostMatrix = creep.room.getDefenderCostMatrix()
                         for (let i = 0; i < 2500 - 1; i++) {
                             const x = i % 50
                             const y = Math.floor(i / 50)
-                            const cost = creep.room.memory.defenderCostMatrix[i]
+                            const cost = defenderCostMatrix[i]
                             costMatrix.set(x, y, cost)
                         }
                         creep.room.structures.forEach(structure => {

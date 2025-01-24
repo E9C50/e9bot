@@ -34,9 +34,11 @@ export default (data: CreepData): ICreepConfig => ({
             if (creep.room.storage != undefined && creep.room.storage.store[resourceType] > 0) {
                 if (creep.takeFromTarget(creep.room.storage, resourceType)) {
                     creep.memory.working = true
-                    fillJobs.labInMineral = []
                 }
                 return true
+            } else {
+                const labId = fillJobs.labInMineral[0].labId
+                fillJobs.labInMineral = fillJobs.labInMineral.filter(job => job.labId != labId)
             }
         }
 
@@ -44,7 +46,7 @@ export default (data: CreepData): ICreepConfig => ({
         if (fillJobs.nukerMineral && creep.room.storage && creep.room.storage.store[RESOURCE_GHODIUM] > 0) {
             if (creep.takeFromTarget(creep.room.storage, RESOURCE_GHODIUM)) {
                 creep.memory.working = true
-                fillJobs.nukerMineral = false
+                // fillJobs.nukerMineral = false
             }
             return true
         }
@@ -53,7 +55,7 @@ export default (data: CreepData): ICreepConfig => ({
         if (fillJobs.powerSpawnPower && creep.room.storage != undefined && creep.room.storage.store[RESOURCE_POWER] > 0) {
             if (creep.takeFromTarget(creep.room.storage, RESOURCE_POWER, 90)) {
                 creep.memory.working = true
-                fillJobs.powerSpawnPower = false
+                // fillJobs.powerSpawnPower = false
             }
             return true
         }
@@ -71,7 +73,7 @@ export default (data: CreepData): ICreepConfig => ({
                 if (targetLab == undefined || creep.store[labInMineral[index].resourceType] == 0) continue
                 if (targetLab.mineralType == undefined || targetLab.store.getFreeCapacity(targetLab.mineralType) > 0) {
                     if (creep.transferToTarget(targetLab, labInMineral[index].resourceType)) {
-                        fillJobs.labInMineral = []
+                        fillJobs.labInMineral = fillJobs.labInMineral.filter(job => job.labId != targetLab.id)
                         creep.memory.working = false
                     }
                     return true

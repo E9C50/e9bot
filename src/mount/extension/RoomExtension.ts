@@ -1,4 +1,4 @@
-import { creepWhiteList, STRUCTURE_MEMORYKEY_PERFIX, STRUCTURE_PRIVATEKEY_PERFIX } from "settings";
+import { creepWhiteList, roleAdvEnum, STRUCTURE_MEMORYKEY_PERFIX, STRUCTURE_PRIVATEKEY_PERFIX } from "settings";
 import { getDistance } from "utils";
 
 export default class RoomExtension extends Room {
@@ -8,12 +8,6 @@ export default class RoomExtension extends Room {
 
         const structure: T = Game.getObjectById(this.memory.structureIdList[memoryKey]) as T;
         if (structure != undefined) {
-            if (structure == undefined) {
-                delete this.memory.structureIdList[memoryKey]
-                delete this[privateKey]
-                return undefined
-            }
-            this.memory.structureIdList[memoryKey] = structure.id
             this[privateKey] = structure;
             return structure
         } else {
@@ -29,11 +23,8 @@ export default class RoomExtension extends Room {
         if (this[privateKey] != undefined) return (this[privateKey])
 
         const structures: T[] = this.memory.structureIdList[memoryKey] == undefined ? [] :
-            this.memory.structureIdList[memoryKey]
-                .map(structureId => Game.getObjectById(structureId) as T)
-                .filter(structure => structure != undefined)
+            this.memory.structureIdList[memoryKey].map(structureId => Game.getObjectById(structureId) as T)
         if (structures.length > 0) {
-            this.memory.structureIdList[memoryKey] = structures.map(structure => structure.id)
             this[privateKey] = structures;
             return structures
         } else {
@@ -185,17 +176,19 @@ export default class RoomExtension extends Room {
         var structures: Structure[] = this.memory.structureIdList[memoryKey] == undefined ? [] :
             this.memory.structureIdList[memoryKey].map(structureId => Game.getObjectById(structureId))
 
-        if (structures.filter(structure => structure == undefined).length > 0) {
+        const totalAmount = structures.length
+        structures = structures.filter(structure => structure != undefined)
+
+        if (structures.length < totalAmount) {
             this.memory.needUpdateCache = true
         }
 
-        structures = structures.filter(structure => structure != undefined)
         if (structures.length > 0) {
             this[privateKey] = structures;
             return structures
         } else {
             const structures: Structure[] = this.find(FIND_STRUCTURES)
-            this.memory.structureIdList[memoryKey] = structures.map(source => source.id)
+            this.memory.structureIdList[memoryKey] = structures.map(structure => structure.id)
             return structures
         }
     }
@@ -346,6 +339,13 @@ export default class RoomExtension extends Room {
         return this.getStructures<StructurePowerBank>(STRUCTURE_POWER_BANK, privateKey, memoryKey)
     }
 
+    /**
+     * 添加资源发送任务
+     * @param targetRoom
+     * @param resourceType
+     * @param amount
+     * @returns
+     */
     public sendResource(targetRoom: string, resourceType: ResourceConstant, amount: number): boolean {
         const jobId = this.name + '_' + targetRoom + '_' + resourceType
         this.memory.terminalSendJob[jobId] = {
@@ -354,5 +354,59 @@ export default class RoomExtension extends Room {
             amount: amount
         }
         return true
+    }
+
+    /**
+     * 获取房间内的资源数量
+     * @param resType
+     * @param storage
+     * @param terminal
+     * @param lab
+     * @param processer
+     */
+    public getResource(resType: ResourceConstant, storage?: boolean, terminal?: boolean, lab?: boolean, processer?: boolean): number {
+        if (storage == undefined) storage = true
+        if (terminal == undefined) terminal = false
+        if (processer == undefined) processer = false
+        if (lab == undefined) lab = false
+
+        let totalAmount = 0
+        if (storage && this.storage != undefined) {
+            totalAmount += this.storage.store[resType]
+        }
+
+        if (terminal && this.terminal != undefined) {
+            totalAmount += this.terminal.store[resType]
+        }
+
+        if (lab && this.labs.length > 0) {
+            this.labs.forEach(lab => totalAmount += lab.store[resType])
+        }
+
+        if (processer) {
+            Object.values(Game.creeps).forEach(creep => {
+                if (creep.room.name != this.name) return
+                if (creep.memory.role != roleAdvEnum.PROCESSER) return
+                totalAmount += creep.store[resType]
+            })
+        }
+        return totalAmount
+    }
+
+    /**
+     * 获取并转换CostMatrix
+     */
+    public getDefenderCostMatrix(): number[] {
+        if (this['defenderCostMatrix']) return this['defenderCostMatrix']
+
+        const defenderCostMatrixArray: number[] = []
+        for (let i = 0; i < this.memory.defenderCostMatrix.length; i++) {
+            const str = this.memory.defenderCostMatrix[i]
+            if (str == '9') defenderCostMatrixArray.push(255)
+            else if (str == '8') defenderCostMatrixArray.push(10)
+            else defenderCostMatrixArray.push(parseInt(str))
+        }
+        this['defenderCostMatrix'] = defenderCostMatrixArray
+        return defenderCostMatrixArray
     }
 }

@@ -465,11 +465,11 @@ export const creepNumberController = function (): void {
         }
     }
 
-    // if (Game.time % 5 != 0) return
+    if (Game.time % 5 != 0) return
 
     // 重置发布配置
     Object.values(Game.rooms).forEach(room => {
-        room.memory.creepConfig = {}
+        if (room.my) room.memory.creepConfig = {}
     });
 
     // 发布基础需求配置

@@ -1,45 +1,6 @@
 import { baseLayout, boostConfig, defaultAutoResource, reactionConfig, reactionSource, roleAdvEnum, roleBoostConfig, roomSignTextList } from "settings"
 
 /**
- * 获取底物反应列表
- * @param room
- * @param reactionTarget
- * @returns
- */
-function getReadyChildReaction(room: Room, reactionTarget: ResourceConstant): ResourceConstant[] {
-    const child: ResourceConstant[] = reactionSource[reactionTarget]
-    if (!child) return []
-
-    var child1List = getReadyChildReaction(room, child[0])
-    var child2List = getReadyChildReaction(room, child[1])
-
-    const child1Amount = room.memory.resourceAmount[child[0]] || 0
-    const child2Amount = room.memory.resourceAmount[child[1]] || 0
-    const targetAmount = room.memory.resourceAmount[reactionTarget] || 0
-
-    var childList: ResourceConstant[] = [...child1List, ...child2List]
-    if ((childList.includes(child[0]) || child1Amount >= 3000) && (childList.includes(child[1]) || child2Amount >= 3000)
-        && targetAmount < (reactionConfig[reactionTarget] || 3000)) {
-        childList = childList.concat([reactionTarget])
-    }
-    return childList
-}
-
-/**
- * 检查是否有足够的资源来进行反应
- * @param room
- * @param reactionTarget
- * @returns
- */
-function checkReactionReady(room: Room, reactionTarget: ResourceConstant): boolean {
-    const child: ResourceConstant[] = reactionSource[reactionTarget]
-    const child1Amount = room.memory.resourceAmount[child[0]] || 0
-    const child2Amount = room.memory.resourceAmount[child[1]] || 0
-    const targetAmount = room.memory.resourceAmount[reactionTarget] || 0
-    return (child1Amount >= 3000 && child2Amount >= 3000) && targetAmount < (reactionConfig[reactionTarget] || 3000)
-}
-
-/**
  * 自动更新反应配置
  * @param room
  * @returns
@@ -50,33 +11,38 @@ function updateLabReactionConfig(room: Room): void {
     // 如果房间没有配置好两个sourceLab，就跳过
     if (room.memory.roomLabConfig.sourceLab1 == undefined || room.memory.roomLabConfig.sourceLab2 == undefined) return
 
-    // 获取两个lab
-    const lab1 = Game.getObjectById(room.memory.roomLabConfig.sourceLab1) as StructureLab;
-    const lab2 = Game.getObjectById(room.memory.roomLabConfig.sourceLab2) as StructureLab;
+    const lab1 = Game.getObjectById<StructureLab>(room.memory.roomLabConfig.sourceLab1)
+    const lab2 = Game.getObjectById<StructureLab>(room.memory.roomLabConfig.sourceLab2)
 
-    if (room.memory.roomLabConfig.labReactionQueue.length > 0 &&
-        !checkReactionReady(room, room.memory.roomLabConfig.labReactionQueue[0])) {
+    // source lab 还有资源就不更新
+    if (lab1 && lab1.mineralType && lab1.store[lab1.mineralType] > 20 &&
+        lab2 && lab2.mineralType && lab2.store[lab1.mineralType] > 20) return
 
-        console.log(`${room.name} Lab合成配置更新前：${room.memory.roomLabConfig.labReactionQueue}`)
-        room.memory.roomLabConfig.labReactionQueue.shift()
-        console.log(`${room.name} Lab合成配置更新后：${room.memory.roomLabConfig.labReactionQueue}`)
+    // 检查当前合成配置的原料是否足够
+    const labReactionConfig = room.memory.roomLabConfig.labReactionConfig
+    if (labReactionConfig != undefined) {
+        const labReactionSource = reactionSource[labReactionConfig]
+        const source1Amount = room.getResource(labReactionSource[0], true, false, true, true)
+        const source2Amount = room.getResource(labReactionSource[1], true, false, true, true)
+        if (source1Amount > 1000 && source2Amount > 1000) return
     }
 
-    if (room.memory.roomLabConfig.labReactionQueue.length > 0) return
-
+    // 不够就更新合成配方
     for (let config in reactionConfig) {
-        if ((room.memory.resourceAmount[config] || 0) >= reactionConfig[config]) continue
-        const readyReactionList = getReadyChildReaction(room, config as ResourceConstant)
-        if (!readyReactionList.includes(config as ResourceConstant)) continue
+        const resourceType = config as ResourceConstant
+        if (room.getResource(resourceType, true, false, true, true) >= reactionConfig[config]) continue
 
-        if (lab1.mineralType != undefined && lab2.mineralType != undefined
-            && lab1.store[lab1.mineralType] > 3000 && lab2.store[lab2.mineralType] > 3000) continue
+        const labReactionSource = reactionSource[resourceType]
+        const source1Amount = room.getResource(labReactionSource[0], true, false, true, true)
+        const source2Amount = room.getResource(labReactionSource[1], true, false, true, true)
 
-        console.log(`${room.name} Lab合成配置更新前：${room.memory.roomLabConfig.labReactionQueue}`)
-        room.memory.roomLabConfig.labReactionQueue = readyReactionList
-        console.log(`${room.name} Lab合成配置更新后：${room.memory.roomLabConfig.labReactionQueue}`)
-        console.log(`${room.name} notify_Lab合成配置更新：${room.memory.roomLabConfig.labReactionQueue}`)
-        return
+        if (source1Amount > 1000 && source2Amount > 1000) {
+            console.log(`${room.name} Lab合成配置更新前：${room.memory.roomLabConfig.labReactionConfig}`)
+            room.memory.roomLabConfig.labReactionConfig = resourceType
+            console.log(`${room.name} Lab合成配置更新后：${room.memory.roomLabConfig.labReactionConfig}`)
+            console.log(`${room.name} notify_Lab合成配置更新：${room.memory.roomLabConfig.labReactionConfig}`)
+            return
+        }
     }
 }
 
@@ -99,17 +65,17 @@ function updateLabBoostConfig(room: Room): void {
 
             if (emptyLabId == undefined) return
             const resourceTypeT3 = boostConfig[boostType][2]
-            if ((room.memory.resourceAmount[resourceTypeT3] || 0) > 0) {
+            if (room.getResource(resourceTypeT3, true, false, true, true) > 0) {
                 labConfig.singleLabConfig[emptyLabId] = { resourceType: resourceTypeT3, boostMode: true, boostType: boostType }
                 return
             }
             const resourceTypeT2 = boostConfig[boostType][1]
-            if ((room.memory.resourceAmount[resourceTypeT2] || 0) > 0) {
+            if (room.getResource(resourceTypeT2, true, false, true, true) > 0) {
                 labConfig.singleLabConfig[emptyLabId] = { resourceType: resourceTypeT2, boostMode: true, boostType: boostType }
                 return
             }
             const resourceTypeT1 = boostConfig[boostType][0]
-            if ((room.memory.resourceAmount[resourceTypeT1] || 0) > 0) {
+            if (room.getResource(resourceTypeT1, true, false, true, true) > 0) {
                 labConfig.singleLabConfig[emptyLabId] = { resourceType: resourceTypeT1, boostMode: true, boostType: boostType }
                 return
             }
@@ -239,7 +205,7 @@ function initialStructures(room: Room): void {
     )
 
     // 自动设置允许修理的塔
-    if (room.memory.roomStructurePos.towerAllowRepair == undefined && room.towers.length > 0) {
+    if (room.memory.roomStructure.towerAllowRepair == undefined && room.towers.length > 0) {
         room.createFlag(room.towers[0].pos.x, room.towers[0].pos.y, 'repairTower')
     }
 }
@@ -275,50 +241,6 @@ function findTowerEnemy(room: Room): void {
     // 获取入侵者
     const npcList = room.enemies.filter(enemy => enemy.owner.username == 'Invader')
     if (npcList.length > 0) room.memory.npcTarget = npcList[0].id
-}
-
-function cacheRoomResourceInfo(room: Room): void {
-    room.memory.resourceAmount = {}
-    if (room.storage != undefined) {
-        const storage = room.storage
-        Object.keys(storage.store).forEach(store => {
-            if (room.memory.resourceAmount[store] == undefined) {
-                room.memory.resourceAmount[store] = 0
-            }
-            room.memory.resourceAmount[store] += storage.store[store]
-        });
-    }
-
-    if (room.terminal != undefined) {
-        const terminal = room.terminal
-        Object.keys(terminal.store).forEach(store => {
-            if (room.memory.resourceAmount[store] == undefined) {
-                room.memory.resourceAmount[store] = 0
-            }
-            room.memory.resourceAmount[store] += terminal.store[store]
-        });
-    }
-
-    if (room.labs.length > 0) {
-        room.labs.forEach(lab => {
-            if (lab.mineralType == undefined) return
-            if (room.memory.resourceAmount[lab.mineralType] == undefined) {
-                room.memory.resourceAmount[lab.mineralType] = 0
-            }
-            room.memory.resourceAmount[lab.mineralType] += lab.store[lab.mineralType]
-        })
-    }
-
-    Object.values(Game.creeps).forEach(creep => {
-        if (creep.room.name != room.name) return
-        if (creep.memory.role != roleAdvEnum.PROCESSER) return
-        Object.keys(creep.store).forEach(resType => {
-            if (room.memory.resourceAmount[resType] == undefined) {
-                room.memory.resourceAmount[resType] = 0
-            }
-            room.memory.resourceAmount[resType] += creep.store[resType]
-        })
-    })
 }
 
 // 终端资源自动平衡
@@ -362,7 +284,7 @@ function processTerminalResource(room: Room) {
     if (room.name == centerStorage) return
 
     // 把房间产的矿发到中央仓库
-    const mineralAmount = room.memory.resourceAmount[room.mineral.mineralType]
+    const mineralAmount = room.getResource(room.mineral.mineralType, true, true)
     const mineralJobExists = Object.values(room.memory.terminalSendJob)
         .filter(job => job.resourceType == room.mineral.mineralType && job.targetRoom == centerStorage).length > 0
     if (mineralAmount > 30000 && !mineralJobExists) {
@@ -372,15 +294,15 @@ function processTerminalResource(room: Room) {
 
     // 检查缺的资源，向中央仓库下单
     Object.keys(defaultAutoResource).forEach(resType => {
-        if (room.memory.resourceAmount[resType] == undefined) room.memory.resourceAmount[resType] = 0
-        if (room.memory.resourceAmount[resType] < (defaultAutoResource[resType] * 0.6)) {
+        const resourceType = resType as ResourceConstant
+        if (room.getResource(resourceType, true, true) < (defaultAutoResource[resType] * 0.6)) {
             const jobExists = Object.values(Game.rooms[centerStorage].memory.terminalSendJob)
                 .filter(job => job.resourceType == resType && job.targetRoom == room.name).length > 0
-            const needAmount = defaultAutoResource[resType] - room.memory.resourceAmount[resType]
-            const centerHaveRes = Game.rooms[centerStorage].memory.resourceAmount[resType] > needAmount
+            const needAmount = defaultAutoResource[resType] - room.getResource(resourceType, true, true)
+            const centerHaveRes = Game.rooms[centerStorage].getResource(resourceType, true, true) > needAmount
 
             if (centerHaveRes && !jobExists) {
-                Game.rooms[centerStorage].sendResource(room.name, resType as ResourceConstant, needAmount)
+                Game.rooms[centerStorage].sendResource(room.name, resourceType, needAmount)
                 console.log(`[${centerStorage}] -> [${room.name}] ${resType} ${needAmount}`)
             }
         }
@@ -393,6 +315,13 @@ function updateRoomSign(room: Room) {
         const unusedSigns = roomSignTextList.filter(item => !existsSigns.includes(item));
         const randomIndex = Math.floor(Math.random() * unusedSigns.length);
         room.memory.roomSignText = unusedSigns[randomIndex]
+    }
+}
+
+function repairStructure(room: Room) {
+    if (!Memory.warMode[room.name] && room.memory.roomStructure.towerAllowRepair != undefined && room.structuresNeedRepair.length > 0) {
+        const tower = Game.getObjectById<StructureTower>(room.memory.roomStructure.towerAllowRepair)
+        if (tower) tower.repair(room.structuresNeedRepair[0])
     }
 }
 
@@ -443,22 +372,21 @@ export const roomController = function (): void {
 
         if (Memory.warMode == undefined) Memory.warMode = {}
         if (room.memory.roomLabConfig == undefined) room.memory.roomLabConfig = {
-            labReactionQueue: [], singleLabConfig: {}, needBoostTypeList: []
+            singleLabConfig: {}, needBoostTypeList: []
         }
 
-        if (room.memory.roomStructurePos == undefined) room.memory.roomStructurePos = {}
         if (room.memory.structureIdList == undefined) room.memory.structureIdList = {}
         if (room.memory.terminalSendJob == undefined) room.memory.terminalSendJob = {}
         if (room.memory.terminalAmount == undefined) room.memory.terminalAmount = {}
-        if (room.memory.resourceAmount == undefined) room.memory.resourceAmount = {}
+        if (room.memory.roomStructure == undefined) room.memory.roomStructure = {}
         if (room.memory.restrictedPos == undefined) room.memory.restrictedPos = {}
         if (room.memory.roomPosition == undefined) room.memory.roomPosition = {}
         if (room.memory.roomFillJob == undefined) room.memory.roomFillJob = {}
         if (room.memory.teamConfig == undefined) room.memory.teamConfig = {}
 
-        room.memory.roomFillJob.labInMineral = []
+        if (room.memory.roomFillJob.labInMineral == undefined) room.memory.roomFillJob.labInMineral = []
 
-        const debug = true && Game.shard.name == 'shard3'
+        const debug = false && Game.shard.name == 'shard3'
         var cpu = Game.cpu.getUsed()
 
         // 自动开启安全模式
@@ -479,18 +407,6 @@ export const roomController = function (): void {
         if (debug && (Game.cpu.getUsed() - cpu) > 1) console.log(`自动规划 CPU 使用量：${(Game.cpu.getUsed() - cpu).toFixed(2)}`)
         cpu = Game.cpu.getUsed()
 
-        // 初始化建筑相关
-        initialStructures(room)
-
-        if (debug && (Game.cpu.getUsed() - cpu) > 1) console.log(`初始化建筑相关 CPU 使用量：${(Game.cpu.getUsed() - cpu).toFixed(2)}`)
-        cpu = Game.cpu.getUsed()
-
-        // 缓存房间资源信息
-        cacheRoomResourceInfo(room)
-
-        if (debug && (Game.cpu.getUsed() - cpu) > 1) console.log(`缓存房间资源信息 CPU 使用量：${(Game.cpu.getUsed() - cpu).toFixed(2)}`)
-        cpu = Game.cpu.getUsed()
-
         // 处理资源平衡
         processTerminalResource(room)
 
@@ -507,6 +423,18 @@ export const roomController = function (): void {
         updateLabReactionConfig(room)
 
         if (debug && (Game.cpu.getUsed() - cpu) > 1) console.log(`更新Lab反应配置 CPU 使用量：${(Game.cpu.getUsed() - cpu).toFixed(2)}`)
+        cpu = Game.cpu.getUsed()
+
+        // 初始化建筑相关
+        initialStructures(room)
+
+        if (debug && (Game.cpu.getUsed() - cpu) > 1) console.log(`初始化建筑相关 CPU 使用量：${(Game.cpu.getUsed() - cpu).toFixed(2)}`)
+        cpu = Game.cpu.getUsed()
+
+        // 建筑修理相关
+        repairStructure(room)
+
+        if (debug && (Game.cpu.getUsed() - cpu) > 1) console.log(`建筑修理相关 CPU 使用量：${(Game.cpu.getUsed() - cpu).toFixed(2)}`)
         cpu = Game.cpu.getUsed()
 
         // 更新房间内敌人信息
