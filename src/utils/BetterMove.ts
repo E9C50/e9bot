@@ -1637,13 +1637,13 @@ if (!PowerCreep.prototype.$moveTo) {
 //     };
 // }
 
-// if (!Creep.prototype.$upgradeController) {
-//     Creep.prototype.$upgradeController = Creep.prototype.upgradeController;
-//     Creep.prototype.upgradeController = function (...e) {
-//         this.memory.dontPullMe = true;
-//         return this.$upgradeController(...e)
-//     };
-// }
+if (!Creep.prototype.$upgradeController) {
+    Creep.prototype.$upgradeController = Creep.prototype.upgradeController;
+    Creep.prototype.upgradeController = function (...e) {
+        this.memory.dontPullMe = true;
+        return this.$upgradeController(...e)
+    };
+}
 
 // if (!Creep.prototype.$dismantle) {
 //     Creep.prototype.$dismantle = Creep.prototype.dismantle;

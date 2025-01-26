@@ -9,6 +9,7 @@
     "build": "rollup -c",
     "push-main": "rollup -c --environment DEST:main",
     "push-pserver": "rollup -c --environment DEST:pserver",
+    "push-avarice": "rollup -c --environment DEST:avarice",
     "push-local": "rollup -c --environment DEST:local",
     "push-season": "rollup -c --environment DEST:season",
     "push-sim": "rollup -c --environment DEST:sim",
@@ -17,6 +18,7 @@
     "test-integration": "echo 'See docs/in-depth/testing.md for instructions on enabling integration tests'",
     "watch-main": "rollup -cw --environment DEST:main",
     "watch-pserver": "rollup -cw --environment DEST:pserver",
+    "watch-avarice": "rollup -cw --environment DEST:avarice",
     "watch-local": "rollup -cw --environment DEST:local",
     "watch-season": "rollup -cw --environment DEST:season",
     "watch-sim": "rollup -cw --environment DEST:sim"

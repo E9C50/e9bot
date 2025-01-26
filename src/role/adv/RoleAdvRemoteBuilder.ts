@@ -21,12 +21,14 @@ export default (data: CreepData): ICreepConfig => ({
         const sourceStructure = Game.getObjectById(creepData.sourceFlag) as Source
         const targetPos = sourceFlag || sourceStructure
 
+        if (targetPos == undefined) return true
+
         if (creep.room.name != targetPos.room?.name) {
-            creep.moveTo(targetPos)
+            creep.moveTo(targetPos, { visualizePathStyle: {} })
             return false
         }
 
-        // if (creep.pickupDroppedResource(false, 40)) return true
+        if (creep.pickupDroppedResource(false, 40)) return true
 
         // 如果房间有可搬运的能量，直接去搬
         var resourceTargets: AnyStoreStructure[] = [creep.room.storage, creep.room.terminal, ...creep.room.containers].filter(item => item != undefined) as AnyStoreStructure[]
@@ -64,6 +66,8 @@ export default (data: CreepData): ICreepConfig => ({
         const targetFlag = Game.flags[creepData.targetFlag]
         const targetStructure = Game.getObjectById(creepData.targetFlag) as Source
         const targetPos = targetFlag || targetStructure
+
+        if (targetPos == undefined) return false
 
         if (creep.room.name != targetPos.room?.name) {
             creep.moveTo(targetPos)

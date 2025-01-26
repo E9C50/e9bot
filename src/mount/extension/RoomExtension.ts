@@ -24,6 +24,7 @@ export default class RoomExtension extends Room {
 
         const structures: T[] = this.memory.structureIdList[memoryKey] == undefined ? [] :
             this.memory.structureIdList[memoryKey].map(structureId => Game.getObjectById(structureId) as T)
+
         if (structures.length > 0) {
             this[privateKey] = structures;
             return structures
@@ -408,5 +409,17 @@ export default class RoomExtension extends Room {
         }
         this['defenderCostMatrix'] = defenderCostMatrixArray
         return defenderCostMatrixArray
+    }
+
+    /**
+     * 发射核弹
+     */
+    public launchNuker(): boolean {
+        const nukeFlag = Game.flags['nuke']
+        if (!this.my || this.nuker == undefined || nukeFlag == undefined) return false
+        if (this.nuker.cooldown != 0 || this.nuker.store[RESOURCE_GHODIUM] < 5000 || this.nuker.store[RESOURCE_ENERGY] < 300000) return false
+
+        console.log(this.nuker.launchNuke(nukeFlag.pos))
+        return true
     }
 }

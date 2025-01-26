@@ -25,11 +25,12 @@ type WarRoleDismantler = 'dismantler'
 type WarRoleIntegrate = 'integrate'
 type WarRoleDefender = 'defender'
 type WarRoleRangedDefender = 'rdefender'
+type WarRoleControllerAttacker = 'cAttacker'
 
 // 所有的 creep 角色
 type CreepRoleBaseConstant = BaseRoleHarvester | BaseRoleFiller | BaseRoleUpgrader | BaseRoleBuilder | BaseRoleRepairer | BaseRoleMiner | BaseRoleScout
 type CreepRoleAdvConstant = AdvancedRoleManager | AdvancedRoleProcesser | AdvancedRoleClaimer | AdvancedRoleReserver | AdvancedRoleRemoteHarvester | AdvancedRoleRemoteFiller | AdvancedRoleRemoteBuilder
-type CreepRoleWarConstant = WarRoleAttacker | WarRoleHealer | WarRoleRangedAttacker | WarRoleDismantler | WarRoleIntegrate | WarRoleDefender | WarRoleRangedDefender
+type CreepRoleWarConstant = WarRoleAttacker | WarRoleHealer | WarRoleRangedAttacker | WarRoleDismantler | WarRoleIntegrate | WarRoleDefender | WarRoleRangedDefender | WarRoleControllerAttacker
 type CreepRoleConstant = CreepRoleBaseConstant | CreepRoleAdvConstant | CreepRoleWarConstant
 
 // Creep 工作逻辑集合 包含了每个角色应该做的工作
@@ -54,6 +55,7 @@ type TeamTypeQuad = 'quad'
 type TeamTypeConstant = TeamTypeDuo | TeamTypeQuad
 
 interface Memory {
+    centerStorage: string
     warMode: { [room: string]: boolean }
 }
 
@@ -105,6 +107,7 @@ interface Room {
     centerLink?: StructureLink
     controllerLink?: StructureLink
 
+    lunchNuker(): boolean
     getDefenderCostMatrix(): number[]
     getResource(resType: ResourceConstant, storage?: boolean, terminal?: boolean, lab?: boolean, processer?: boolean)
     sendResource(targetRoom: string, resourceType: ResourceConstant, amount: number): boolean
@@ -236,7 +239,6 @@ interface ILabConfig {
     sourceLab2?: string
     labReactionConfig?: ResourceConstant
 
-    needBoostTypeList: BoostTypeConstant[]
     singleLabConfig: {
         [labId: string]: {
             boostMode: boolean
@@ -304,6 +306,7 @@ interface CreepMemory {
     dontPullMe?: boolean
     isTeam?: boolean
     needBoost?: boolean
+    needRenew?: boolean
     pathCache?: string
     prePos?: string
 }
@@ -327,7 +330,7 @@ interface RepairerData { sourceId: string, repairTarget?: string }
 
 interface ScoutData { targetFlag: string }
 interface ReserverData { targetRoom: string }
-interface ClaimerData { targetRoom: string, sourceId: string, buildTarget?: string }
+interface ClaimerData { targetFlag: string }
 
 interface RemoteFillerData { sourceFlag: string, targetFlag: string, withdrawTarget?: string }
 interface RemoteBuilderData { sourceFlag: string, targetFlag: string, buildTarget?: string }

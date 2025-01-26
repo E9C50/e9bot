@@ -1,16 +1,25 @@
+import { roomSignTextList } from "settings"
 import { getDistance } from "utils"
-import RoleAdvRemoteBuilder from "./RoleAdvRemoteBuilder"
 
 export default (data: CreepData): ICreepConfig => ({
     isNeed: (room: Room, creepName: string) => {
         return true
     },
     prepare(creep) {
+        return true
+    },
+    source(creep) {
+        creep.memory.working = true
+        return true
+    },
+    target(creep) {
         const creepData: ClaimerData = data as ClaimerData
+        const targetFlag = Game.flags[creepData.targetFlag]
+        if (targetFlag == undefined) return true
 
         // 不在目标房间就过去
-        if (creep.room.name != creepData.targetRoom) {
-            creep.moveTo(new RoomPosition(25, 25, creepData.targetRoom))
+        if (creep.room.name != targetFlag.pos.roomName) {
+            creep.moveTo(targetFlag)
             return false
         }
 
@@ -18,11 +27,6 @@ export default (data: CreepData): ICreepConfig => ({
         if (creep.room.controller == undefined) {
             creep.say('❓')
             return false
-        }
-
-        // 如果房间已经是我的了，那就开始工作
-        if (creep.room.controller.my) {
-            return true
         }
 
         // 不在控制器旁边就过去
@@ -40,20 +44,21 @@ export default (data: CreepData): ICreepConfig => ({
             return false
         }
 
+        // 占领
+        creep.claimController(creep.room.controller)
+
+        // 设置新签名
+        if (creep.room.memory.roomSignText != undefined && creep.room.controller.sign?.text != creep.room.memory.roomSignText) {
+            const existsSigns = Object.values(Game.rooms).map(item => item.memory.roomSignText)
+            const unusedSigns = roomSignTextList.filter(item => !existsSigns.includes(item));
+            const randomIndex = Math.floor(Math.random() * unusedSigns.length);
+            creep.room.memory.roomSignText = unusedSigns[randomIndex]
+        }
+
         // 签名不一致就签名
         if (creep.room.memory.roomSignText != undefined && creep.room.controller.sign?.text != creep.room.memory.roomSignText) {
             creep.signController(creep.room.controller, creep.room.memory.roomSignText)
-            return false
         }
-
-        // 占领
-        creep.claimController(creep.room.controller)
         return true
-    },
-    source(creep) {
-        return RoleAdvRemoteBuilder(creep.memory.data).source(creep)
-    },
-    target(creep) {
-        return RoleAdvRemoteBuilder(creep.memory.data).target(creep)
     },
 })

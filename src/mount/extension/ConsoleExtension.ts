@@ -55,29 +55,26 @@ export default class ConsoleExtension {
         let html = '<html><style>tr,th,td{text-align:center} table{width:120%}</style>';
         html += '<body><table border="1"><thead><tr><th>房间名称</th><th>核弹就绪</th><th>核弹CD</th><th>核弹剩余时间</th><th>Lab配方</th><th>Lab工作状态</th></tr></thead><tbody>'
         Object.values(Game.rooms).forEach(room => {
-            html += '<tr>'
-            if (room.nuker != undefined) {
-                const nukerCooldown = room.nuker.cooldown
-                const nukerLeftTime = (room.nuker.cooldown * 2.5 / 60 / 60).toFixed(2)
-                const nukerReady = room.nuker.cooldown == 0 ? '✅' : '❌';
-                html += `<td>${room.name}</td><td>${nukerReady}</td><td>${nukerCooldown}</td><td>${nukerLeftTime} h</td>`;
-            }
+            if (!room.my) return
 
-            if (room.labs.length > 0) {
-                let labWorking = false
-                const labConfig = room.memory.roomLabConfig
-                const labReaction = labConfig.labReactionConfig
-                if (labReaction != undefined && labConfig.sourceLab1 != undefined && labConfig.sourceLab2 != undefined) {
-                    const lab1 = Game.getObjectById<StructureLab>(labConfig.sourceLab1)
-                    const lab2 = Game.getObjectById<StructureLab>(labConfig.sourceLab2)
-                    if (lab1 != undefined && lab2 != undefined && lab1.store[reactionSource[labReaction][0]] > 0 && lab2.store[reactionSource[labReaction][1]] > 0) {
-                        labWorking = true
-                    }
+            const nukerCooldown = room.nuker?.cooldown || 0
+            const nukerLeftTime = ((room.nuker?.cooldown || 0) * 2.5 / 60 / 60).toFixed(2)
+            const nukerReady = room.nuker?.cooldown == 0 ? '✅' : '❌';
+            const nukerResourceReady = room.nuker?.store[RESOURCE_ENERGY] == 5000
+
+            let labWorking = false
+            const labConfig = room.memory.roomLabConfig
+            const labReaction = labConfig.labReactionConfig
+            if (labReaction != undefined && labConfig.sourceLab1 != undefined && labConfig.sourceLab2 != undefined) {
+                const lab1 = Game.getObjectById<StructureLab>(labConfig.sourceLab1)
+                const lab2 = Game.getObjectById<StructureLab>(labConfig.sourceLab2)
+                if (lab1 != undefined && lab2 != undefined && lab1.store[reactionSource[labReaction][0]] > 0 && lab2.store[reactionSource[labReaction][1]] > 0) {
+                    labWorking = true
                 }
-                html += `<td>${labReaction || '-'}</td><td>${labWorking ? '✅' : '❌'}</td>`;
             }
 
-            html += '</tr>'
+            html += `<tr><td>${room.name}</td><td>${nukerReady}</td><td>${nukerCooldown}</td><td>${nukerLeftTime} h</td>`;
+            html += `<td>${labReaction || '-'}</td><td>${labWorking ? '✅' : '❌'}</td></tr>`
         });
         html += '</tbody></table></body></html>';
         return html;

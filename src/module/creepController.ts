@@ -66,6 +66,7 @@ function releaseBaseCreepConfig(): void {
 
         // 根据矿产情况发布矿工
         room.sources.forEach(source => {
+            if (room.name == 'E41N8') return
             if (source.energy == 0) return
             let canHarvesterPos: number = source.pos.getFreeSpace().length;
             canHarvesterPos = Math.min(canHarvesterPos, 2);
@@ -85,6 +86,7 @@ function releaseBaseCreepConfig(): void {
                 var upgradeCount = Math.floor(room.storage.store[RESOURCE_ENERGY] / 10000) + 1;
                 if (room.controller && room.controller.level == 8) upgradeCount = 1;
                 upgradeCount = Math.min(upgradeCount, 8);
+                if (room.name == 'E41N8' && room.level < 8) upgradeCount = 8
 
                 for (let i = 0; i < upgradeCount; i++) {
                     const creepMemory: UpgraderData = { sourceId: room.storage.id }
@@ -127,8 +129,10 @@ function releaseBaseCreepConfig(): void {
             }
         }
 
-        // 循环所有Container，发布对应Creep
+        // Source旁边的Container，发布对应Creep
         room.containers.forEach(container => {
+            if (room.sources.filter(source => source.pos.inRangeTo(container, 3)).length == 0) return
+
             const creepFillerMemory: FillerData = { sourceId: container.id }
             const creepFillerName0 = room.name + '_FILLER_CONTAINER_' + container.id + '_0'
             addCreepConfig(room, roleBaseEnum.FILLER, creepFillerName0, creepFillerMemory);
@@ -293,6 +297,22 @@ function releaseJobsCreepConfig(): void {
             }
         }
 
+        // 发布新房占领
+        const claimFlag = Game.flags[room.name + '_CLAIM']
+        if (claimFlag != undefined && !claimFlag.room?.my) {
+            const claimerMemory: ClaimerData = { targetFlag: claimFlag.name }
+            const creepName = room.name + '_CLAIMER_' + claimFlag.name
+            addCreepConfig(room, roleAdvEnum.CLAIMER, creepName, claimerMemory);
+        }
+
+        // 戳控制器的爬
+        const caFlag = Game.flags[room.name + '_CA']
+        if (caFlag != undefined && !caFlag.room?.my) {
+            const caMemory: AttackerData = { targetFlag: caFlag.name }
+            const creepName = room.name + '_CA_' + caFlag.name
+            addCreepConfig(room, roleWarEnum.CONTROLLER_ATTACKER, creepName, caMemory);
+        }
+
         // // 发布 healer
         // if (roomCustom.healer != undefined) {
         //     roomCustom.healer.forEach(flagName => {
@@ -302,17 +322,6 @@ function releaseJobsCreepConfig(): void {
         //             addCreepConfig(room, roleWarEnum.HEALER, creepName, healerMemory, spawnPriority.healer);
         //         }
         //     });
-        // }
-
-        // // 发布新房占领
-        // if (roomCustom.claimer != undefined) {
-        //     roomCustom.claimer.forEach(targetRoomName => {
-        //         const targetRoom = Game.rooms[targetRoomName]
-        //         if (targetRoom != undefined && targetRoom.controller?.my) return
-        //         const claimerMemory: ReserverData = { targetRoom: targetRoomName }
-        //         const creepName = room.name + '_CLAIMER_' + targetRoomName
-        //         addCreepConfig(room, roleAdvEnum.CLAIMER, creepName, claimerMemory, spawnPriority.claimer);
-        //     })
         // }
 
         // // 发布矿房预定工

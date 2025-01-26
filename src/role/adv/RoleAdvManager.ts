@@ -2,13 +2,9 @@ import { getDistance } from "utils"
 
 export default (data: CreepData): ICreepConfig => ({
     isNeed: (room: Room, creepName: string) => {
-        return room.centerLink != undefined && room.storage != undefined
+        return room.storage != undefined && (room.centerLink != undefined || room.terminal != undefined)
     },
     prepare(creep) {
-        if (creep.room.centerLink == undefined || creep.room.storage == undefined) {
-            return false
-        }
-
         // 如果不在目标位置则移动
         if (!creep.memory.ready || Game.time % 10 == 0) {
             creep.memory.ready = false
@@ -23,11 +19,14 @@ export default (data: CreepData): ICreepConfig => ({
                     return true
                 }
             } else {
-                if (getDistance(creep.pos, creep.room.storage.pos) > 1) {
+                if (creep.room.storage != undefined && getDistance(creep.pos, creep.room.storage.pos) > 1) {
                     creep.moveTo(creep.room.storage)
                     return false
-                } else if (getDistance(creep.pos, creep.room.centerLink.pos) > 1) {
+                } else if (creep.room.centerLink != undefined && getDistance(creep.pos, creep.room.centerLink.pos) > 1) {
                     creep.moveTo(creep.room.centerLink)
+                    return false
+                } else if (creep.room.terminal != undefined && getDistance(creep.pos, creep.room.terminal.pos) > 1) {
+                    creep.moveTo(creep.room.terminal)
                     return false
                 } else {
                     creep.memory.ready = true
@@ -48,7 +47,7 @@ export default (data: CreepData): ICreepConfig => ({
             creep.room.memory.restrictedPos[creep.name] = creep.pos;
         }
 
-        if (creep.room.centerLink == undefined || creep.room.storage == undefined) {
+        if (creep.room.storage == undefined) {
             return false
         }
 
@@ -66,7 +65,7 @@ export default (data: CreepData): ICreepConfig => ({
         }
 
         // CenterLink有东西就拿起来
-        if (creep.room.centerLink.store[RESOURCE_ENERGY] > 0) {
+        if (creep.room.centerLink != undefined && creep.room.centerLink.store[RESOURCE_ENERGY] > 0) {
             creep.withdraw(creep.room.centerLink, RESOURCE_ENERGY);
             return true
         }

@@ -80,7 +80,7 @@ export const powerSpawnController = function (): void {
         // Spawn加速技能
         if (pc.isPowerAvailable(PWR_OPERATE_SPAWN)) {
             for (let index in pc.room.spawns) {
-                if (pc.room.spawns[index].effects == undefined || pc.room.spawns[index].effects.length == 0) {
+                if (pc.room.spawns[index].spawning && pc.room.spawns[index].effects == undefined || pc.room.spawns[index].effects.length == 0) {
                     if (getDistance(pc.pos, pc.room.spawns[index].pos) >= 3) {
                         pc.moveTo(pc.room.spawns[index])
                         return
@@ -134,7 +134,7 @@ export const powerSpawnController = function (): void {
         // Tower加成技能
         if (pc.isPowerAvailable(PWR_OPERATE_TOWER)) {
             for (let index in pc.room.towers) {
-                if (pc.room.towers[index].effects == undefined || pc.room.towers[index].effects.length == 0) {
+                if (Memory.warMode[pc.room.name] && pc.room.towers[index].effects == undefined || pc.room.towers[index].effects.length == 0) {
                     if (getDistance(pc.pos, pc.room.towers[index].pos) >= 3) {
                         pc.moveTo(pc.room.towers[index])
                         return
@@ -143,12 +143,6 @@ export const powerSpawnController = function (): void {
                     return
                 }
             }
-        }
-
-        // 没有可用技能就去旗子等
-        if (!pc.pos.isEqualTo(pcFlag.pos)) {
-            pc.moveTo(pcFlag)
-            return
         }
 
         // 如果旗子位置是controller，就开启power
@@ -165,6 +159,12 @@ export const powerSpawnController = function (): void {
                 pc.usePower(PWR_OPERATE_FACTORY, pc.room.factory)
                 return
             }
+        }
+
+        // 没有可用技能就去旗子等
+        if (!pc.pos.isEqualTo(pcFlag.pos)) {
+            pc.moveTo(pcFlag)
+            return
         }
     });
 }

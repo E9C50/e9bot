@@ -6,7 +6,7 @@ export const creepWhiteList = ['an_w', 'NoName_', 'MoSaSa', 'Kaoruko', 'keqing']
 
 // 永不踏入这些房间
 export const findPathAvoidRooms = [
-    'E39N4', 'E38N1', 'E39N1', 'E32N2', 'E33N5', 'E39N7'
+    'E39N4', 'E38N1', 'E39N1', 'E32N2', 'E33N5'
 ]
 export const enableObserversFindPath = true
 export const observersFindPathIdList = [
@@ -68,6 +68,7 @@ export enum roleWarEnum {
     ATTACKER = 'attacker',
     HEALER = 'healer',
     RANGED_ATTACKER = 'rAttacker',
+    CONTROLLER_ATTACKER = 'cAttacker',
     DISMANTLER = 'dismantler',
     INTEGRATE = 'integrate',
     DEFENDER = 'defender',
@@ -78,7 +79,7 @@ export const roleTeam = 'team'
 
 export const warModeRole: CreepRoleConstant[] = [
     roleBaseEnum.FILLER, roleBaseEnum.REPAIRER, roleAdvEnum.PROCESSER, roleAdvEnum.MANAGER,
-    roleWarEnum.ATTACKER, roleWarEnum.DISMANTLER, roleWarEnum.HEALER,
+    roleWarEnum.ATTACKER, roleWarEnum.DISMANTLER, roleWarEnum.HEALER, roleWarEnum.CONTROLLER_ATTACKER,
     roleWarEnum.INTEGRATE, roleWarEnum.RANGED_ATTACKER, roleWarEnum.DEFENDER, roleWarEnum.RDEFENDER
 ]
 
@@ -113,6 +114,7 @@ export const spawnPriority: { [role in CreepRoleConstant]: number } = {
     healer: 15,
     rAttacker: 16,
     dismantler: 17,
+    cAttacker: 17
 }
 
 // TODO 重新配置！！！
@@ -135,21 +137,23 @@ const carryBodyConfigs = [
     { [CARRY]: 8, [MOVE]: 4 },
     { [CARRY]: 14, [MOVE]: 7 },
     { [CARRY]: 20, [MOVE]: 10 },
-    { [CARRY]: 32, [MOVE]: 16 }
+    { [CARRY]: 33, [MOVE]: 17 }
 ]
 
 export const bodyConfigs: { [role in CreepRoleConstant]: BodySet[] } = {
     harvester: workerBodyConfigs,
-    upgrader: workerBodyConfigs,
+    upgrader: Array.from({ length: 8 }, () => ({ [WORK]: 39, [CARRY]: 1, [MOVE]: 10 })),
     builder: workerBodyConfigs,
-    rBuilder: workerBodyConfigs,
     repairer: workerBodyConfigs,
     miner: workerBodyConfigs,
     filler: carryBodyConfigs,
-    rFiller: carryBodyConfigs,
+    rBuilder: Array.from({ length: 8 }, () => ({ [WORK]: 39, [CARRY]: 1, [MOVE]: 10 })),
+    rFiller: Array.from({ length: 8 }, () => ({ [CARRY]: 40, [MOVE]: 10 })),
     processer: carryBodyConfigs,
     scout: Array.from({ length: 8 }, () => ({ [MOVE]: 1 })),
-    manager: [ // 已重新核对计算
+    claimer: Array.from({ length: 8 }, () => ({ [CLAIM]: 1, [MOVE]: 1 })),
+    cAttacker: Array.from({ length: 8 }, () => ({ [CLAIM]: 1, [MOVE]: 1 })),
+    manager: [
         { [CARRY]: 5, [MOVE]: 1 },
         { [CARRY]: 10, [MOVE]: 1 },
         { [CARRY]: 15, [MOVE]: 1 },
@@ -158,16 +162,6 @@ export const bodyConfigs: { [role in CreepRoleConstant]: BodySet[] } = {
         { [CARRY]: 45, [MOVE]: 1 },
         { [CARRY]: 49, [MOVE]: 1 },
         { [CARRY]: 49, [MOVE]: 1 }
-    ],
-    claimer: [
-        { [WORK]: 1, [CLAIM]: 1, [CARRY]: 1, [MOVE]: 3, },
-        { [WORK]: 1, [CLAIM]: 1, [CARRY]: 1, [MOVE]: 3, },
-        { [WORK]: 1, [CLAIM]: 1, [CARRY]: 1, [MOVE]: 3, },
-        { [WORK]: 2, [CLAIM]: 1, [CARRY]: 3, [MOVE]: 6, },
-        { [WORK]: 5, [CLAIM]: 1, [CARRY]: 4, [MOVE]: 10, },
-        { [WORK]: 7, [CLAIM]: 1, [CARRY]: 6, [MOVE]: 14, },
-        { [WORK]: 15, [CLAIM]: 1, [CARRY]: 9, [MOVE]: 25, },
-        { [WORK]: 15, [CLAIM]: 1, [CARRY]: 9, [MOVE]: 25, }
     ],
     reserver: [
         { [MOVE]: 1, [CLAIM]: 1 },
@@ -197,7 +191,7 @@ export const bodyConfigs: { [role in CreepRoleConstant]: BodySet[] } = {
         { [MOVE]: 6, [ATTACK]: 6 },
         { [MOVE]: 7, [ATTACK]: 7 },
         { [MOVE]: 8, [ATTACK]: 8 },
-        { [MOVE]: 30, [ATTACK]: 20 }
+        { [TOUGH]: 1, [ATTACK]: 39, [MOVE]: 10, }
     ],
     integrate: [
         { [TOUGH]: 0, [MOVE]: 0, [RANGED_ATTACK]: 0, [HEAL]: 0 },
@@ -208,9 +202,9 @@ export const bodyConfigs: { [role in CreepRoleConstant]: BodySet[] } = {
         { [TOUGH]: 0, [MOVE]: 0, [RANGED_ATTACK]: 0, [HEAL]: 0 },
         { [TOUGH]: 0, [MOVE]: 0, [RANGED_ATTACK]: 0, [HEAL]: 0 },
         // { [TOUGH]: 2, [RANGED_ATTACK]: 36, [MOVE]: 10, [HEAL]: 2 }, // 防御
-        // { [TOUGH]: 7, [RANGED_ATTACK]: 19, [MOVE]: 10, [HEAL]: 14 }, // 7级房进攻
+        { [TOUGH]: 7, [RANGED_ATTACK]: 19, [MOVE]: 10, [HEAL]: 14 }, // 7级房进攻
         // { [TOUGH]: 8, [MOVE]: 10, [RANGED_ATTACK]: 15, [HEAL]: 17 }, // 四级要塞
-        { [TOUGH]: 2, [RANGED_ATTACK]: 25, [HEAL]: 13, [MOVE]: 10 }, // 一级要塞
+        // { [TOUGH]: 2, [RANGED_ATTACK]: 25, [HEAL]: 13, [MOVE]: 10 }, // 一级要塞
     ],
     healer: [
         { [MOVE]: 2, [HEAL]: 2 },
@@ -243,7 +237,7 @@ export const bodyConfigs: { [role in CreepRoleConstant]: BodySet[] } = {
         { [RANGED_ATTACK]: 7, [MOVE]: 7 },
         { [RANGED_ATTACK]: 40, [MOVE]: 10 },
         { [RANGED_ATTACK]: 40, [MOVE]: 10 }
-    ]
+    ],
 }
 
 export const baseLayout: { [level: number]: {} } = {
@@ -340,38 +334,51 @@ export const defaultAutoResource = {
 }
 
 export const reactionConfig = {
-    [RESOURCE_CATALYZED_GHODIUM_ACID]: 100000,        // WORK     +100% upgradeController 效率但不增加其能量消耗
-    [RESOURCE_CATALYZED_GHODIUM_ALKALIDE]: 100000,    // TOUGH    70% 伤害减免
-    [RESOURCE_CATALYZED_KEANIUM_ACID]: 100000,        // CARRY    +150 容量
-    [RESOURCE_CATALYZED_KEANIUM_ALKALIDE]: 100000,    // R_A      +300% rangedAttack 和 rangedMassAttack 效率
+    // [RESOURCE_CATALYZED_GHODIUM_ACID]: 100000,        // WORK     +100% upgradeController 效率但不增加其能量消耗
+    // [RESOURCE_CATALYZED_GHODIUM_ALKALIDE]: 100000,    // TOUGH    70% 伤害减免
+
     [RESOURCE_CATALYZED_LEMERGIUM_ACID]: 100000,      // WORK     +100% repair 和 build 效率但不增加其能量消耗
     [RESOURCE_CATALYZED_LEMERGIUM_ALKALIDE]: 100000,  // HEAL     +300% heal and rangedHeal 效率
+
+    [RESOURCE_CATALYZED_KEANIUM_ACID]: 100000,        // CARRY    +150 容量
+    [RESOURCE_CATALYZED_KEANIUM_ALKALIDE]: 100000,    // R_A      +300% rangedAttack 和 rangedMassAttack 效率
+
     [RESOURCE_CATALYZED_UTRIUM_ACID]: 100000,         // ATTACK   +300% attack 效率
     [RESOURCE_CATALYZED_UTRIUM_ALKALIDE]: 100000,     // WORK     +600% harvest 效率
+
     [RESOURCE_CATALYZED_ZYNTHIUM_ACID]: 100000,       // WORK     +300% dismantle 效率
     [RESOURCE_CATALYZED_ZYNTHIUM_ALKALIDE]: 100000,   // MOVE     +300% fatigue(疲劳值) 减低速度
 
     [RESOURCE_GHODIUM]: 100000,                       // Nuker    !!!
 
-    [RESOURCE_GHODIUM_ACID]: 100000,
-    [RESOURCE_GHODIUM_ALKALIDE]: 100000,
-    [RESOURCE_KEANIUM_ACID]: 100000,
-    [RESOURCE_KEANIUM_ALKALIDE]: 100000,
+    // [RESOURCE_GHODIUM_ACID]: 100000,
+    // [RESOURCE_GHODIUM_ALKALIDE]: 100000,
+
     [RESOURCE_LEMERGIUM_ACID]: 100000,
     [RESOURCE_LEMERGIUM_ALKALIDE]: 100000,
+
+    [RESOURCE_KEANIUM_ACID]: 100000,
+    [RESOURCE_KEANIUM_ALKALIDE]: 100000,
+
     [RESOURCE_UTRIUM_ACID]: 100000,
     [RESOURCE_UTRIUM_ALKALIDE]: 100000,
+
     [RESOURCE_ZYNTHIUM_ACID]: 100000,
     [RESOURCE_ZYNTHIUM_ALKALIDE]: 100000,
 
+
     [RESOURCE_GHODIUM_HYDRIDE]: 100000,
     [RESOURCE_GHODIUM_OXIDE]: 100000,
-    [RESOURCE_KEANIUM_HYDRIDE]: 100000,
-    [RESOURCE_KEANIUM_OXIDE]: 100000,
+
     [RESOURCE_LEMERGIUM_HYDRIDE]: 100000,
     [RESOURCE_LEMERGIUM_OXIDE]: 100000,
+
+    [RESOURCE_KEANIUM_HYDRIDE]: 100000,
+    [RESOURCE_KEANIUM_OXIDE]: 100000,
+
     [RESOURCE_UTRIUM_HYDRIDE]: 100000,
     [RESOURCE_UTRIUM_OXIDE]: 100000,
+
     [RESOURCE_ZYNTHIUM_HYDRIDE]: 100000,
     [RESOURCE_ZYNTHIUM_OXIDE]: 100000,
 
@@ -382,9 +389,12 @@ export const reactionConfig = {
 
 // 角色对应的需要boost的配置
 export const roleBoostConfig: { [role in CreepRoleConstant]?: BoostTypeConstant[] } = {
-    repairer: [boostTypeEnum.BoostTypeBuild],
+    // repairer: [boostTypeEnum.BoostTypeBuild],
+    upgrader: [boostTypeEnum.BoostTypeUpgrade],
+    rBuilder: [boostTypeEnum.BoostTypeUpgrade, boostTypeEnum.BoostTypeMove],
+    rFiller: [boostTypeEnum.BoostTypeCarry, boostTypeEnum.BoostTypeMove],
     healer: [boostTypeEnum.BoostTypeHeal, boostTypeEnum.BoostTypeMove],
-    attacker: [boostTypeEnum.BoostTypeAttack, boostTypeEnum.BoostTypeMove],
+    attacker: [boostTypeEnum.BoostTypeAttack, boostTypeEnum.BoostTypeMove, boostTypeEnum.BoostTypeTough],
     defender: [boostTypeEnum.BoostTypeAttack, boostTypeEnum.BoostTypeMove],
     rdefender: [boostTypeEnum.BoostTypeRangedAttack, boostTypeEnum.BoostTypeMove],
     integrate: [

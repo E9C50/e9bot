@@ -58,8 +58,8 @@ function updateLabBoostConfig(room: Room): void {
 
     if (needBoostTypeList == undefined) return
 
-    room.memory.roomLabConfig.needBoostTypeList = needBoostTypeList
-    room.memory.roomLabConfig.needBoostTypeList.forEach(boostType => {
+    needBoostTypeList = [...new Set(needBoostTypeList)]
+    needBoostTypeList.forEach(boostType => {
         if (boostConfig[boostType].length > 0) {
             const emptyLabId = room.labs.filter(lab => lab.id != labConfig.sourceLab1 && lab.id != labConfig.sourceLab2 && (labConfig.singleLabConfig[lab.id] == undefined || !labConfig.singleLabConfig[lab.id].boostMode))[0]?.id
 
@@ -246,7 +246,7 @@ function findTowerEnemy(room: Room): void {
 // 终端资源自动平衡
 function processTerminalResource(room: Room) {
     if (room.terminal == undefined) return
-    const centerStorage = 'E35N3'
+    const centerStorage = Memory.centerStorage
 
     // 终端默认留存资源
     room.memory.terminalAmount = {}
@@ -292,6 +292,7 @@ function processTerminalResource(room: Room) {
         console.log(`[${room.name}] -> [${centerStorage}] ${room.mineral.mineralType} ${mineralAmount - 30000}`)
     }
 
+    if (room.name == 'E41N8') return
     // 检查缺的资源，向中央仓库下单
     Object.keys(defaultAutoResource).forEach(resType => {
         const resourceType = resType as ResourceConstant
@@ -368,12 +369,8 @@ export const roomController = function (): void {
             console.log('更新建筑缓存', roomName)
         }
 
-        if (!room.my) continue;
-
         if (Memory.warMode == undefined) Memory.warMode = {}
-        if (room.memory.roomLabConfig == undefined) room.memory.roomLabConfig = {
-            singleLabConfig: {}, needBoostTypeList: []
-        }
+        if (room.memory.roomLabConfig == undefined) room.memory.roomLabConfig = { singleLabConfig: {} }
 
         if (room.memory.structureIdList == undefined) room.memory.structureIdList = {}
         if (room.memory.terminalSendJob == undefined) room.memory.terminalSendJob = {}
@@ -386,11 +383,13 @@ export const roomController = function (): void {
 
         if (room.memory.roomFillJob.labInMineral == undefined) room.memory.roomFillJob.labInMineral = []
 
+        if (!room.my) continue;
+
         const debug = false && Game.shard.name == 'shard3'
         var cpu = Game.cpu.getUsed()
 
         // 自动开启安全模式
-        autoEnableSafeMode(room)
+        // autoEnableSafeMode(room)
 
         if (debug && (Game.cpu.getUsed() - cpu) > 1) console.log(`自动开启安全模式 CPU 使用量：${(Game.cpu.getUsed() - cpu).toFixed(2)}`)
         cpu = Game.cpu.getUsed()

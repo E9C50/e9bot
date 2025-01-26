@@ -5,7 +5,7 @@ export default (data: CreepData): ICreepConfig => ({
         return true
     },
     prepare(creep) {
-        return true
+        return creep.goBoost()
     },
     source(creep) {
         // 如果没有空余容量了，就开始工作
@@ -64,6 +64,9 @@ export default (data: CreepData): ICreepConfig => ({
             creep.upgradeController(creep.room.controller)
             if (creep.room.terminal != undefined && creep.pos.isNearTo(creep.room.terminal)) {
                 creep.withdraw(creep.room.terminal, RESOURCE_ENERGY)
+            }
+            if (creep.room.storage != undefined && creep.pos.isNearTo(creep.room.storage)) {
+                creep.withdraw(creep.room.storage, RESOURCE_ENERGY)
             }
         }
 

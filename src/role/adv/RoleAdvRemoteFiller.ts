@@ -6,7 +6,7 @@ export default (data: CreepData): ICreepConfig => ({
         return true
     },
     prepare(creep) {
-        return true
+        return creep.goBoost()
     },
     source(creep) {
         // 如果没有空余容量了，就开始工作
@@ -20,13 +20,17 @@ export default (data: CreepData): ICreepConfig => ({
         const sourceTarget = Game.getObjectById(creepData.sourceFlag) as Source
         const sourcePos = sourceFlag?.pos || sourceTarget?.pos
 
-        if (creep.pickupDroppedResource(true, 50)) return true
+        if (sourcePos == undefined) return true
+
+        if ((creep.room.my || creep.room.controller == undefined) && creep.pickupDroppedResource(true, 50)) return true
 
         // 如果不在目标房间，则去往目标房间
         if (creep.room.name != sourcePos.roomName) {
             creep.moveTo(sourcePos)
             return true
         }
+
+        if (creep.room.my && creep.hits < creep.hitsMax && creep.room.towers.length > 0) creep.room.towers[0].heal(creep)
 
         // 如果身上不止有能量，则搬运到Storage
         if (creep.room.storage != undefined && Object.keys(creep.store).filter(key => key != RESOURCE_ENERGY).length > 0) {
@@ -45,6 +49,11 @@ export default (data: CreepData): ICreepConfig => ({
         if (creepData.withdrawTarget != undefined) {
             withdrawTarget = Game.getObjectById(creepData.withdrawTarget) as Structure
             withdrawResource = Object.keys(withdrawTarget['store'])[0] as ResourceConstant
+        }
+
+        if (creep.room.my) {
+            withdrawTarget = creep.room.storage || creep.room.terminal
+            withdrawResource = RESOURCE_ENERGY
         }
 
         // 如果有PowerBank就去捡
@@ -141,6 +150,8 @@ export default (data: CreepData): ICreepConfig => ({
             return true
         }
 
+        if (creep.room.my && creep.hits < creep.hitsMax && creep.room.towers.length > 0) creep.room.towers[0].heal(creep)
+
         // 如果身上不止有能量，则搬运到Storage
         if (creep.room.storage != undefined && Object.keys(creep.store).filter(key => key != RESOURCE_ENERGY).length > 0) {
             if (getDistance(creep.pos, creep.room.storage.pos) > 1) {
@@ -153,9 +164,9 @@ export default (data: CreepData): ICreepConfig => ({
 
         // 搬运到最近的storage、link、container
         var targetStructure;
-        const structureList: Structure[] = [creep.room.storage
-            // creep.room.storage, ...creep.room.links, ...creep.room.containers,
-            // ...creep.room.towers, ...creep.room.spawns, ...creep.room.extensions
+        const structureList: Structure[] = [
+            creep.room.storage, ...creep.room.links, ...creep.room.containers,
+            ...creep.room.towers, ...creep.room.spawns, ...creep.room.extensions
         ].filter(item => item != undefined && item.store.getFreeCapacity(RESOURCE_ENERGY) > 0) as Structure[]
         if (structureList.length > 0) {
             targetStructure = getClosestTarget(creep.pos, structureList)

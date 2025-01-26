@@ -38,15 +38,18 @@ export default (data: CreepData): ICreepConfig => ({
             }
         }
 
-        if (moveTarget != undefined && !creep.pos.isNearTo(moveTarget)) {
-            creep.moveTo(moveTarget)
+        if (moveTarget != undefined && !creep.pos.isEqualTo(moveTarget)) {
+            creep.moveTo(targetFlag)
             if (creep.room.name != moveTarget.pos.roomName) return true
         }
 
         // 建筑在范围内就攻击
         if (!creep.room.my) {
             const structureInRange = creep.pos.findInRange(FIND_STRUCTURES, 3)
-            if (structureInRange.filter(s => creep.pos.isNearTo(s.pos)).length > 0) {
+            if (structureInRange.filter(s => creep.pos.isNearTo(s.pos)).length > 0
+                && structureInRange[0].structureType != STRUCTURE_ROAD
+                && structureInRange[0].structureType != STRUCTURE_CONTAINER
+                && structureInRange[0].structureType != STRUCTURE_CONTROLLER) {
                 creep.rangedMassAttack()
             } else {
                 creep.rangedAttack(structureInRange[0])
@@ -70,7 +73,7 @@ export default (data: CreepData): ICreepConfig => ({
             if (enemyTarget != undefined && creep.pos.getRangeTo(enemyTarget.pos) < 3 && isAttack) {
                 creep.moveTo(getOppositePosition(creep.pos, enemyTarget.pos))
             } else {
-                creep.moveTo(enemyTarget)
+                creep.moveTo(targetFlag)
             }
 
             if (creep.pos.inRangeTo(enemyTarget, 1)) {
