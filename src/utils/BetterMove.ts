@@ -1621,21 +1621,21 @@ if (!PowerCreep.prototype.$moveTo) {
 //     return this.$move(...e)
 // };
 
-// if (!Creep.prototype.$build) {
-//     Creep.prototype.$build = Creep.prototype.build;
-//     Creep.prototype.build = function (...e) {
-//         this.memory.dontPullMe = true;
-//         return this.$build(...e)
-//     };
-// }
+if (!Creep.prototype.$build) {
+    Creep.prototype.$build = Creep.prototype.build;
+    Creep.prototype.build = function (...e) {
+        this.memory.dontPullMe = true;
+        return this.$build(...e)
+    };
+}
 
-// if (!Creep.prototype.$repair) {
-//     Creep.prototype.$repair = Creep.prototype.repair;
-//     Creep.prototype.repair = function (...e) {
-//         this.memory.dontPullMe = true;
-//         return this.$repair(...e)
-//     };
-// }
+if (!Creep.prototype.$repair) {
+    Creep.prototype.$repair = Creep.prototype.repair;
+    Creep.prototype.repair = function (...e) {
+        this.memory.dontPullMe = true;
+        return this.$repair(...e)
+    };
+}
 
 if (!Creep.prototype.$upgradeController) {
     Creep.prototype.$upgradeController = Creep.prototype.upgradeController;

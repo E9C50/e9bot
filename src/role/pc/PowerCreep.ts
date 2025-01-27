@@ -134,7 +134,7 @@ export const powerSpawnController = function (): void {
         // Tower加成技能
         if (pc.isPowerAvailable(PWR_OPERATE_TOWER)) {
             for (let index in pc.room.towers) {
-                if (Memory.warMode[pc.room.name] && pc.room.towers[index].effects == undefined || pc.room.towers[index].effects.length == 0) {
+                if (Memory.warMode[pc.room.name] && (pc.room.towers[index].effects == undefined || pc.room.towers[index].effects.length == 0)) {
                     if (getDistance(pc.pos, pc.room.towers[index].pos) >= 3) {
                         pc.moveTo(pc.room.towers[index])
                         return

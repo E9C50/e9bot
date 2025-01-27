@@ -1,14 +1,13 @@
 import { getClosestTarget, getDistance } from 'utils'
 import RoleBaseRepairer from './RoleBaseRepairer'
-import RoleBaseUpgrader from './RoleBaseUpgrader'
-import RoleBaseHarvester from './RoleBaseHarvester'
 
 export default (data: CreepData): ICreepConfig => ({
     isNeed: (room: Room, creepName: string) => {
         return room.constructionSites.length > 0
     },
     prepare(creep) {
-        return true
+        return creep.goBoost()
+        // return true
     },
     source(creep) {
         // 如果没有空余容量了，就开始工作
@@ -24,7 +23,7 @@ export default (data: CreepData): ICreepConfig => ({
         if (sourceTarget == undefined || sourceTarget.store[RESOURCE_ENERGY] == 0) {
             var energySources: AnyStoreStructure[] = [...creep.room.containers, ...creep.room.links]
 
-            energySources = [...energySources, ...creep.room.spawns, ...creep.room.extensions]
+            // energySources = [...energySources, ...creep.room.spawns, ...creep.room.extensions]
             if (creep.room.storage != undefined) energySources.push(creep.room.storage)
             if (creep.room.terminal != undefined) energySources.push(creep.room.terminal)
 
@@ -37,11 +36,6 @@ export default (data: CreepData): ICreepConfig => ({
             }
             creepData.sourceId = sourceTarget.id
         }
-
-        // if (creep.pickupDroppedResource(false, 40)) return true
-        // if (sourceTarget != undefined && sourceTarget.store[RESOURCE_ENERGY] == 0) {
-        //     if (creep.pickupDroppedResource(false, 20)) return true
-        // }
 
         if (sourceTarget.store[RESOURCE_ENERGY] == 0) {
             creep.say("💤")

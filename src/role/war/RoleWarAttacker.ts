@@ -15,12 +15,16 @@ export default (data: CreepData): ICreepConfig => ({
         const targetFlag: Flag = Game.flags[creepData.targetFlag]
         if (targetFlag == undefined) return false
 
+        if (creep.hits < creep.hitsMax) {
+            creep.heal(creep)
+        }
+
         if (creep.room.name != targetFlag.pos.roomName) {
             creep.moveTo(targetFlag)
             return true
         }
 
-        const enemies = creep.room.enemies.filter(enemy => enemy.pos.inRangeTo(creep, 1))
+        const enemies = creep.room.enemies.filter(enemy => enemy.pos.inRangeTo(creep, 10))
         if (enemies.length > 0) {
             creep.attack(enemies[0])
             creep.moveTo(enemies[0])

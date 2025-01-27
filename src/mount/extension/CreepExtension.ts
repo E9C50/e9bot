@@ -46,7 +46,7 @@ export default class CreepExtension extends Creep {
      */
     public pickupDroppedResource(allSource: boolean, range: number): boolean {
         // 战争模式不出去捡东西
-        if (Memory.warMode[this.room.name]) return false
+        if (Memory.warMode[this.room.name]) range = 1
         // 没有携带空间的跳过
         if (this.store.getFreeCapacity() == 0) return false
         const spawnRoomStorage = Game.rooms[this.memory.spawnRoom].storage

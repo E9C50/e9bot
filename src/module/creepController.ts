@@ -12,7 +12,7 @@ import { roleAdvEnum, roleBaseEnum, roleWarEnum, spawnPriority, warModeRole } fr
  * @returns
  */
 function addCreepConfig(room: Room, creepRole: CreepRoleConstant, creepName: string, creepData: CreepData = {}, isTeam: boolean = false): string {
-    if (Memory.warMode[room.name] && !warModeRole.includes(creepRole)) return ''
+    // if (Memory.warMode[room.name] && !warModeRole.includes(creepRole)) return ''
     const creepNameHash = creepRole.toUpperCase() + '_' + sha1String(creepName)
     const priority = spawnPriority[creepRole]
     room.memory.creepConfig[creepNameHash] = {
@@ -66,7 +66,6 @@ function releaseBaseCreepConfig(): void {
 
         // 根据矿产情况发布矿工
         room.sources.forEach(source => {
-            if (room.name == 'E41N8') return
             if (source.energy == 0) return
             let canHarvesterPos: number = source.pos.getFreeSpace().length;
             canHarvesterPos = Math.min(canHarvesterPos, 2);
@@ -86,7 +85,6 @@ function releaseBaseCreepConfig(): void {
                 var upgradeCount = Math.floor(room.storage.store[RESOURCE_ENERGY] / 10000) + 1;
                 if (room.controller && room.controller.level == 8) upgradeCount = 1;
                 upgradeCount = Math.min(upgradeCount, 8);
-                if (room.name == 'E41N8' && room.level < 8) upgradeCount = 8
 
                 for (let i = 0; i < upgradeCount; i++) {
                     const creepMemory: UpgraderData = { sourceId: room.storage.id }
@@ -113,6 +111,13 @@ function releaseBaseCreepConfig(): void {
                 const creepBuilderName1 = room.name + '_BUILDER_STORAGE_1'
                 addCreepConfig(room, roleBaseEnum.BUILDER, creepBuilderName0, creepBuilderMemory)
                 addCreepConfig(room, roleBaseEnum.BUILDER, creepBuilderName1, creepBuilderMemory)
+
+                if (room.name == 'E41N8') {
+                    const creepBuilderName2 = room.name + '_BUILDER_STORAGE_2'
+                    const creepBuilderName3 = room.name + '_BUILDER_STORAGE_3'
+                    addCreepConfig(room, roleBaseEnum.BUILDER, creepBuilderName2, creepBuilderMemory)
+                    addCreepConfig(room, roleBaseEnum.BUILDER, creepBuilderName3, creepBuilderMemory)
+                }
             }
 
             // 每50000能量发布一个修理工，8级以下只发布一个
@@ -122,6 +127,8 @@ function releaseBaseCreepConfig(): void {
                 if (room.controller && room.controller.level < 6) repairerCount = 1;
 
                 repairerCount = 1
+
+                if (room.name == 'E37N7') repairerCount = 4
                 for (let i = 0; i < repairerCount; i++) {
                     const creepRepairerName = room.name + '_REPAIRER_STORAGE' + i
                     addCreepConfig(room, roleBaseEnum.REPAIRER, creepRepairerName, creepRepairerMemory)
@@ -362,7 +369,7 @@ function releaseWarCreepConfig(): void {
 
         // 守卫者，根据敌人情况发布不同的守卫
         const enemyList = room.enemies.filter(enemy => enemy.owner.username != 'Invader' && enemy.owner.username != 'Source Keeper')
-        if (enemyList.length > 0) {
+        if (room.controller != undefined && !room.controller.safeMode && enemyList.length > 0) {
             const enemyGroup = analyzeEnemyGroups(enemyList)
 
             for (let i = 0; i < enemyGroup.length; i++) {
@@ -502,9 +509,10 @@ export const creepWorkController = function (): void {
     var workCpu: [string, number][] = []
     Object.values(Game.creeps).forEach(creep => {
         if (creep.memory.isTeam) return
-        if (Object.values(Memory.warMode).filter(warMode => warMode).length > 0 && !warModeRole.includes(creep.memory.role)) return
+        // if (Object.values(Memory.warMode).filter(warMode => warMode).length > 0 && !warModeRole.includes(creep.memory.role)) return
 
         const cpu = Game.cpu.getUsed()
+        if (creep.memory.role == undefined) creep.suicide()
         const prepared = roles[creep.memory.role](creep.memory.data).prepare(creep)
         workCpu.push([creep.name + ' prepare', (Game.cpu.getUsed() - cpu)])
         if (!prepared) return

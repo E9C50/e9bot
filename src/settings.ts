@@ -6,6 +6,7 @@ export const creepWhiteList = ['an_w', 'NoName_', 'MoSaSa', 'Kaoruko', 'keqing']
 
 // 永不踏入这些房间
 export const findPathAvoidRooms = [
+    'E35N6',
     'E39N4', 'E38N1', 'E39N1', 'E32N2', 'E33N5'
 ]
 export const enableObserversFindPath = true
@@ -142,7 +143,7 @@ const carryBodyConfigs = [
 
 export const bodyConfigs: { [role in CreepRoleConstant]: BodySet[] } = {
     harvester: workerBodyConfigs,
-    upgrader: Array.from({ length: 8 }, () => ({ [WORK]: 39, [CARRY]: 1, [MOVE]: 10 })),
+    upgrader: workerBodyConfigs,
     builder: workerBodyConfigs,
     repairer: workerBodyConfigs,
     miner: workerBodyConfigs,
@@ -389,8 +390,9 @@ export const reactionConfig = {
 
 // 角色对应的需要boost的配置
 export const roleBoostConfig: { [role in CreepRoleConstant]?: BoostTypeConstant[] } = {
-    // repairer: [boostTypeEnum.BoostTypeBuild],
-    upgrader: [boostTypeEnum.BoostTypeUpgrade],
+    builder: [boostTypeEnum.BoostTypeBuild],
+    repairer: [boostTypeEnum.BoostTypeBuild],
+    // upgrader: [boostTypeEnum.BoostTypeUpgrade],
     rBuilder: [boostTypeEnum.BoostTypeUpgrade, boostTypeEnum.BoostTypeMove],
     rFiller: [boostTypeEnum.BoostTypeCarry, boostTypeEnum.BoostTypeMove],
     healer: [boostTypeEnum.BoostTypeHeal, boostTypeEnum.BoostTypeMove],
@@ -421,7 +423,7 @@ export const boostBodyPart: BoostBodyPartConfig = {
 export const boostConfig: BoostResourceConfig = {
     boostMove: [RESOURCE_ZYNTHIUM_OXIDE, RESOURCE_ZYNTHIUM_ALKALIDE, RESOURCE_CATALYZED_ZYNTHIUM_ALKALIDE],
     boostCarry: [RESOURCE_KEANIUM_HYDRIDE, RESOURCE_KEANIUM_ACID, RESOURCE_CATALYZED_KEANIUM_ACID],
-    boostBuild: [RESOURCE_CATALYZED_LEMERGIUM_ACID, RESOURCE_LEMERGIUM_ACID, RESOURCE_LEMERGIUM_HYDRIDE],
+    boostBuild: [RESOURCE_LEMERGIUM_HYDRIDE, RESOURCE_LEMERGIUM_ACID, RESOURCE_CATALYZED_LEMERGIUM_ACID],
     boostUpgrade: [RESOURCE_GHODIUM_HYDRIDE, RESOURCE_GHODIUM_ACID, RESOURCE_CATALYZED_GHODIUM_ACID],
     boostHarvest: [RESOURCE_UTRIUM_OXIDE, RESOURCE_UTRIUM_ALKALIDE, RESOURCE_CATALYZED_UTRIUM_ALKALIDE],
     boostDismantle: [RESOURCE_ZYNTHIUM_HYDRIDE, RESOURCE_ZYNTHIUM_ACID, RESOURCE_CATALYZED_ZYNTHIUM_ACID],

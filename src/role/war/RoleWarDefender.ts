@@ -20,10 +20,9 @@ export default (data: CreepData): ICreepConfig => ({
         let enemyTargetId: string = creepData.targetEnemy
 
         if (enemyTargetId != undefined) {
-            const enemyTarget = Game.getObjectById(enemyTargetId) as Creep
+            let enemyTarget = Game.getObjectById(enemyTargetId) as Creep
             if (enemyTarget == undefined) {
-                creep.say('❓')
-                return true
+                enemyTarget = creep.room.enemies[0]
             }
 
             const closestRamOrWall = getClosestTarget(enemyTarget.pos, [...creep.room.ramparts, ...creep.room.walls])

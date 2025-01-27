@@ -59,29 +59,35 @@ export default (data: CreepData): ICreepConfig => ({
         // 获取敌人信息
         var enemyTarget: Creep | undefined = undefined
         const lastEnemy: Creep = Game.getObjectById(creepData.attackEnemy || '') as Creep
-        if (lastEnemy != undefined && lastEnemy.pos.getRangeTo(creep) < 5) {
+        if (lastEnemy != undefined && lastEnemy.pos.getRangeTo(creep) < 10) {
             enemyTarget = lastEnemy
         } else {
             enemyTarget = creep.room.enemies
-                .filter(enemy => !enemy.my && enemy.pos.inRangeTo(creep, 5))
+                .filter(enemy => !enemy.my && enemy.pos.inRangeTo(creep, 10))
                 .sort((a, b) => a.pos.getRangeTo(creep) - b.pos.getRangeTo(creep))[0]
         }
 
         // 敌人在范围内就攻击
         if (enemyTarget != undefined) {
             const isAttack = enemyTarget.body.filter(body => body.type == 'attack').length > 0
-            if (enemyTarget != undefined && creep.pos.getRangeTo(enemyTarget.pos) < 3 && isAttack) {
-                creep.moveTo(getOppositePosition(creep.pos, enemyTarget.pos))
-            } else {
-                creep.moveTo(targetFlag)
-            }
+            // if (enemyTarget != undefined && creep.pos.getRangeTo(enemyTarget.pos) < 3 && isAttack) {
+            //     creep.moveTo(getOppositePosition(creep.pos, enemyTarget.pos))
+            // } else {
+            //     creep.moveTo(targetFlag)
+            // }
 
             if (creep.pos.inRangeTo(enemyTarget, 1)) {
                 creep.rangedMassAttack()
             } else if (creep.pos.inRangeTo(enemyTarget, 3)) {
                 creep.rangedAttack(enemyTarget)
+                if (creep.room.my) {
+                    creep.room.towers.forEach(tower => {
+                        if (enemyTarget != undefined) tower.attack(enemyTarget)
+                    })
+                }
             }
         }
+
 
         return true
     },

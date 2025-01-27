@@ -292,7 +292,6 @@ function processTerminalResource(room: Room) {
         console.log(`[${room.name}] -> [${centerStorage}] ${room.mineral.mineralType} ${mineralAmount - 30000}`)
     }
 
-    if (room.name == 'E41N8') return
     // 检查缺的资源，向中央仓库下单
     Object.keys(defaultAutoResource).forEach(resType => {
         const resourceType = resType as ResourceConstant
@@ -389,7 +388,7 @@ export const roomController = function (): void {
         var cpu = Game.cpu.getUsed()
 
         // 自动开启安全模式
-        // autoEnableSafeMode(room)
+        autoEnableSafeMode(room)
 
         if (debug && (Game.cpu.getUsed() - cpu) > 1) console.log(`自动开启安全模式 CPU 使用量：${(Game.cpu.getUsed() - cpu).toFixed(2)}`)
         cpu = Game.cpu.getUsed()
