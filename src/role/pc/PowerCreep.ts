@@ -33,7 +33,7 @@ export const powerSpawnController = function (): void {
 
         // 不在指定房间，就过去
         if (pc.room.name != pcFlag.pos.roomName) {
-            pc.moveTo(new RoomPosition(25, 25, pcFlag.pos.roomName))
+            pc.moveTo(new RoomPosition(25, 25, pcFlag.pos.roomName), { swampCost: 1, plainCost: 1, visualizePathStyle: {} })
             return
         }
 
@@ -80,7 +80,7 @@ export const powerSpawnController = function (): void {
         // Spawn加速技能
         if (pc.isPowerAvailable(PWR_OPERATE_SPAWN)) {
             for (let index in pc.room.spawns) {
-                if (pc.room.spawns[index].spawning && pc.room.spawns[index].effects == undefined || pc.room.spawns[index].effects.length == 0) {
+                if (pc.room.spawns[index].effects == undefined || pc.room.spawns[index].effects.length == 0) {
                     if (getDistance(pc.pos, pc.room.spawns[index].pos) >= 3) {
                         pc.moveTo(pc.room.spawns[index])
                         return

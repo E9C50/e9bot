@@ -4,17 +4,27 @@ function singleWork(creep: Creep, data: TeamConfig) {
 
     const uniqueBodyParts = [...new Set(creep.body.map(part => part.type))];
 
-    if (uniqueBodyParts.includes(HEAL) && data.healTarget != undefined) {
+    if (uniqueBodyParts.includes(HEAL) && !uniqueBodyParts.includes(ATTACK) && data.healTarget != undefined) {
         const healTarget = Game.getObjectById(data.healTarget) as Creep
         if (healTarget != undefined) creep.heal(healTarget)
     }
 
+    let attackTarget: Creep | Structure | undefined = undefined;
     if (data.attackTarget != undefined) {
-        const enemy = Game.getObjectById<Creep>(data.attackTarget)
-        if (uniqueBodyParts.includes(RANGED_ATTACK) && enemy) creep.rangedAttack(enemy)
+        attackTarget = Game.getObjectById<Creep>(data.attackTarget) as Creep
     } else if (data.dismantleTarget != undefined) {
-        const target = Game.getObjectById<Structure>(data.dismantleTarget)
-        if (uniqueBodyParts.includes(RANGED_ATTACK) && target) creep.rangedAttack(target)
+        attackTarget = Game.getObjectById<Structure>(data.dismantleTarget) as Structure
+    }
+
+    if (attackTarget != undefined) {
+        if (uniqueBodyParts.includes(RANGED_ATTACK)) {
+            if (creep.pos.isNearTo(attackTarget)) {
+                creep.rangedMassAttack()
+            } else {
+                creep.rangedAttack(attackTarget)
+            }
+        }
+        if (uniqueBodyParts.includes(ATTACK)) creep.attack(attackTarget)
     }
 }
 
@@ -32,12 +42,13 @@ export default (data: TeamConfig): ITeamConfig => ({
         return allBoosted
     },
     doWork: function (): boolean {
-        const targetFlag = Game.flags[data.teamFlag]
-        if (targetFlag == undefined) return false
-
         const creep1 = Game.creeps[data.creepNameList[0]]
         const creep2 = Game.creeps[data.creepNameList[1]]
         if (creep1 == undefined && creep2 == undefined) return false
+
+        const rangeEnemies = creep1.room.enemies.filter(enemy => enemy.pos.inRangeTo(creep1, 5))
+        let targetPos: RoomPosition = rangeEnemies[0]?.pos || Game.flags[data.teamFlag]?.pos
+        if (targetPos == undefined) return false
 
         data.healTarget = undefined
         if (creep1 != undefined && creep2 != undefined) {
@@ -63,14 +74,14 @@ export default (data: TeamConfig): ITeamConfig => ({
         singleWork(creep1, data)
         singleWork(creep2, data)
 
-        if ((creep1 != undefined && creep1.fatigue == 0) && (creep2 != undefined && creep2.fatigue == 0)) {
+        if ((creep1 != undefined && creep1.fatigue == 0) && (creep2 != undefined && creep2.fatigue == 0)
+            && !creep1.pos.isEqualTo(targetPos) && (rangeEnemies.length > 0 && !creep1.pos.isNearTo(targetPos))) {
+
             if (creep1 != undefined && (creep2 == undefined || creep1.room.name != creep2.room.name || creep1.pos.isNearTo(creep2))) {
-                creep1.moveTo(targetFlag)
-                creep1.memory.dontPullMe = true
+                creep1.moveTo(targetPos)
             }
             if (creep2 != undefined) {
-                creep2.moveTo(creep1 || targetFlag)
-                creep2.memory.dontPullMe = true
+                creep2.moveTo(creep1 || targetPos)
             }
         }
 

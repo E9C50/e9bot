@@ -6,7 +6,7 @@ export const creepWhiteList = ['an_w', 'NoName_', 'MoSaSa', 'Kaoruko', 'keqing']
 
 // 永不踏入这些房间
 export const findPathAvoidRooms = [
-    'E35N6',
+    'E35N6', 'E36N3',
     'E39N4', 'E38N1', 'E39N1', 'E32N2', 'E33N5'
 ]
 export const enableObserversFindPath = true
@@ -154,6 +154,9 @@ export const bodyConfigs: { [role in CreepRoleConstant]: BodySet[] } = {
     scout: Array.from({ length: 8 }, () => ({ [MOVE]: 1 })),
     claimer: Array.from({ length: 8 }, () => ({ [CLAIM]: 1, [MOVE]: 1 })),
     cAttacker: Array.from({ length: 8 }, () => ({ [CLAIM]: 1, [MOVE]: 1 })),
+
+    healer: Array.from({ length: 8 }, () => ({ [TOUGH]: 4, [MOVE]: 10, [HEAL]: 36 })),
+    attacker: Array.from({ length: 8 }, () => ({ [TOUGH]: 2, [ATTACK]: 36, [MOVE]: 10, [HEAL]: 2 })),
     manager: [
         { [CARRY]: 5, [MOVE]: 1 },
         { [CARRY]: 10, [MOVE]: 1 },
@@ -184,16 +187,6 @@ export const bodyConfigs: { [role in CreepRoleConstant]: BodySet[] } = {
         { [WORK]: 8, [CARRY]: 1, [MOVE]: 5 },
         { [WORK]: 8, [CARRY]: 1, [MOVE]: 5 },
     ],
-    attacker: [
-        { [MOVE]: 2, [ATTACK]: 2 },
-        { [MOVE]: 3, [ATTACK]: 3 },
-        { [MOVE]: 4, [ATTACK]: 4 },
-        { [MOVE]: 5, [ATTACK]: 5 },
-        { [MOVE]: 6, [ATTACK]: 6 },
-        { [MOVE]: 7, [ATTACK]: 7 },
-        { [MOVE]: 8, [ATTACK]: 8 },
-        { [TOUGH]: 2, [ATTACK]: 36, [MOVE]: 10, [HEAL]: 2 },
-    ],
     integrate: [
         { [TOUGH]: 0, [MOVE]: 0, [RANGED_ATTACK]: 0, [HEAL]: 0 },
         { [TOUGH]: 0, [MOVE]: 0, [RANGED_ATTACK]: 0, [HEAL]: 0 },
@@ -206,16 +199,6 @@ export const bodyConfigs: { [role in CreepRoleConstant]: BodySet[] } = {
         // { [TOUGH]: 7, [RANGED_ATTACK]: 19, [MOVE]: 10, [HEAL]: 14 }, // 7级房进攻
         // { [TOUGH]: 8, [MOVE]: 10, [RANGED_ATTACK]: 15, [HEAL]: 17 }, // 四级要塞
         // { [TOUGH]: 2, [RANGED_ATTACK]: 25, [HEAL]: 13, [MOVE]: 10 }, // 一级要塞
-    ],
-    healer: [
-        { [MOVE]: 2, [HEAL]: 2 },
-        { [MOVE]: 3, [HEAL]: 3 },
-        { [MOVE]: 4, [HEAL]: 4 },
-        { [MOVE]: 5, [HEAL]: 5 },
-        { [MOVE]: 6, [HEAL]: 6 },
-        { [MOVE]: 7, [HEAL]: 7 },
-        { [MOVE]: 8, [HEAL]: 8 },
-        { [MOVE]: 25, [HEAL]: 25 }
     ],
     rAttacker: [],
     dismantler: [],
@@ -335,53 +318,47 @@ export const defaultAutoResource = {
 }
 
 export const reactionConfig = {
-    // [RESOURCE_CATALYZED_GHODIUM_ACID]: 50000,        // WORK     +100% upgradeController 效率但不增加其能量消耗
-    // [RESOURCE_CATALYZED_GHODIUM_ALKALIDE]: 50000,    // TOUGH    70% 伤害减免
+    [RESOURCE_CATALYZED_LEMERGIUM_ACID]: 50000,     // +100% repair 和 build 效率但不增加其能量消耗
+    [RESOURCE_LEMERGIUM_ACID]: 50000,               // +80% repair 和 build 效率但不增加其能量消耗
+    [RESOURCE_LEMERGIUM_HYDRIDE]: 50000,            // +50% repair 和 build 效率但不增加其能量消耗
 
-    [RESOURCE_CATALYZED_LEMERGIUM_ACID]: 50000,      // WORK     +100% repair 和 build 效率但不增加其能量消耗
-    // [RESOURCE_CATALYZED_LEMERGIUM_ALKALIDE]: 50000,  // HEAL     +300% heal and rangedHeal 效率
+    [RESOURCE_CATALYZED_ZYNTHIUM_ALKALIDE]: 50000,  // +300% fatigue(疲劳值) 减低速度
+    [RESOURCE_ZYNTHIUM_ALKALIDE]: 50000,            // +200% fatigue(疲劳值) 减低速度
+    [RESOURCE_ZYNTHIUM_OXIDE]: 50000,               // +100% fatigue(疲劳值) 减低速度
 
-    // [RESOURCE_CATALYZED_KEANIUM_ACID]: 50000,        // CARRY    +150 容量
-    // [RESOURCE_CATALYZED_KEANIUM_ALKALIDE]: 50000,    // R_A      +300% rangedAttack 和 rangedMassAttack 效率
+    [RESOURCE_CATALYZED_GHODIUM_ACID]: 50000,       // +100% upgradeController 效率但不增加其能量消耗
+    [RESOURCE_GHODIUM_ACID]: 50000,                 // +80% upgradeController 效率但不增加其能量消耗
+    [RESOURCE_GHODIUM_HYDRIDE]: 50000,              // +50% upgradeController 效率但不增加其能量消耗
 
-    // [RESOURCE_CATALYZED_UTRIUM_ACID]: 50000,         // ATTACK   +300% attack 效率
-    // [RESOURCE_CATALYZED_UTRIUM_ALKALIDE]: 50000,     // WORK     +600% harvest 效率
+    [RESOURCE_CATALYZED_GHODIUM_ALKALIDE]: 50000,   // 70% 伤害减免
+    [RESOURCE_GHODIUM_ALKALIDE]: 50000,             // 50% 伤害减免
+    [RESOURCE_GHODIUM_OXIDE]: 50000,                // 30% 伤害减免
 
-    // [RESOURCE_CATALYZED_ZYNTHIUM_ACID]: 50000,       // WORK     +300% dismantle 效率
-    // [RESOURCE_CATALYZED_ZYNTHIUM_ALKALIDE]: 50000,   // MOVE     +300% fatigue(疲劳值) 减低速度
+    [RESOURCE_CATALYZED_LEMERGIUM_ALKALIDE]: 50000, // +300% heal and rangedHeal 效率
+    [RESOURCE_LEMERGIUM_ALKALIDE]: 50000,           // +200% heal 和 rangedHeal 效率
+    [RESOURCE_LEMERGIUM_OXIDE]: 50000,              // +100% heal 和 rangedHeal 效率
 
-    [RESOURCE_GHODIUM]: 50000,                       // Nuker    !!!
+    [RESOURCE_CATALYZED_KEANIUM_ACID]: 50000,       // +150 容量
+    [RESOURCE_KEANIUM_ACID]: 50000,                 // +100 容量
+    [RESOURCE_KEANIUM_HYDRIDE]: 50000,              // +50 容量
 
-    // [RESOURCE_GHODIUM_ACID]: 50000,
-    // [RESOURCE_GHODIUM_ALKALIDE]: 50000,
+    [RESOURCE_CATALYZED_KEANIUM_ALKALIDE]: 50000,   // +300% rangedAttack 和 rangedMassAttack 效率
+    [RESOURCE_KEANIUM_ALKALIDE]: 50000,             // +200% rangedAttack 和 rangedMassAttack 效率
+    [RESOURCE_KEANIUM_OXIDE]: 50000,                // +100% rangedAttack 和 rangedMassAttack 效率
 
-    [RESOURCE_LEMERGIUM_ACID]: 50000,
-    // [RESOURCE_LEMERGIUM_ALKALIDE]: 50000,
+    [RESOURCE_CATALYZED_UTRIUM_ACID]: 50000,        // +300% attack 效率
+    [RESOURCE_UTRIUM_ACID]: 50000,                  // +200% attack 效率
+    [RESOURCE_UTRIUM_HYDRIDE]: 50000,               // +100% attack 效率
 
-    // [RESOURCE_KEANIUM_ACID]: 50000,
-    // [RESOURCE_KEANIUM_ALKALIDE]: 50000,
+    [RESOURCE_CATALYZED_UTRIUM_ALKALIDE]: 50000,    // +600% harvest 效率
+    [RESOURCE_UTRIUM_ALKALIDE]: 50000,              // +400% harvest 效率
+    [RESOURCE_UTRIUM_OXIDE]: 50000,                 // +200% harvest 效率
 
-    // [RESOURCE_UTRIUM_ACID]: 50000,
-    // [RESOURCE_UTRIUM_ALKALIDE]: 50000,
+    [RESOURCE_CATALYZED_ZYNTHIUM_ACID]: 50000,      // +300% dismantle 效率
+    [RESOURCE_ZYNTHIUM_ACID]: 50000,                // +200% dismantle 效率
+    [RESOURCE_ZYNTHIUM_HYDRIDE]: 50000,             // +100% dismantle 效率
 
-    // [RESOURCE_ZYNTHIUM_ACID]: 50000,
-    // [RESOURCE_ZYNTHIUM_ALKALIDE]: 50000,
-
-
-    // [RESOURCE_GHODIUM_HYDRIDE]: 50000,
-    // [RESOURCE_GHODIUM_OXIDE]: 50000,
-
-    [RESOURCE_LEMERGIUM_HYDRIDE]: 50000,
-    // [RESOURCE_LEMERGIUM_OXIDE]: 50000,
-
-    // [RESOURCE_KEANIUM_HYDRIDE]: 50000,
-    // [RESOURCE_KEANIUM_OXIDE]: 50000,
-
-    // [RESOURCE_UTRIUM_HYDRIDE]: 50000,
-    // [RESOURCE_UTRIUM_OXIDE]: 50000,
-
-    // [RESOURCE_ZYNTHIUM_HYDRIDE]: 50000,
-    // [RESOURCE_ZYNTHIUM_OXIDE]: 50000,
+    [RESOURCE_GHODIUM]: 50000,                      // Nuker    !!!
 
     [RESOURCE_ZYNTHIUM_KEANITE]: 50000,
     [RESOURCE_UTRIUM_LEMERGITE]: 50000,
@@ -390,14 +367,19 @@ export const reactionConfig = {
 
 // 角色对应的需要boost的配置
 export const roleBoostConfig: { [role in CreepRoleConstant]?: BoostTypeConstant[] } = {
-    // builder: [boostTypeEnum.BoostTypeBuild],
     // upgrader: [boostTypeEnum.BoostTypeUpgrade],
-    repairer: [boostTypeEnum.BoostTypeBuild],
+    // builder: [boostTypeEnum.BoostTypeBuild],
+    // repairer: [boostTypeEnum.BoostTypeBuild],
+
     rBuilder: [boostTypeEnum.BoostTypeUpgrade, boostTypeEnum.BoostTypeMove],
     rFiller: [boostTypeEnum.BoostTypeCarry, boostTypeEnum.BoostTypeMove],
-    healer: [boostTypeEnum.BoostTypeHeal, boostTypeEnum.BoostTypeMove],
+
     defender: [boostTypeEnum.BoostTypeAttack, boostTypeEnum.BoostTypeMove],
     rdefender: [boostTypeEnum.BoostTypeRangedAttack, boostTypeEnum.BoostTypeMove],
+
+    healer: [
+        boostTypeEnum.BoostTypeHeal, boostTypeEnum.BoostTypeMove, boostTypeEnum.BoostTypeTough
+    ],
     attacker: [
         boostTypeEnum.BoostTypeAttack, boostTypeEnum.BoostTypeMove,
         boostTypeEnum.BoostTypeTough, boostTypeEnum.BoostTypeHeal

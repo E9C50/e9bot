@@ -2,6 +2,7 @@ import roles from 'role'
 import squard from 'squard'
 import { sha1String } from "utils";
 import { roleAdvEnum, roleBaseEnum, roleWarEnum, spawnPriority, warModeRole } from "settings";
+import BattleCalc from 'utils/BattleCalc';
 
 /**
  * 添加需求配置
@@ -121,8 +122,6 @@ function releaseBaseCreepConfig(): void {
 
                 repairerCount = 1
 
-                if (room.name == 'E37N7') repairerCount = 4
-                if (room.name == 'E41N8') repairerCount = 4
                 for (let i = 0; i < repairerCount; i++) {
                     const creepRepairerName = room.name + '_REPAIRER_STORAGE' + i
                     addCreepConfig(room, roleBaseEnum.REPAIRER, creepRepairerName, creepRepairerMemory)
@@ -363,7 +362,8 @@ function releaseWarCreepConfig(): void {
 
         // 守卫者，根据敌人情况发布不同的守卫
         const enemyList = room.enemies.filter(enemy => enemy.owner.username != 'Invader' && enemy.owner.username != 'Source Keeper')
-        if (room.controller != undefined && !room.controller.safeMode && enemyList.length > 0) {
+        const damageThreshold = enemyList.length > 0 && enemyList.map(enemy => BattleCalc.calcCreepDamage(enemy)).reduce((a, b) => a + b, 0) > 1000
+        if (room.controller != undefined && !room.controller.safeMode && enemyList.length > 0 && damageThreshold) {
             const enemyGroup = analyzeEnemyGroups(enemyList)
 
             for (let i = 0; i < enemyGroup.length; i++) {
@@ -413,6 +413,24 @@ function releaseWarCreepConfig(): void {
 
                 const creepName2 = room.name + '_T2INTEGRATE_' + flagName + '_2'
                 const creepNameHash2 = addCreepConfig(room, roleWarEnum.INTEGRATE, creepName2, {}, true);
+
+                room.memory.teamConfig[flagName] = {
+                    teamFlag: flagName, teamType: 'duo',
+                    creepNameList: [creepNameHash1, creepNameHash2]
+                }
+            }
+        }
+
+        // 红球二人小队
+        for (let i = 0; i < 20; i++) {
+            const flagName = room.name + '_T2ATT_' + i
+            const targetFlag = Game.flags[flagName]
+            if (targetFlag != undefined) {
+                const creepName1 = room.name + '_T2ATTACK_' + flagName
+                const creepNameHash1 = addCreepConfig(room, roleWarEnum.ATTACKER, creepName1, {}, true);
+
+                const creepName2 = room.name + '_T2HEAL_' + flagName
+                const creepNameHash2 = addCreepConfig(room, roleWarEnum.HEALER, creepName2, {}, true);
 
                 room.memory.teamConfig[flagName] = {
                     teamFlag: flagName, teamType: 'duo',

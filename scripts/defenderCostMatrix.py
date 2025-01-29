@@ -124,9 +124,8 @@ if __name__ == "__main__":
     process_room("E37N7")
     process_room("E41N8")
 
-# if __name__ == "__main__":
-#     USER = data["avarice"]["email"]
-#     PASSWORD = data["avarice"]["password"]
-#     api = screepsapi.API(USER, PASSWORD, host="10.1.1.50:21025", secure=False)
-#     process_room("E5S1")
-#     process_room("E7S1")
+    # USER = data["avarice"]["email"]
+    # PASSWORD = data["avarice"]["password"]
+    # api = screepsapi.API(USER, PASSWORD, host="10.1.1.50:21025", secure=False)
+    # process_room("E5S1")
+    # process_room("E7S1")

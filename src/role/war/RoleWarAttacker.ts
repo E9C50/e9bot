@@ -20,35 +20,33 @@ export default (data: CreepData): ICreepConfig => ({
     },
     target(creep) {
         const creepData: AttackerData = data as AttackerData
-        const targetFlag: Flag = Game.flags[creepData.targetFlag]
-        if (targetFlag == undefined) return false
 
-        if (creep.hits < creep.hitsMax) {
-            creep.heal(creep)
+        const enemies = creep.room.enemies.filter(enemy => enemy.owner.username == 'Avarice' && enemy.pos.inRangeTo(creep, 20))
+        let targetPos: RoomPosition = Game.flags[creepData.targetFlag]?.pos || enemies[0]?.pos
+        if (targetPos == undefined) return true
+
+        if (creep.room.name != targetPos.roomName) {
+            creep.moveTo(targetPos)
         }
 
-        if (creep.room.name != targetFlag.pos.roomName) {
-            creep.moveTo(targetFlag)
-            return true
-        }
-
-        const enemies = creep.room.enemies.filter(enemy => enemy.pos.inRangeTo(creep, 10))
         if (enemies.length > 0) {
             creep.moveTo(enemies[0])
             if (creep.attack(enemies[0]) == OK) {
                 callTower(enemies[0])
+            } else {
+                creep.heal(creep)
             }
             return true
         }
 
-        const structure = creep.room.name == targetFlag.pos.roomName ? targetFlag.pos.lookFor(LOOK_STRUCTURES)[0] : undefined
+        const structure = creep.room.name == targetPos.roomName ? targetPos.lookFor(LOOK_STRUCTURES)[0] : undefined
         if (structure != undefined) {
             creep.attack(structure)
             creep.moveTo(structure)
             return true
         }
 
-        creep.moveTo(targetFlag)
+        creep.moveTo(targetPos)
         return true
     },
 })

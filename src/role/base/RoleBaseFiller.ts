@@ -1,18 +1,5 @@
 import { getClosestTarget, getDistance } from "utils"
 
-function fillTower(creep: Creep, fillJobs: IRoomFillJob): boolean {
-    // 如果有tower需要填充，那就去
-    if (fillJobs.tower != undefined && fillJobs.tower.length > 0) {
-        fillJobs.tower = fillJobs.tower.filter(item => Game.getObjectById(item) != undefined)
-        const target = getClosestTarget(creep.pos, fillJobs.tower.map(id => Game.getObjectById(id) as StructureTower))
-        if (target.store.getFreeCapacity(RESOURCE_ENERGY) > 0 && creep.transferToTarget(target, RESOURCE_ENERGY)) {
-            fillJobs.tower = []
-        }
-        return true
-    }
-    return false
-}
-
 export default (data: CreepData): ICreepConfig => ({
     isNeed: (room: Room, creepName: string) => {
         return true
@@ -105,6 +92,16 @@ export default (data: CreepData): ICreepConfig => ({
             return true
         }
 
+        // 如果有tower需要填充，那就去
+        if (fillJobs.tower != undefined && fillJobs.tower.length > 0) {
+            fillJobs.tower = fillJobs.tower.filter(item => Game.getObjectById(item) != undefined)
+            const target = getClosestTarget(creep.pos, fillJobs.tower.map(id => Game.getObjectById(id) as StructureTower))
+            if (target.store.getFreeCapacity(RESOURCE_ENERGY) > 0 && creep.transferToTarget(target, RESOURCE_ENERGY)) {
+                fillJobs.tower = []
+            }
+            return true
+        }
+
         // 如果有nuker需要填充，那就去
         if (creep.room.nuker != undefined && fillJobs.nukerEnergy) {
             if (creep.transferToTarget(creep.room.nuker, RESOURCE_ENERGY)) {
@@ -135,8 +132,6 @@ export default (data: CreepData): ICreepConfig => ({
             creep.transferToTarget(creep.room.storage, RESOURCE_ENERGY)
             return true
         }
-
-        if (fillTower(creep, fillJobs)) return true
 
         if (getDistance(creep.pos, creep.room.spawns[0].pos) > 1) {
             creep.moveTo(creep.room.spawns[0])

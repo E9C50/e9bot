@@ -219,7 +219,6 @@ function findTowerEnemy(room: Room): void {
     if (Game.time % 5 != 0 && !Memory.warMode) return
     if (room.enemies.length == 0) {
         if (Memory.warMode[room.name]) {
-            console.log(room.name, '战争模式已关闭')
             Memory.warMode[room.name] = false
         }
         return
@@ -234,8 +233,7 @@ function findTowerEnemy(room: Room): void {
 
     if (enemyList.length > 0) {
         Memory.warMode[room.name] = true
-        console.log(room.name, '战争模式已开启')
-        console.log(`notify_您的房间[${room.name}] 发现敌人 所有者[${room.enemies[0].owner.username}]`)
+        if (Game.time % 10 == 0) console.log(`notify_您的房间[${room.name}] 发现敌人 所有者[${room.enemies[0].owner.username}]`)
     }
 
     // 获取入侵者
@@ -290,9 +288,9 @@ function processTerminalResource(room: Room) {
     const mineralAmount = room.getResource(room.mineral.mineralType, true, true)
     const mineralJobExists = Object.values(room.memory.terminalSendJob)
         .filter(job => job.resourceType == room.mineral.mineralType && job.targetRoom == centerStorage).length > 0
-    if (mineralAmount > 30000 && !mineralJobExists) {
-        room.sendResource(centerStorage, room.mineral.mineralType, mineralAmount - 30000)
-        console.log(`[${room.name}] -> [${centerStorage}] ${room.mineral.mineralType} ${mineralAmount - 30000}`)
+    if (mineralAmount > 10000 && !mineralJobExists) {
+        room.sendResource(centerStorage, room.mineral.mineralType, mineralAmount - 10000)
+        console.log(`[${room.name}] -> [${centerStorage}] ${room.mineral.mineralType} ${mineralAmount - 10000}`)
     }
 
     // 检查缺的资源，向中央仓库下单
@@ -354,6 +352,13 @@ function autoEnableSafeMode(room: Room) {
 }
 
 export const roomController = function (): void {
+    // for (const roomName in Memory.rooms) {
+    //     const room: Room = Game.rooms[roomName];
+    //     if (room == undefined || !room.my) {
+    //         delete Memory.rooms[roomName];
+    //     }
+    // }
+
     for (const roomName in Game.rooms) {
         const room: Room = Game.rooms[roomName];
 
@@ -385,7 +390,7 @@ export const roomController = function (): void {
 
         if (room.memory.roomFillJob.labInMineral == undefined) room.memory.roomFillJob.labInMineral = []
 
-        if (!room.my) continue;
+        if (!room.my) continue
 
         const debug = false && Game.shard.name == 'shard3'
         var cpu = Game.cpu.getUsed()
