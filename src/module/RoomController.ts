@@ -257,11 +257,14 @@ function processTerminalResource(room: Room) {
 
     // 终端发送任务
     for (let jobId in room.memory.terminalSendJob) {
+
         const sendTargetRoom = room.memory.terminalSendJob[jobId].targetRoom
         const resourceType = room.memory.terminalSendJob[jobId].resourceType
         let sendAmount = room.memory.terminalSendJob[jobId].amount
         if (room.memory.terminalAmount[resourceType] == undefined) room.memory.terminalAmount[resourceType] = 0
         room.memory.terminalAmount[resourceType] += sendAmount
+
+        if (room.name == centerStorage && resourceType == RESOURCE_GHODIUM && room.getResource(RESOURCE_GHODIUM, true, true) <= 6000) continue
 
         if (room.terminal.store.getFreeCapacity() == 0 && room.terminal.store[resourceType] > 0) {
             sendAmount = room.terminal.store[resourceType]

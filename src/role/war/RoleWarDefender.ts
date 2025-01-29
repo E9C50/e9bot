@@ -1,4 +1,4 @@
-import { getClosestTarget } from "utils"
+import { getClosestLineTarget, getClosestTarget } from "utils"
 
 export default (data: CreepData): ICreepConfig => ({
     isNeed: (room: Room, creepName: string) => {
@@ -25,7 +25,7 @@ export default (data: CreepData): ICreepConfig => ({
                 enemyTarget = creep.room.enemies[0]
             }
 
-            const closestRamOrWall = getClosestTarget(enemyTarget.pos, [...creep.room.ramparts, ...creep.room.walls])
+            const closestRamOrWall = getClosestLineTarget(enemyTarget.pos, [...creep.room.ramparts, ...creep.room.walls])
             if (closestRamOrWall != undefined) {
                 const result = creep.moveTo(closestRamOrWall.pos.x, closestRamOrWall.pos.y, {
                     costCallback: function (roomName, costMatrix) {

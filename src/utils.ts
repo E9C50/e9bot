@@ -66,13 +66,25 @@ export const getBodyConfig = function (room: Room, bodyConfigs: BodySet[], force
 }
 
 /**
- * 获取两个Position的距离
+ * 获取两个Position的距离（切比雪夫距离）
  * @param pos1
  * @param pos2
  * @returns
  */
 export const getDistance = function (pos1: RoomPosition, pos2: RoomPosition): number {
     return Math.max(Math.abs(pos1.x - pos2.x), Math.abs(pos1.y - pos2.y))
+}
+
+/**
+ * 获取两个Position的距离（直线距离）
+ * @param pos1
+ * @param pos2
+ * @returns
+ */
+export const getLineDistance = function (pos1: RoomPosition, pos2: RoomPosition): number {
+    const dx = pos1.x - pos2.x; // x 方向差值
+    const dy = pos1.y - pos2.y; // y 方向差值
+    return Math.sqrt(dx * dx + dy * dy); // 欧几里得距离
 }
 
 /**
@@ -87,6 +99,27 @@ export const getClosestTarget = function <T extends Creep | Structure | Construc
 
     for (let index in targetList) {
         let targetRange = getDistance(source, targetList[index].pos)
+        if (targetRange < minRange) {
+            minRange = targetRange
+            closest = targetList[index]
+        }
+    }
+
+    return closest
+}
+
+/**
+ * 寻找最近的目标
+ * @param source
+ * @param targetList
+ * @returns
+ */
+export const getClosestLineTarget = function <T extends Creep | Structure | ConstructionSite>(source: RoomPosition, targetList: T[]): T {
+    let closest: T = targetList[0]
+    let minRange: number = Infinity
+
+    for (let index in targetList) {
+        let targetRange = getLineDistance(source, targetList[index].pos)
         if (targetRange < minRange) {
             minRange = targetRange
             closest = targetList[index]

@@ -70,22 +70,28 @@ export default (data: CreepData): ICreepConfig => ({
         // 敌人在范围内就攻击
         if (enemyTarget != undefined) {
             const isAttack = enemyTarget.body.filter(body => body.type == 'attack').length > 0
-            // if (enemyTarget != undefined && creep.pos.getRangeTo(enemyTarget.pos) < 3 && isAttack) {
-            //     creep.moveTo(getOppositePosition(creep.pos, enemyTarget.pos))
-            // } else {
-            //     creep.moveTo(targetFlag)
-            // }
+            if (enemyTarget != undefined && creep.pos.getRangeTo(enemyTarget.pos) < 3 && isAttack) {
+                creep.moveTo(getOppositePosition(creep.pos, enemyTarget.pos))
+            } else {
+                creep.moveTo(targetFlag)
+            }
 
             if (creep.pos.inRangeTo(enemyTarget, 1)) {
                 creep.rangedMassAttack()
+                // if (creep.room.my) {
+                //     creep.room.towers.forEach(tower => {
+                //         if (enemyTarget != undefined) tower.attack(enemyTarget)
+                //     })
+                // }
             } else if (creep.pos.inRangeTo(enemyTarget, 3)) {
                 creep.rangedAttack(enemyTarget)
-                if (creep.room.my) {
-                    creep.room.towers.forEach(tower => {
-                        if (enemyTarget != undefined) tower.attack(enemyTarget)
-                    })
-                }
+                // if (creep.room.my) {
+                //     creep.room.towers.forEach(tower => {
+                //         if (enemyTarget != undefined) tower.attack(enemyTarget)
+                //     })
+                // }
             }
+            creep.moveTo(enemyTarget)
         }
 
 

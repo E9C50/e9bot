@@ -105,9 +105,9 @@ export default class LabExtension extends StructureLab {
     }
 
     public doWork(): void {
-        // const thisLabConfig = this.room.memory.roomLabConfig.singleLabConfig[this.id]
-        // if (thisLabConfig == undefined || !thisLabConfig.boostMode) {
-        //     this.labReactionWork()
-        // }
+        const thisLabConfig = this.room.memory.roomLabConfig.singleLabConfig[this.id]
+        if (thisLabConfig == undefined || !thisLabConfig.boostMode) {
+            this.labReactionWork()
+        }
     }
 }

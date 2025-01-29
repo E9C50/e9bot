@@ -12,7 +12,7 @@ import { roleAdvEnum, roleBaseEnum, roleWarEnum, spawnPriority, warModeRole } fr
  * @returns
  */
 function addCreepConfig(room: Room, creepRole: CreepRoleConstant, creepName: string, creepData: CreepData = {}, isTeam: boolean = false): string {
-    // if (Memory.warMode[room.name] && !warModeRole.includes(creepRole)) return ''
+    if (Memory.warMode[room.name] && !warModeRole.includes(creepRole)) return ''
     const creepNameHash = creepRole.toUpperCase() + '_' + sha1String(creepName)
     const priority = spawnPriority[creepRole]
     room.memory.creepConfig[creepNameHash] = {
@@ -111,13 +111,6 @@ function releaseBaseCreepConfig(): void {
                 const creepBuilderName1 = room.name + '_BUILDER_STORAGE_1'
                 addCreepConfig(room, roleBaseEnum.BUILDER, creepBuilderName0, creepBuilderMemory)
                 addCreepConfig(room, roleBaseEnum.BUILDER, creepBuilderName1, creepBuilderMemory)
-
-                if (room.name == 'E41N8') {
-                    const creepBuilderName2 = room.name + '_BUILDER_STORAGE_2'
-                    const creepBuilderName3 = room.name + '_BUILDER_STORAGE_3'
-                    addCreepConfig(room, roleBaseEnum.BUILDER, creepBuilderName2, creepBuilderMemory)
-                    addCreepConfig(room, roleBaseEnum.BUILDER, creepBuilderName3, creepBuilderMemory)
-                }
             }
 
             // 每50000能量发布一个修理工，8级以下只发布一个
@@ -129,6 +122,7 @@ function releaseBaseCreepConfig(): void {
                 repairerCount = 1
 
                 if (room.name == 'E37N7') repairerCount = 4
+                if (room.name == 'E41N8') repairerCount = 4
                 for (let i = 0; i < repairerCount; i++) {
                     const creepRepairerName = room.name + '_REPAIRER_STORAGE' + i
                     addCreepConfig(room, roleBaseEnum.REPAIRER, creepRepairerName, creepRepairerMemory)
@@ -397,10 +391,10 @@ function releaseWarCreepConfig(): void {
                     }
                 }
 
-                // 每个分组，每40个Heal出一个蓝球
-                for (let j = 0; j < enemyHealCount / 40; j++) {
+                // 有蓝球就出一个蓝球
+                if (enemyRangeCount > 0) {
                     const memory: DefenderData = { targetEnemy: enemyGroup[i][0].id }
-                    const rCreepName = room.name + '_RDEFENDER_' + i + j
+                    const rCreepName = room.name + '_RDEFENDER_' + i
                     const creepNameHash = addCreepConfig(room, roleWarEnum.RDEFENDER, rCreepName, memory);
                     if (Game.creeps[creepNameHash] != undefined && Game.creeps[Game.creeps[creepNameHash].memory.data['targetEnemy']] == undefined) {
                         Game.creeps[creepNameHash].memory.data['targetEnemy'] = enemyGroup[i][0].id
@@ -509,7 +503,7 @@ export const creepWorkController = function (): void {
     var workCpu: [string, number][] = []
     Object.values(Game.creeps).forEach(creep => {
         if (creep.memory.isTeam) return
-        // if (Object.values(Memory.warMode).filter(warMode => warMode).length > 0 && !warModeRole.includes(creep.memory.role)) return
+        if (Object.values(Memory.warMode).filter(warMode => warMode).length > 0 && !warModeRole.includes(creep.memory.role)) return
 
         const cpu = Game.cpu.getUsed()
         if (creep.memory.role == undefined) creep.suicide()

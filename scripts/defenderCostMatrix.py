@@ -113,19 +113,20 @@ def process_room(room_name):
     api.set_memory(f"rooms.{room_name}.defenderCostMatrix", memory_text, "shard3")
 
 
-# if __name__ == "__main__":
-#     USER = data["main"]["email"]
-#     PASSWORD = data["main"]["password"]
-#     api = screepsapi.API(USER, PASSWORD, host="screeps.com", secure=True)
-#     process_room("E35N1")
-#     process_room("E35N3")
-#     process_room("E34N3")
-#     process_room("E36N2")
-#     process_room("E37N7")
-
 if __name__ == "__main__":
-    USER = data["avarice"]["email"]
-    PASSWORD = data["avarice"]["password"]
-    api = screepsapi.API(USER, PASSWORD, host="10.1.1.50:21025", secure=False)
-    process_room("E5S1")
-    process_room("E7S1")
+    USER = data["main"]["email"]
+    PASSWORD = data["main"]["password"]
+    api = screepsapi.API(USER, PASSWORD, host="screeps.com", secure=True)
+    process_room("E35N1")
+    process_room("E35N3")
+    process_room("E34N3")
+    process_room("E36N2")
+    process_room("E37N7")
+    process_room("E41N8")
+
+# if __name__ == "__main__":
+#     USER = data["avarice"]["email"]
+#     PASSWORD = data["avarice"]["password"]
+#     api = screepsapi.API(USER, PASSWORD, host="10.1.1.50:21025", secure=False)
+#     process_room("E5S1")
+#     process_room("E7S1")

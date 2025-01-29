@@ -21,7 +21,7 @@ export default (data: CreepData): ICreepConfig => ({
         const creepData: RepairerData = data as RepairerData
         const sourceTarget: StructureContainer | StructureStorage = Game.getObjectById(creepData.sourceId) as StructureContainer | StructureStorage
 
-        if (sourceTarget.store[RESOURCE_ENERGY] == 0) {
+        if (sourceTarget == undefined || sourceTarget.store[RESOURCE_ENERGY] == 0) {
             creep.say("💤")
             return true
         }

@@ -82,7 +82,7 @@ export default (data: CreepData): ICreepConfig => ({
         }
 
         // 没有Container也没有工地，那就创建
-        if (constructionSite == undefined && container == undefined && link == undefined) {
+        if (constructionSite == undefined && container == undefined && link == undefined && creep.room.level < 8) {
             creep.room.createConstructionSite(creep.pos.x, creep.pos.y, STRUCTURE_CONTAINER)
             creep.room.memory.needUpdateCache = true
         }

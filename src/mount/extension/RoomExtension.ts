@@ -414,7 +414,7 @@ export default class RoomExtension extends Room {
     /**
      * 发射核弹
      */
-    public launchNuker(): boolean {
+    public launchNuke(): boolean {
         const nukeFlag = Game.flags['nuke']
         if (!this.my || this.nuker == undefined || nukeFlag == undefined) return false
         if (this.nuker.cooldown != 0 || this.nuker.store[RESOURCE_GHODIUM] < 5000 || this.nuker.store[RESOURCE_ENERGY] < 300000) return false

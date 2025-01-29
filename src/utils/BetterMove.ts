@@ -591,7 +591,7 @@ function trySwap(creep, pos, bypassHostileCreeps, ignoreCreeps) {     // ERR_NOT
         }
         for (let c of obstacleCreeps) {
             if (c.my) {
-                if (c.memory.dontPullMe) {    // 第1种不可穿情况：挡路的creep设置了不对穿
+                if (c.memory.dontPullMe && (c.memory.role == 'manager' || c.memory.role == creep.memory.role)) {    // 第1种不可穿情况：挡路的creep设置了不对穿
                     return ERR_INVALID_TARGET;
                 }
                 if (creepMoveCache[c.name] != Game.time && originMove.call(c, getDirection(pos, creep.pos)) == ERR_NO_BODYPART && creep.pull) {

@@ -60,8 +60,7 @@ export default class ConsoleExtension {
             const nukerCooldown = room.nuker?.cooldown || 0
             const nukerLeftTime = ((room.nuker?.cooldown || 0) * 2.5 / 60 / 60).toFixed(2)
             let nukerReady = room.nuker?.cooldown == 0 ? '✅' : '❌';
-            const nukerResourceReady = room.nuker?.store[RESOURCE_ENERGY] == 300000 && room.nuker?.store[RESOURCE_GHODIUM] == 5000
-            if (!nukerResourceReady) nukerReady = '🔁'
+            if (room.nuker != undefined && (room.nuker.store[RESOURCE_ENERGY] < 300000 || room.nuker.store[RESOURCE_GHODIUM] < 5000)) nukerReady = '🔁'
 
             let labWorking = false
             const labConfig = room.memory.roomLabConfig

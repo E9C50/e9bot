@@ -1,3 +1,11 @@
+function callTower(target: Creep) {
+    if (target.room.towers.filter(tower => tower.store[RESOURCE_ENERGY] > 0).length == target.room.towers.length) {
+        target.room.towers.forEach(tower => {
+            tower.attack(target)
+        })
+    }
+}
+
 export default (data: CreepData): ICreepConfig => ({
     isNeed: (room: Room, creepName: string) => {
         const creepData: AttackerData = data as AttackerData
@@ -26,8 +34,10 @@ export default (data: CreepData): ICreepConfig => ({
 
         const enemies = creep.room.enemies.filter(enemy => enemy.pos.inRangeTo(creep, 10))
         if (enemies.length > 0) {
-            creep.attack(enemies[0])
             creep.moveTo(enemies[0])
+            if (creep.attack(enemies[0]) == OK) {
+                callTower(enemies[0])
+            }
             return true
         }
 
