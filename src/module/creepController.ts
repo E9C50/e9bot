@@ -109,9 +109,9 @@ function releaseBaseCreepConfig(): void {
             const creepBuilderMemory: BuilderData = { sourceId: room.storage.id, buildTarget: '' }
             if (roles[roleBaseEnum.BUILDER](creepBuilderMemory).isNeed(room, '')) {
                 const creepBuilderName0 = room.name + '_BUILDER_STORAGE_0'
-                const creepBuilderName1 = room.name + '_BUILDER_STORAGE_1'
+                // const creepBuilderName1 = room.name + '_BUILDER_STORAGE_1'
                 addCreepConfig(room, roleBaseEnum.BUILDER, creepBuilderName0, creepBuilderMemory)
-                addCreepConfig(room, roleBaseEnum.BUILDER, creepBuilderName1, creepBuilderMemory)
+                // addCreepConfig(room, roleBaseEnum.BUILDER, creepBuilderName1, creepBuilderMemory)
             }
 
             // 每50000能量发布一个修理工，8级以下只发布一个
@@ -120,7 +120,7 @@ function releaseBaseCreepConfig(): void {
                 var repairerCount = Math.floor(room.storage.store[RESOURCE_ENERGY] / 100000) + 1;
                 if (room.controller && room.controller.level < 6) repairerCount = 1;
 
-                repairerCount = 1
+                repairerCount = Math.min(repairerCount, 2)
 
                 for (let i = 0; i < repairerCount; i++) {
                     const creepRepairerName = room.name + '_REPAIRER_STORAGE' + i
@@ -541,7 +541,7 @@ export const creepWorkController = function (): void {
     });
 
     // Debug信息
-    const debug = false && Game.shard.name == 'shard3'
+    const debug = true && Game.shard.name == 'shard3'
     if (debug) {
         workCpu = workCpu.sort((a, b) => b[1] - a[1])
         for (let role in Object.keys(workCpu)) {

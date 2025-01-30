@@ -138,7 +138,7 @@ export default class RoomExtension extends Room {
             this[privateKey] = walls;
             return walls
         } else {
-            const walls: Structure[] = [...this.ramparts].filter(structure => {
+            const walls: Structure[] = [...this.ramparts, ...this.walls].filter(structure => {
                 var filterRam = true;
                 var filterWall = true;
                 if (structure.structureType == STRUCTURE_RAMPART) {

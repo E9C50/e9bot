@@ -66,7 +66,7 @@ export default class ConsoleExtension {
         ];
 
         let html = '<html><style>tr,th,td{text-align:center} table{width:120%}</style>';
-        html += '<body><table border="1"><thead><tr><th>房间名称</th><th>核弹就绪</th><th>核弹CD</th><th>核弹剩余时间</th><th>Lab配方</th><th>Lab工作状态</th>';
+        html += '<body><table border="1"><thead><tr><th>房间名称</th><th>核弹就绪</th><th>核弹CD</th><th>核弹剩余时间</th><th>Lab配方</th><th>Lab工作状态</th><th>最薄墙壁厚度</th>';
 
         resourceTypes.forEach(resourceType => {
             html += `<th>${resourceType}</th>`;
@@ -93,8 +93,12 @@ export default class ConsoleExtension {
                 }
             }
 
+            let minWall: number = Infinity
+            room.walls.forEach(ram => minWall = ram.hits < minWall ? ram.hits : minWall)
+            room.ramparts.forEach(ram => minWall = ram.hits < minWall ? ram.hits : minWall)
+
             html += `<tr><td>${room.name}</td><td>${nukerReady}</td><td>${nukerCooldown}</td><td>${nukerLeftTime} h</td>`;
-            html += `<td>${labReaction || '-'}</td><td>${labWorking ? '✅' : '❌'}</td>`;
+            html += `<td>${labReaction || '-'}</td><td>${labWorking ? '✅' : '❌'}</td><td>${(minWall / 1000000).toFixed(2)} M</td>`;
 
             // 添加资源数量的单元格，并根据数量设置颜色
             resourceTypes.forEach(resourceType => {

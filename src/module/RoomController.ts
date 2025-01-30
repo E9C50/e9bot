@@ -31,15 +31,11 @@ function updateLabReactionConfig(room: Room): void {
     for (let config in reactionConfig) {
         const resourceType = config as ResourceConstant
         if (room.getResource(resourceType, true, false, true, true) >= reactionConfig[config]) continue
-
         const labReactionSource = reactionSource[resourceType]
         const source1Amount = room.getResource(labReactionSource[0], true, false, true, true)
         const source2Amount = room.getResource(labReactionSource[1], true, false, true, true)
-
         if (source1Amount > 1000 && source2Amount > 1000) {
-            console.log(`${room.name} Lab合成配置更新前：${room.memory.roomLabConfig.labReactionConfig}`)
             room.memory.roomLabConfig.labReactionConfig = resourceType
-            console.log(`${room.name} Lab合成配置更新后：${room.memory.roomLabConfig.labReactionConfig}`)
             console.log(`${room.name} notify_Lab合成配置更新：${room.memory.roomLabConfig.labReactionConfig}`)
             return
         }
@@ -250,8 +246,8 @@ function processTerminalResource(room: Room) {
     room.memory.terminalAmount = {}
     room.memory.terminalAmount['energy'] = 50000
 
-    if (room.name == 'E35N3') room.memory.terminalAmount['K'] = 91000
-    if (room.name == 'E35N1') room.memory.terminalAmount['L'] = 97800
+    if (room.name == 'E35N3') room.memory.terminalAmount['K'] = 2000
+    if (room.name == 'E35N1') room.memory.terminalAmount['L'] = 2000
 
     // 终端发送任务
     for (let jobId in room.memory.terminalSendJob) {
@@ -293,10 +289,10 @@ function processTerminalResource(room: Room) {
         console.log(`[${room.name}] -> [${centerStorage}] ${room.mineral.mineralType} ${mineralAmount - 10000}`)
     }
 
-    // 检查缺的资源，向中央仓库下单
+    // 检查缺的资源，小于阈值80%，向中央仓库下单；多的矿，大于阈值20%发到中央仓库
     Object.keys(defaultAutoResource).forEach(resType => {
         const resourceType = resType as ResourceConstant
-        if (room.getResource(resourceType, true, true) < (defaultAutoResource[resType] * 0.6)) {
+        if (room.getResource(resourceType, true, true) < (defaultAutoResource[resType] * 0.8)) {
             const jobExists = Object.values(Game.rooms[centerStorage].memory.terminalSendJob)
                 .filter(job => job.resourceType == resType && job.targetRoom == room.name).length > 0
             const needAmount = defaultAutoResource[resType] - room.getResource(resourceType, true, true)
@@ -305,6 +301,17 @@ function processTerminalResource(room: Room) {
             if (centerHaveRes && !jobExists) {
                 Game.rooms[centerStorage].sendResource(room.name, resourceType, needAmount)
                 console.log(`[${centerStorage}] -> [${room.name}] ${resType} ${needAmount}`)
+            }
+        }
+
+        if (room.getResource(resourceType, true, true) > (defaultAutoResource[resType] * 1.2)) {
+            const jobExists = Object.values(room.memory.terminalSendJob)
+                .filter(job => job.resourceType == resType && job.targetRoom == centerStorage).length > 0
+            const sendAmount = room.getResource(resourceType, true, true) - defaultAutoResource[resType]
+
+            if (!jobExists) {
+                room.sendResource(centerStorage, resourceType, sendAmount)
+                console.log(`[${room.name}] -> [${centerStorage}] ${resType} ${sendAmount}`)
             }
         }
     });
