@@ -120,7 +120,7 @@ function releaseBaseCreepConfig(): void {
                 var repairerCount = Math.floor(room.storage.store[RESOURCE_ENERGY] / 100000) + 1;
                 if (room.controller && room.controller.level < 6) repairerCount = 1;
 
-                repairerCount = Math.min(repairerCount, 2)
+                repairerCount = Math.min(repairerCount, 1)
 
                 for (let i = 0; i < repairerCount; i++) {
                     const creepRepairerName = room.name + '_REPAIRER_STORAGE' + i
@@ -306,11 +306,13 @@ function releaseJobsCreepConfig(): void {
         }
 
         // 戳控制器的爬
-        const caFlag = Game.flags[room.name + '_CA']
-        if (caFlag != undefined && !caFlag.room?.my) {
-            const caMemory: AttackerData = { targetFlag: caFlag.name }
-            const creepName = room.name + '_CA_' + caFlag.name
-            addCreepConfig(room, roleWarEnum.CONTROLLER_ATTACKER, creepName, caMemory);
+        for (let i = 0; i < 20; i++) {
+            const caFlag = Game.flags[room.name + '_CA' + i]
+            if (caFlag != undefined && !caFlag.room?.my) {
+                const caMemory: AttackerData = { targetFlag: caFlag.name }
+                const creepName = room.name + '_CA_' + caFlag.name
+                addCreepConfig(room, roleWarEnum.CONTROLLER_ATTACKER, creepName, caMemory);
+            }
         }
 
         // // 发布 healer
@@ -403,6 +405,16 @@ function releaseWarCreepConfig(): void {
             }
         }
 
+        // 发布拆墙大黄
+        for (let i = 0; i < 20; i++) {
+            const dismFlag = Game.flags[room.name + '_DIS' + i]
+            if (dismFlag != undefined) {
+                const dismFlagMemory: AttackerData = { targetFlag: dismFlag.name }
+                const creepName = room.name + '_DIS_' + dismFlag.name
+                addCreepConfig(room, roleWarEnum.DISMANTLER, creepName, dismFlagMemory);
+            }
+        }
+
         // 发布一体机小队
         for (let i = 0; i < 20; i++) {
             const flagName = room.name + '_T2INTE_' + i
@@ -428,6 +440,24 @@ function releaseWarCreepConfig(): void {
             if (targetFlag != undefined) {
                 const creepName1 = room.name + '_T2ATTACK_' + flagName
                 const creepNameHash1 = addCreepConfig(room, roleWarEnum.ATTACKER, creepName1, {}, true);
+
+                const creepName2 = room.name + '_T2HEAL_' + flagName
+                const creepNameHash2 = addCreepConfig(room, roleWarEnum.HEALER, creepName2, {}, true);
+
+                room.memory.teamConfig[flagName] = {
+                    teamFlag: flagName, teamType: 'duo',
+                    creepNameList: [creepNameHash1, creepNameHash2]
+                }
+            }
+        }
+
+        // 黄球二人小队
+        for (let i = 0; i < 20; i++) {
+            const flagName = room.name + '_T2DIS_' + i
+            const targetFlag = Game.flags[flagName]
+            if (targetFlag != undefined) {
+                const creepName1 = room.name + '_T2DIS_' + flagName
+                const creepNameHash1 = addCreepConfig(room, roleWarEnum.DISMANTLER, creepName1, {}, true);
 
                 const creepName2 = room.name + '_T2HEAL_' + flagName
                 const creepNameHash2 = addCreepConfig(room, roleWarEnum.HEALER, creepName2, {}, true);

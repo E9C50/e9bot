@@ -16,6 +16,7 @@ import RoleWarAttacker from "./war/RoleWarAttacker"
 import RoleWarControllerAttacker from "./war/RoleWarControllerAttacker"
 import RoleWarDefender from "./war/RoleWarDefender"
 import RoleWarDefenderRanged from "./war/RoleWarDefenderRanged"
+import RoleWarDismantle from "./war/RoleWarDismantle"
 import RoleWarHealer from "./war/RoleWarHealer"
 import RoleWarIntegrate from "./war/RoleWarIntegrate"
 
@@ -43,7 +44,7 @@ const creepWork: CreepWork = {
     attacker: RoleWarAttacker,
     healer: RoleWarHealer,
     rAttacker: notImplemented,
-    dismantler: notImplemented,
+    dismantler: RoleWarDismantle,
     integrate: RoleWarIntegrate,
     defender: RoleWarDefender,
     rdefender: RoleWarDefenderRanged,

@@ -22,13 +22,13 @@ export default (data: CreepData): ICreepConfig => ({
 
         if (sourcePos == undefined) return true
 
-        if ((creep.room.my || creep.room.controller == undefined) && creep.pickupDroppedResource(true, 50)) return true
-
         // 如果不在目标房间，则去往目标房间
         if (creep.room.name != sourcePos.roomName) {
             creep.moveTo(sourcePos)
             return true
         }
+
+        if (creep.pickupDroppedResource(true, 50)) return true
 
         if (creep.room.my && creep.hits < creep.hitsMax && creep.room.towers.length > 0) creep.room.towers[0].heal(creep)
 
@@ -142,6 +142,11 @@ export default (data: CreepData): ICreepConfig => ({
 
         if (targetPos == undefined) {
             creep.say('❓')
+            return true
+        }
+
+        if (creep.room.name == 'E43N11' && creep.pos.y < 24) {
+            creep.moveTo(new RoomPosition(22, 46, 'E43N11'), { visualizePathStyle: {} })
             return true
         }
 

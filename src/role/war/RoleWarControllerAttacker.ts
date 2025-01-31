@@ -1,5 +1,3 @@
-import { getClosestTarget } from "utils"
-
 export default (data: CreepData): ICreepConfig => ({
     isNeed: (room: Room, creepName: string) => {
         const creepData: AttackerData = data as AttackerData
@@ -17,13 +15,23 @@ export default (data: CreepData): ICreepConfig => ({
         const targetFlag: Flag = Game.flags[creepData.targetFlag]
         if (targetFlag == undefined) return false
 
-        if (!creep.pos.isNearTo(targetFlag)) {
+        if (Game.flags[creep.name] != undefined && !creep.pos.isEqualTo(Game.flags[creep.name])) {
+            creep.moveTo(Game.flags[creep.name])
+            return true
+        } else if (!creep.pos.isNearTo(targetFlag)) {
             creep.moveTo(targetFlag)
             return true
         }
 
-        if (creep.room.controller && creep.pos.isNearTo(creep.room.controller)) {
-            if (creep.attackController(creep.room.controller) == OK) creep.suicide()
+        if (creep.room.controller) {
+            if ((creep.room.controller.upgradeBlocked == undefined || creep.room.controller.upgradeBlocked <= 1) && creep.attackController(creep.room.controller) == OK) {
+                targetFlag.remove()
+                creep.suicide()
+            }
+            if (creep.room.controller.upgradeBlocked > 700) {
+                targetFlag.remove()
+                creep.suicide()
+            }
         }
 
         return true

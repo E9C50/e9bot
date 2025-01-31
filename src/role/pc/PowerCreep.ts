@@ -33,7 +33,7 @@ export const powerSpawnController = function (): void {
 
         // 不在指定房间，就过去
         if (pc.room.name != pcFlag.pos.roomName) {
-            pc.moveTo(new RoomPosition(25, 25, pcFlag.pos.roomName), { swampCost: 1, plainCost: 1, visualizePathStyle: {} })
+            pc.moveTo(pcFlag, { swampCost: 1, plainCost: 1, visualizePathStyle: {} })
             return
         }
 
@@ -43,9 +43,14 @@ export const powerSpawnController = function (): void {
             return
         }
 
+        // 搓Ops
+        if (pc.isPowerAvailable(PWR_GENERATE_OPS)) {
+            pc.usePower(PWR_GENERATE_OPS)
+        }
+
         // Extension填充技能
         if (pc.isPowerAvailable(PWR_OPERATE_EXTENSION)) {
-            if (pc.room.energyAvailable < (pc.room.energyCapacityAvailable * 0.6)) {
+            if (pc.room.energyAvailable < (pc.room.energyCapacityAvailable * 0.8)) {
                 if (pc.room.storage != undefined) {
                     if (getDistance(pc.pos, pc.room.storage.pos) >= 3) {
                         pc.moveTo(pc.room.storage)
@@ -73,6 +78,18 @@ export const powerSpawnController = function (): void {
                     return
                 }
                 pc.usePower(PWR_OPERATE_STORAGE, pc.room.storage)
+                return
+            }
+        }
+
+        // PowerSpawn加速技能
+        if (pc.isPowerAvailable(PWR_OPERATE_POWER)) {
+            if (pc.room.powerSpawn != undefined) {
+                if (getDistance(pc.pos, pc.room.powerSpawn.pos) >= 3) {
+                    pc.moveTo(pc.room.powerSpawn)
+                    return
+                }
+                pc.usePower(PWR_OPERATE_POWER, pc.room.powerSpawn)
                 return
             }
         }

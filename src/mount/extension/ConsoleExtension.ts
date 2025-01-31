@@ -66,7 +66,7 @@ export default class ConsoleExtension {
         ];
 
         let html = '<html><style>tr,th,td{text-align:center} table{width:120%}</style>';
-        html += '<body><table border="1"><thead><tr><th>房间名称</th><th>核弹就绪</th><th>核弹CD</th><th>核弹剩余时间</th><th>Lab配方</th><th>Lab工作状态</th><th>最薄墙壁厚度</th>';
+        html += '<body><table border="1"><thead><tr><th>房间名称</th><th>核弹就绪</th><th>核弹CD</th><th>核弹剩余时间</th><th>Lab配方</th><th>Lab工作状态</th><th>容器占用</th><th>终端占用</th><th>最薄墙壁厚度</th>';
 
         resourceTypes.forEach(resourceType => {
             html += `<th>${resourceType}</th>`;
@@ -76,6 +76,14 @@ export default class ConsoleExtension {
 
         Object.values(Game.rooms).forEach(room => {
             if (!room.my) return;
+
+            const storageCapacity = room.storage?.store.getCapacity() || 0
+            const storageUsedCapacity = room.storage?.store.getUsedCapacity() || 0
+            const storagePercent = ((storageUsedCapacity / storageCapacity) * 100).toFixed(2)
+
+            const terminalCapacity = room.terminal?.store.getCapacity() || 0
+            const terminalUsedCapacity = room.terminal?.store.getUsedCapacity() || 0
+            const terminalPercent = ((terminalUsedCapacity / terminalCapacity) * 100).toFixed(2)
 
             const nukerCooldown = room.nuker?.cooldown || 0;
             const nukerLeftTime = ((room.nuker?.cooldown || 0) * 2.5 / 60 / 60).toFixed(2);
@@ -97,8 +105,25 @@ export default class ConsoleExtension {
             room.walls.forEach(ram => minWall = ram.hits < minWall ? ram.hits : minWall)
             room.ramparts.forEach(ram => minWall = ram.hits < minWall ? ram.hits : minWall)
 
-            html += `<tr><td>${room.name}</td><td>${nukerReady}</td><td>${nukerCooldown}</td><td>${nukerLeftTime} h</td>`;
-            html += `<td>${labReaction || '-'}</td><td>${labWorking ? '✅' : '❌'}</td><td>${(minWall / 1000000).toFixed(2)} M</td>`;
+            // 设置 storagePercent 的颜色
+            let storageColor = 'yellow'; // 默认黄色
+            if (parseFloat(storagePercent) > 80) {
+                storageColor = 'red';
+            } else if (parseFloat(storagePercent) < 50) {
+                storageColor = 'green';
+            }
+
+            // 设置 terminalPercent 的颜色
+            let terminalColor = 'yellow'; // 默认黄色
+            if (parseFloat(terminalPercent) > 80) {
+                terminalColor = 'red';
+            } else if (parseFloat(terminalPercent) < 50) {
+                terminalColor = 'green';
+            }
+
+            html += `<tr><td>${room.name}</td><td>${nukerReady}</td><td>${nukerCooldown}</td><td>${nukerLeftTime} h</td>`
+            html += `<td>${labReaction || '-'}</td><td>${labWorking ? '✅' : '❌'}</td>`
+            html += `<td style="color: ${storageColor};">${storagePercent} %</td><td style="color: ${terminalColor};">${terminalPercent} %</td><td>${(minWall / 1000000).toFixed(2)} M</td>`
 
             // 添加资源数量的单元格，并根据数量设置颜色
             resourceTypes.forEach(resourceType => {

@@ -51,7 +51,7 @@ export default (data: CreepData): ICreepConfig => ({
             return false
         }
 
-        if (creep.pickupDroppedResource(true, 1)) return true
+        // if (creep.pickupDroppedResource(true, 1)) return true
 
         // 身上有东西就放到Storage
         if (creep.store.getUsedCapacity() > 0) {

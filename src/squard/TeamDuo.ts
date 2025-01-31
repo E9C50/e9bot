@@ -10,10 +10,12 @@ function singleWork(creep: Creep, data: TeamConfig) {
     }
 
     let attackTarget: Creep | Structure | undefined = undefined;
+    let dismantleTarget: Creep | Structure | undefined = undefined;
     if (data.attackTarget != undefined) {
         attackTarget = Game.getObjectById<Creep>(data.attackTarget) as Creep
-    } else if (data.dismantleTarget != undefined) {
-        attackTarget = Game.getObjectById<Structure>(data.dismantleTarget) as Structure
+    }
+    if (data.dismantleTarget != undefined) {
+        dismantleTarget = Game.getObjectById<Structure>(data.dismantleTarget) as Structure
     }
 
     if (attackTarget != undefined) {
@@ -25,6 +27,9 @@ function singleWork(creep: Creep, data: TeamConfig) {
             }
         }
         if (uniqueBodyParts.includes(ATTACK)) creep.attack(attackTarget)
+    }
+    if (dismantleTarget != undefined) {
+        if (uniqueBodyParts.includes(WORK)) creep.dismantle(dismantleTarget)
     }
 }
 
@@ -47,10 +52,10 @@ export default (data: TeamConfig): ITeamConfig => ({
         if (creep1 == undefined && creep2 == undefined) return false
 
         const rangeEnemies = creep1.room.enemies.filter(enemy => enemy.pos.inRangeTo(creep1, 5))
-        let targetPos: RoomPosition = rangeEnemies[0]?.pos || Game.flags[data.teamFlag]?.pos
+        let targetPos: RoomPosition = Game.flags[data.teamFlag]?.pos
         if (targetPos == undefined) return false
 
-        data.healTarget = undefined
+        data.healTarget = creep1.id
         if (creep1 != undefined && creep2 != undefined) {
             if (creep1.hits < creep2.hits) data.healTarget = creep1.id
             if (creep2.hits < creep1.hits) data.healTarget = creep2.id
@@ -60,13 +65,13 @@ export default (data: TeamConfig): ITeamConfig => ({
             data.healTarget = creep2.id
         }
 
-        let dismantleTarget = creep1.pos.findInRange(FIND_HOSTILE_STRUCTURES, 3)
-        dismantleTarget = dismantleTarget.sort((a, b) => a.hits - b.hits)
-
         const closestEnemies3 = creep1.pos.findInRange(FIND_HOSTILE_CREEPS, 3)
         const closestEnemies1 = creep1.pos.findInRange(FIND_HOSTILE_CREEPS, 1)
 
-        if (dismantleTarget.length > 0) data.dismantleTarget = dismantleTarget[0].id
+        if (creep1.room.name == targetPos.roomName) {
+            let dismantleTarget = targetPos.lookFor(LOOK_STRUCTURES)
+            if (dismantleTarget.length > 0) data.dismantleTarget = dismantleTarget[0].id
+        }
 
         if (closestEnemies3.length > 0) data.attackTarget = closestEnemies3[0].id
         if (closestEnemies1.length > 0) data.attackTarget = closestEnemies1[0].id
@@ -74,14 +79,12 @@ export default (data: TeamConfig): ITeamConfig => ({
         singleWork(creep1, data)
         singleWork(creep2, data)
 
-        if ((creep1 != undefined && creep1.fatigue == 0) && (creep2 != undefined && creep2.fatigue == 0)
-            && !creep1.pos.isEqualTo(targetPos) && (rangeEnemies.length > 0 && !creep1.pos.isNearTo(targetPos))) {
-
+        if ((creep1 != undefined && creep1.fatigue == 0) && (creep2 != undefined && creep2.fatigue == 0) && !creep1.pos.isEqualTo(targetPos)) {
             if (creep1 != undefined && (creep2 == undefined || creep1.room.name != creep2.room.name || creep1.pos.isNearTo(creep2))) {
-                creep1.moveTo(targetPos)
+                creep1.moveTo(targetPos, { visualizePathStyle: {} })
             }
             if (creep2 != undefined) {
-                creep2.moveTo(creep1 || targetPos)
+                creep2.moveTo(creep1 || targetPos, { visualizePathStyle: {} })
             }
         }
 

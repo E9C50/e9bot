@@ -2,11 +2,11 @@
 export const STRUCTURE_PRIVATEKEY_PERFIX = '_'
 export const STRUCTURE_MEMORYKEY_PERFIX = 'IDOF_'
 
-export const creepWhiteList = ['an_w', 'NoName_', 'MoSaSa', 'Kaoruko', 'keqing']
+export const creepWhiteList = ['NoName_', 'MoSaSa', 'Kaoruko', 'keqing']
 
 // 永不踏入这些房间
 export const findPathAvoidRooms = [
-    'E35N6', 'E36N3',
+    'E35N6', 'E36N3', 'E40N7',
     'E39N4', 'E38N1', 'E39N1', 'E32N2', 'E33N5'
 ]
 export const enableObserversFindPath = true
@@ -148,15 +148,20 @@ export const bodyConfigs: { [role in CreepRoleConstant]: BodySet[] } = {
     repairer: workerBodyConfigs,
     miner: workerBodyConfigs,
     filler: carryBodyConfigs,
+
     rBuilder: Array.from({ length: 8 }, () => ({ [WORK]: 39, [CARRY]: 1, [MOVE]: 10 })),
-    rFiller: Array.from({ length: 8 }, () => ({ [CARRY]: 40, [MOVE]: 10 })),
+    rFiller: Array.from({ length: 8 }, () => ({ [CARRY]: 25, [MOVE]: 25 })),
+
     processer: carryBodyConfigs,
     scout: Array.from({ length: 8 }, () => ({ [MOVE]: 1 })),
     claimer: Array.from({ length: 8 }, () => ({ [CLAIM]: 1, [MOVE]: 1 })),
-    cAttacker: Array.from({ length: 8 }, () => ({ [CLAIM]: 1, [MOVE]: 1 })),
+    cAttacker: Array.from({ length: 8 }, () => ({ [CLAIM]: 19, [MOVE]: 19 })),
 
-    healer: Array.from({ length: 8 }, () => ({ [TOUGH]: 4, [MOVE]: 10, [HEAL]: 36 })),
     attacker: Array.from({ length: 8 }, () => ({ [TOUGH]: 2, [ATTACK]: 36, [MOVE]: 10, [HEAL]: 2 })),
+    healer: Array.from({ length: 8 }, () => ({ [TOUGH]: 12, [MOVE]: 10, [HEAL]: 28 })),
+    // dismantler: Array.from({ length: 8 }, () => ({ [TOUGH]: 12, [WORK]: 28, [MOVE]: 10 })),
+    dismantler: Array.from({ length: 8 }, () => ({ [WORK]: 40, [MOVE]: 10 })),
+
     manager: [
         { [CARRY]: 5, [MOVE]: 1 },
         { [CARRY]: 10, [MOVE]: 1 },
@@ -201,7 +206,6 @@ export const bodyConfigs: { [role in CreepRoleConstant]: BodySet[] } = {
         // { [TOUGH]: 2, [RANGED_ATTACK]: 25, [HEAL]: 13, [MOVE]: 10 }, // 一级要塞
     ],
     rAttacker: [],
-    dismantler: [],
     defender: [
         { [ATTACK]: 2, [MOVE]: 2 },
         { [ATTACK]: 3, [MOVE]: 3 },
@@ -318,6 +322,10 @@ export const defaultAutoResource = {
 }
 
 export const reactionConfig = {
+    [RESOURCE_CATALYZED_ZYNTHIUM_ACID]: 30000,      // +300% dismantle 效率
+    [RESOURCE_ZYNTHIUM_ACID]: 30000,                // +200% dismantle 效率
+    [RESOURCE_ZYNTHIUM_HYDRIDE]: 30000,             // +100% dismantle 效率
+
     [RESOURCE_CATALYZED_LEMERGIUM_ACID]: 30000,     // +100% repair 和 build 效率但不增加其能量消耗
     [RESOURCE_LEMERGIUM_ACID]: 30000,               // +80% repair 和 build 效率但不增加其能量消耗
     [RESOURCE_LEMERGIUM_HYDRIDE]: 30000,            // +50% repair 和 build 效率但不增加其能量消耗
@@ -354,10 +362,6 @@ export const reactionConfig = {
     [RESOURCE_UTRIUM_ALKALIDE]: 30000,              // +400% harvest 效率
     [RESOURCE_UTRIUM_OXIDE]: 30000,                 // +200% harvest 效率
 
-    [RESOURCE_CATALYZED_ZYNTHIUM_ACID]: 30000,      // +300% dismantle 效率
-    [RESOURCE_ZYNTHIUM_ACID]: 30000,                // +200% dismantle 效率
-    [RESOURCE_ZYNTHIUM_HYDRIDE]: 30000,             // +100% dismantle 效率
-
     [RESOURCE_GHODIUM]: 30000,                      // Nuker    !!!
 
     [RESOURCE_ZYNTHIUM_KEANITE]: 30000,
@@ -372,10 +376,12 @@ export const roleBoostConfig: { [role in CreepRoleConstant]?: BoostTypeConstant[
     // repairer: [boostTypeEnum.BoostTypeBuild],
 
     rBuilder: [boostTypeEnum.BoostTypeUpgrade, boostTypeEnum.BoostTypeMove],
-    rFiller: [boostTypeEnum.BoostTypeCarry, boostTypeEnum.BoostTypeMove],
+    // rFiller: [boostTypeEnum.BoostTypeCarry, boostTypeEnum.BoostTypeMove],
 
     defender: [boostTypeEnum.BoostTypeAttack, boostTypeEnum.BoostTypeMove],
     rdefender: [boostTypeEnum.BoostTypeRangedAttack, boostTypeEnum.BoostTypeMove],
+
+    dismantler: [boostTypeEnum.BoostTypeDismantle, boostTypeEnum.BoostTypeMove, boostTypeEnum.BoostTypeTough],
 
     healer: [
         boostTypeEnum.BoostTypeHeal, boostTypeEnum.BoostTypeMove, boostTypeEnum.BoostTypeTough

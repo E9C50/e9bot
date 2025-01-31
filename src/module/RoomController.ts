@@ -14,12 +14,15 @@ function updateLabReactionConfig(room: Room): void {
     const lab1 = Game.getObjectById<StructureLab>(room.memory.roomLabConfig.sourceLab1)
     const lab2 = Game.getObjectById<StructureLab>(room.memory.roomLabConfig.sourceLab2)
 
+    const labReactionConfig = room.memory.roomLabConfig.labReactionConfig
+
     // source lab 还有资源就不更新
     if (lab1 && lab1.mineralType && lab1.store[lab1.mineralType] > 20 &&
-        lab2 && lab2.mineralType && lab2.store[lab1.mineralType] > 20) return
+        lab2 && lab2.mineralType && lab2.store[lab1.mineralType] > 20 &&
+        labReactionConfig && room.getResource(labReactionConfig) < reactionConfig[labReactionConfig]
+    ) return
 
     // 检查当前合成配置的原料是否足够
-    const labReactionConfig = room.memory.roomLabConfig.labReactionConfig
     if (labReactionConfig != undefined) {
         const labReactionSource = reactionSource[labReactionConfig]
         const source1Amount = room.getResource(labReactionSource[0], true, false, true, true)
@@ -247,7 +250,7 @@ function processTerminalResource(room: Room) {
     room.memory.terminalAmount['energy'] = 50000
 
     if (room.name == 'E35N3') room.memory.terminalAmount['K'] = 2000
-    if (room.name == 'E35N1') room.memory.terminalAmount['L'] = 2000
+    if (room.name == 'E35N1') room.memory.terminalAmount['L'] = 5000
 
     // 终端发送任务
     for (let jobId in room.memory.terminalSendJob) {

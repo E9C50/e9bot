@@ -435,6 +435,47 @@ function generateCostMatrix(room, pos) {
             }
         }
     }
+
+    if (room.name == 'E36N4') {
+        noStructureCostMat.set(20, 37, unWalkableCCost)
+        noStructureCostMat.set(20, 38, unWalkableCCost)
+        noStructureCostMat.set(20, 39, unWalkableCCost)
+        noStructureCostMat.set(20, 40, unWalkableCCost)
+        noStructureCostMat.set(20, 41, unWalkableCCost)
+
+        noStructureCostMat.set(20, 30, unWalkableCCost)
+        noStructureCostMat.set(20, 31, unWalkableCCost)
+
+        noStructureCostMat.set(20, 48, unWalkableCCost)
+        noStructureCostMat.set(20, 49, unWalkableCCost)
+
+        noStructureCostMat.set(15, 31, unWalkableCCost)
+        noStructureCostMat.set(16, 31, unWalkableCCost)
+
+        noStructureCostMat.set(25, 27, unWalkableCCost)
+        noStructureCostMat.set(26, 27, unWalkableCCost)
+        noStructureCostMat.set(27, 27, unWalkableCCost)
+
+        structureCostMat.set(20, 37, unWalkableCCost)
+        structureCostMat.set(20, 38, unWalkableCCost)
+        structureCostMat.set(20, 39, unWalkableCCost)
+        structureCostMat.set(20, 40, unWalkableCCost)
+        structureCostMat.set(20, 41, unWalkableCCost)
+
+        structureCostMat.set(20, 30, unWalkableCCost)
+        structureCostMat.set(20, 31, unWalkableCCost)
+
+        structureCostMat.set(20, 48, unWalkableCCost)
+        structureCostMat.set(20, 49, unWalkableCCost)
+
+        structureCostMat.set(15, 31, unWalkableCCost)
+        structureCostMat.set(16, 31, unWalkableCCost)
+
+        structureCostMat.set(25, 27, unWalkableCCost)
+        structureCostMat.set(26, 27, unWalkableCCost)
+        structureCostMat.set(27, 27, unWalkableCCost)
+    }
+
     for (let s of totalStructures) {
         if (s.structureType == STRUCTURE_INVADER_CORE) {  // 第1种可能无敌的建筑
             if (s.ticksToDeploy) {
@@ -1645,13 +1686,13 @@ if (!Creep.prototype.$upgradeController) {
     };
 }
 
-// if (!Creep.prototype.$dismantle) {
-//     Creep.prototype.$dismantle = Creep.prototype.dismantle;
-//     Creep.prototype.dismantle = function (...e) {
-//         this.memory.dontPullMe = true;
-//         return this.$dismantle(...e)
-//     };
-// }
+if (!Creep.prototype.$dismantle) {
+    Creep.prototype.$dismantle = Creep.prototype.dismantle;
+    Creep.prototype.dismantle = function (...e) {
+        this.memory.dontPullMe = true;
+        return this.$dismantle(...e)
+    };
+}
 
 if (!Creep.prototype.$harvest) {
     Creep.prototype.$harvest = Creep.prototype.harvest;

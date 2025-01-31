@@ -47,6 +47,7 @@ export default (data: CreepData): ICreepConfig => ({
         }
 
         creep.moveTo(targetPos)
+        if (creep.hits < creep.hitsMax) creep.heal(creep)
         return true
     },
 })
