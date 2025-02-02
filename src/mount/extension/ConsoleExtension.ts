@@ -1,51 +1,9 @@
 import { reactionSource } from "settings";
+import { Extension } from "typescript";
 
 export default class ConsoleExtension {
     public help(): string {
         return 'Hello World'
-    }
-
-    /**
-     * 在两个点之间放置road工地
-     * @param x1
-     * @param y1
-     * @param x2
-     * @param y2
-     * @param roomName
-     * @returns
-     */
-    public buildRoad(x1: number, y1: number, x2: number, y2: number, roomName: string): string {
-        const source: RoomPosition = new RoomPosition(x1, y1, roomName)
-        const target: RoomPosition = new RoomPosition(x2, y2, roomName)
-        let pathFind = PathFinder.search(source, target, { swampCost: 1 });
-
-        const room = Game.rooms[roomName]
-        if (room != undefined) {
-            pathFind.path.forEach(pos => {
-                room.createConstructionSite(pos, STRUCTURE_ROAD)
-            });
-            return pathFind.path.toString()
-        } else {
-            return '房间不可见'
-        }
-    }
-
-    /**
-     * 移除所有的工地
-     * @param roomName
-     */
-    public removeConstructionSites(roomName: string): string {
-        const room = Game.rooms[roomName]
-        if (room != undefined) {
-            room.constructionSites.forEach(constructionSite => {
-                if (constructionSite.progress == 0) {
-                    constructionSite.remove()
-                }
-            })
-            return '已移除所有建筑工地'
-        } else {
-            return '房间不可见'
-        }
     }
 
     /**
@@ -74,7 +32,7 @@ export default class ConsoleExtension {
 
         html += '</tr></thead><tbody>';
 
-        Object.values(Game.rooms).forEach(room => {
+        Object.values(Game.rooms).sort((a, b) => a.name == Memory.centerStorage ? -1 : 1).forEach(room => {
             if (!room.my) return;
 
             const storageCapacity = room.storage?.store.getCapacity() || 0
@@ -159,6 +117,63 @@ export default class ConsoleExtension {
     }
 
     /**
+     * 在两个点之间放置road工地
+     * @param x1
+     * @param y1
+     * @param x2
+     * @param y2
+     * @param roomName
+     * @returns
+     */
+    public buildRoad(x1: number, y1: number, x2: number, y2: number, roomName: string): string {
+        const source: RoomPosition = new RoomPosition(x1, y1, roomName)
+        const target: RoomPosition = new RoomPosition(x2, y2, roomName)
+        let pathFind = PathFinder.search(source, target, { swampCost: 1 });
+
+        const room = Game.rooms[roomName]
+        if (room != undefined) {
+            pathFind.path.forEach(pos => {
+                room.createConstructionSite(pos, STRUCTURE_ROAD)
+            });
+            return pathFind.path.toString()
+        } else {
+            return '房间不可见'
+        }
+    }
+
+    /**
+     * 移除所有的工地
+     * @param roomName
+     */
+    public removeConstructionSites(roomName: string): string {
+        const room = Game.rooms[roomName]
+        if (room != undefined) {
+            room.constructionSites.forEach(constructionSite => {
+                if (constructionSite.progress == 0) {
+                    constructionSite.remove()
+                }
+            })
+            return '已移除所有建筑工地'
+        } else {
+            return '房间不可见'
+        }
+    }
+
+    /**
+     * 移除所有的Wall
+     * @param roomName
+     */
+    public removeWalls(roomName: string): string {
+        const room = Game.rooms[roomName]
+        if (room != undefined) {
+            room.walls.forEach(wall => { wall.destroy() })
+            return '已移除所有Wall'
+        } else {
+            return '房间不可见'
+        }
+    }
+
+    /**
      * 重置合成配置
      */
     public resetReactionConfig(): boolean {
@@ -182,14 +197,30 @@ export default class ConsoleExtension {
     }
 
     /**
-     * 将资源全部发往中央仓库
+     * 将指定资源资源全部发往中央仓库
      */
-    public collectResource(resourceType: ResourceConstant): boolean {
+    public collectTypeResource(resourceType: ResourceConstant): boolean {
         Object.values(Game.rooms).forEach(room => {
             if (!room.my) return
             const resourceAmount = room.getResource(resourceType, true, true)
             if (resourceAmount > 0) {
                 room.sendResource(Memory.centerStorage, resourceType, resourceAmount)
+            }
+        })
+        return true
+    }
+
+    /**
+     * 将房间资源全部发往中央仓库
+     */
+    public collectRoomResource(roomName: string): boolean {
+        const room = Game.rooms[roomName]
+        if (!room.my) return true
+        if (!room.terminal) return true
+
+        Object.keys(room.terminal.store).forEach(resourceType => {
+            if (resourceType != RESOURCE_ENERGY) {
+                room.sendResource(Memory.centerStorage, resourceType as ResourceConstant, room.terminal?.store[resourceType])
             }
         })
         return true

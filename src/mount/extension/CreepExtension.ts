@@ -53,7 +53,8 @@ export default class CreepExtension extends Creep {
 
         // 优先捡起附近掉落的资源
         const droppedEnergy = this.room.droppedResource.filter(
-            resource => resource.amount > 100 && getDistance(resource.pos, this.pos) <= range && resource.resourceType != RESOURCE_ENERGY
+            resource => resource.amount > 100 && getDistance(resource.pos, this.pos) <= range
+            // && resource.resourceType != RESOURCE_ENERGY
         );
         if (droppedEnergy.length > 0) {
             const resource = droppedEnergy[0] as Resource

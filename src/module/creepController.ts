@@ -56,6 +56,8 @@ function releaseBaseCreepConfig(): void {
             addCreepConfig(room, roleAdvEnum.MANAGER, room.name + '_MANAGER', {})
         }
 
+        if (roomName == 'E41N7') continue
+
         if (roles[roleAdvEnum.PROCESSER]({}).isNeed(room, '')) {
             addCreepConfig(room, roleAdvEnum.PROCESSER, room.name + '_PROCESSER', {})
         }
@@ -343,7 +345,7 @@ function analyzeEnemyGroups(enemies) {
         let addedToGroup = false;
         for (const group of groups) {
             const closestInGroup = enemy.pos.findClosestByRange(group);
-            if (closestInGroup && enemy.pos.getRangeTo(closestInGroup) <= 3) {
+            if (closestInGroup && enemy.pos.getRangeTo(closestInGroup) <= 2) {
                 group.push(enemy);
                 addedToGroup = true
             }

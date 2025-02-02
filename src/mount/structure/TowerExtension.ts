@@ -1,7 +1,7 @@
 export default class TowerExtension extends StructureTower {
     public init(): void {
         if (!this.room.memory.roomFillJob.tower) this.room.memory.roomFillJob.tower = []
-        if (this.store.getFreeCapacity(RESOURCE_ENERGY) > 0 && !this.room.memory.roomFillJob.tower.includes(this.id)) {
+        if (this.store.getFreeCapacity(RESOURCE_ENERGY) > 100 && !this.room.memory.roomFillJob.tower.includes(this.id)) {
             this.room.memory.roomFillJob.tower.push(this.id)
         }
     }

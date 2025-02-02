@@ -340,7 +340,7 @@ interface AttackerData { targetFlag: string }
 interface HealerData { targetFlag: string, targetCreep?: string }
 interface IntegrateData { targetFlag: string, attackEnemy?: string }
 
-interface DefenderData { targetEnemy: string }
+interface DefenderData { targetEnemy: string, lastEnemy?: string }
 
 
 interface BodySet {

@@ -1,5 +1,17 @@
 import { getClosestLineTarget, getClosestTarget } from "utils"
 
+function callTower(target: Creep) {
+    if (target.my && target.hits < target.hitsMax) {
+        target.room.towers[0].heal(target)
+        return
+    }
+    if (target.room.towers.filter(tower => tower.store[RESOURCE_ENERGY] > 0).length == target.room.towers.length) {
+        target.room.towers.forEach(tower => {
+            tower.attack(target)
+        })
+    }
+}
+
 export default (data: CreepData): ICreepConfig => ({
     isNeed: (room: Room, creepName: string) => {
         return true
@@ -19,10 +31,14 @@ export default (data: CreepData): ICreepConfig => ({
         const creepData: DefenderData = data as DefenderData
         let enemyTargetId: string = creepData.targetEnemy
 
+        if (creep.hits < creep.hitsMax) {
+            callTower(creep)
+        }
+
         if (enemyTargetId != undefined) {
             let enemyTarget = Game.getObjectById(enemyTargetId) as Creep
             if (enemyTarget == undefined) {
-                enemyTarget = creep.room.enemies[0]
+                enemyTarget = creep.room.enemies[Math.floor(Math.random() * creep.room.enemies.length)]
             }
 
             const closestRamOrWall = getClosestLineTarget(enemyTarget.pos, [...creep.room.ramparts, ...creep.room.walls])

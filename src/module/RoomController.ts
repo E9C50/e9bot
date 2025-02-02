@@ -17,17 +17,18 @@ function updateLabReactionConfig(room: Room): void {
     const labReactionConfig = room.memory.roomLabConfig.labReactionConfig
 
     // source lab 还有资源就不更新
-    if (lab1 && lab1.mineralType && lab1.store[lab1.mineralType] > 20 &&
-        lab2 && lab2.mineralType && lab2.store[lab1.mineralType] > 20 &&
-        labReactionConfig && room.getResource(labReactionConfig) < reactionConfig[labReactionConfig]
-    ) return
+    // if (lab1 && lab1.mineralType && lab1.store[lab1.mineralType] > 20 &&
+    //     lab2 && lab2.mineralType && lab2.store[lab1.mineralType] > 20 &&
+    //     labReactionConfig && room.getResource(labReactionConfig) < reactionConfig[labReactionConfig]
+    // ) return
 
-    // 检查当前合成配置的原料是否足够
+    // 检查当前合成配置的原料是否足够，目标数量是否已完成
     if (labReactionConfig != undefined) {
         const labReactionSource = reactionSource[labReactionConfig]
         const source1Amount = room.getResource(labReactionSource[0], true, false, true, true)
         const source2Amount = room.getResource(labReactionSource[1], true, false, true, true)
-        if (source1Amount > 1000 && source2Amount > 1000) return
+        const targetEnough = room.getResource(labReactionConfig) < reactionConfig[labReactionConfig]
+        if (targetEnough && source1Amount > 1000 && source2Amount > 1000) return
     }
 
     // 不够就更新合成配方
@@ -147,13 +148,16 @@ function autoComputeCenterPos(room: Room, baseSize: number = 13) {
  * @param {*} room
  */
 function releaseConstructionSite(room: Room): void {
-    const roomCenter = room.memory.roomPosition.centerPos;
+    const planFlag = Game.flags['planRoomStructure']
+    if (planFlag == undefined || planFlag.pos.roomName != room.name) return
 
+    const roomCenter = room.memory.roomPosition.centerPos;
     if (!roomCenter) return
-    if (Game.time % 10 != 0) return
-    if (room.controller == undefined) return
-    if (room.level == 8 && (room.nuker != undefined || room.constructionSites.length > 0)) return
-    if (room.level < 8 && (room.controller.progress == 0 || room.controller.progress > 100)) return
+
+    // if (Game.time % 10 != 0) return
+    // if (room.controller == undefined) return
+    // if (room.level == 8 && (room.nuker != undefined || room.constructionSites.length > 0)) return
+    // if (room.level < 8 && (room.controller.progress == 0 || room.controller.progress > 100)) return
 
     const cpu = Game.cpu.getUsed()
 
@@ -275,11 +279,13 @@ function processTerminalResource(room: Room) {
                 if (room.memory.terminalSendJob[jobId].amount <= 0) {
                     delete room.memory.terminalSendJob[jobId]
                 }
+                break;
             }
         }
     }
 
     // 以下操作都是非中央仓库房间，每100t处理一次
+    if (room.level < 8) return
     if (Game.time % 100 != 0) return
     if (room.name == centerStorage) return
 

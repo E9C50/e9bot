@@ -1,3 +1,17 @@
+function callTower(target: Creep) {
+    if (target.my && target.hits < target.hitsMax && Game.time % 10 == 0) {
+        target.room.towers.forEach(tower => {
+            tower.heal(target)
+        })
+        return
+    }
+    if (target.room.towers.filter(tower => tower.store[RESOURCE_ENERGY] > 0).length == target.room.towers.length) {
+        target.room.towers.forEach(tower => {
+            tower.attack(target)
+        })
+    }
+}
+
 function singleWork(creep: Creep, data: TeamConfig) {
     if (creep == undefined) return
     if (creep.spawning == undefined) return
@@ -25,8 +39,16 @@ function singleWork(creep: Creep, data: TeamConfig) {
             } else {
                 creep.rangedAttack(attackTarget)
             }
+            if (creep.room.my) {
+                callTower(attackTarget)
+            }
         }
-        if (uniqueBodyParts.includes(ATTACK)) creep.attack(attackTarget)
+        if (uniqueBodyParts.includes(ATTACK) && creep.pos.inRangeTo(attackTarget, 1)) {
+            creep.attack(attackTarget)
+            if (creep.room.my) {
+                callTower(attackTarget)
+            }
+        }
     }
     if (dismantleTarget != undefined) {
         if (uniqueBodyParts.includes(WORK)) creep.dismantle(dismantleTarget)
@@ -51,8 +73,10 @@ export default (data: TeamConfig): ITeamConfig => ({
         const creep2 = Game.creeps[data.creepNameList[1]]
         if (creep1 == undefined && creep2 == undefined) return false
 
+        const needRun = (creep1 != undefined && (creep1.hits < creep1.hitsMax * 0.6)) || (creep2 != undefined && (creep2.hits < creep2.hitsMax * 0.6))
+
         const rangeEnemies = creep1.room.enemies.filter(enemy => enemy.pos.inRangeTo(creep1, 5))
-        let targetPos: RoomPosition = Game.flags[data.teamFlag]?.pos
+        let targetPos: RoomPosition = rangeEnemies.length > 0 && !needRun ? rangeEnemies[0].pos : Game.flags[data.teamFlag]?.pos
         if (targetPos == undefined) return false
 
         data.healTarget = creep1.id

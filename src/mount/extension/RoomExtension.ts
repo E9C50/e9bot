@@ -403,7 +403,7 @@ export default class RoomExtension extends Room {
         const defenderCostMatrixArray: number[] = []
         for (let i = 0; i < this.memory.defenderCostMatrix.length; i++) {
             const str = this.memory.defenderCostMatrix[i]
-            if (str == '9') defenderCostMatrixArray.push(255)
+            if (str == '9') defenderCostMatrixArray.push(254)
             else if (str == '8') defenderCostMatrixArray.push(10)
             else defenderCostMatrixArray.push(parseInt(str))
         }

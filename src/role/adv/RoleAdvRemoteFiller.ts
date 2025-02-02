@@ -1,12 +1,13 @@
 import { roleAdvEnum, roleBaseEnum } from "settings"
-import { getClosestTarget, getDistance } from "utils"
+import { getClosestLineTarget, getClosestTarget, getDistance } from "utils"
 
 export default (data: CreepData): ICreepConfig => ({
     isNeed: (room: Room, creepName: string) => {
         return true
     },
     prepare(creep) {
-        return creep.goBoost()
+        if (creep.room.name == 'E41N8') return creep.goBoost()
+        return true
     },
     source(creep) {
         // 如果没有空余容量了，就开始工作
@@ -17,6 +18,7 @@ export default (data: CreepData): ICreepConfig => ({
 
         const creepData: RemoteFillerData = data as RemoteFillerData
         const sourceFlag: Flag = Game.flags[creepData.sourceFlag]
+        const targetFlag: Flag = Game.flags[creepData.targetFlag]
         const sourceTarget = Game.getObjectById(creepData.sourceFlag) as Source
         const sourcePos = sourceFlag?.pos || sourceTarget?.pos
 
@@ -52,7 +54,7 @@ export default (data: CreepData): ICreepConfig => ({
         }
 
         if (creep.room.my) {
-            withdrawTarget = creep.room.storage || creep.room.terminal
+            withdrawTarget = creep.room.terminal || creep.room.storage
             withdrawResource = RESOURCE_ENERGY
         }
 
@@ -61,6 +63,14 @@ export default (data: CreepData): ICreepConfig => ({
             && creep.room.powerBanks.length > 0 && creep.room.powerBanks[0].hits == 0) {
             withdrawTarget = creep.room.powerBanks[0]
             withdrawResource = RESOURCE_POWER
+        }
+
+        // 如果有Terminal并且有资源就去捡
+        if ((withdrawTarget == undefined || withdrawResource == undefined)
+            && creep.room.terminal != undefined && creep.room.terminal.store.getUsedCapacity() > 0) {
+            const firstResourceType = Object.keys(creep.room.terminal.store)[0] as ResourceConstant
+            withdrawTarget = creep.room.terminal
+            withdrawResource = firstResourceType
         }
 
         // 如果有Storage并且有资源就去捡
@@ -145,11 +155,6 @@ export default (data: CreepData): ICreepConfig => ({
             return true
         }
 
-        if (creep.room.name == 'E43N11' && creep.pos.y < 24) {
-            creep.moveTo(new RoomPosition(22, 46, 'E43N11'), { visualizePathStyle: {} })
-            return true
-        }
-
         if (creep.room.name != targetPos.roomName) {
             creep.moveTo(targetPos, { visualizePathStyle: {} })
             return true
@@ -174,7 +179,7 @@ export default (data: CreepData): ICreepConfig => ({
             ...creep.room.towers, ...creep.room.spawns, ...creep.room.extensions
         ].filter(item => item != undefined && item.store.getFreeCapacity(RESOURCE_ENERGY) > 0) as Structure[]
         if (structureList.length > 0) {
-            targetStructure = getClosestTarget(creep.pos, structureList)
+            targetStructure = getClosestLineTarget(creep.pos, structureList)
         }
 
         if (targetStructure == undefined) {
