@@ -83,13 +83,17 @@ export default class RoomExtension extends Room {
     }
 
     // 敌人缓存
-    public enemiesGetter(): Creep[] {
+    public enemiesGetter(): (Creep | PowerCreep)[] {
         const privateKey = STRUCTURE_PRIVATEKEY_PERFIX + 'ENEMIES'
         if (this[privateKey]) {
             return this[privateKey]
         }
-        const enemies: Creep[] = this.find(FIND_HOSTILE_CREEPS)
+        const enemieCreeps: Creep[] = this.find(FIND_HOSTILE_CREEPS)
             .filter(creep => !creepWhiteList.includes(creep.owner.username))
+        const enemiePcs: PowerCreep[] = this.find(FIND_HOSTILE_POWER_CREEPS)
+            .filter(creep => !creepWhiteList.includes(creep.owner.username))
+
+        const enemies = [...enemieCreeps, ...enemiePcs]
         this[privateKey] = enemies
         return enemies
     }
@@ -142,11 +146,11 @@ export default class RoomExtension extends Room {
                 var filterRam = true;
                 var filterWall = true;
                 if (structure.structureType == STRUCTURE_RAMPART) {
-                    filterRam = structure.hits < 25000000 || structure.pos.lookFor(LOOK_STRUCTURES).filter(stru =>
+                    filterRam = structure.hits < 300000000 || structure.pos.lookFor(LOOK_STRUCTURES).filter(stru =>
                         stru.structureType != STRUCTURE_ROAD && stru.structureType != STRUCTURE_RAMPART
                     ).length == 0
                 } else {
-                    filterWall = structure.hits < 1000000
+                    filterWall = structure.hits < 300000000
                 }
                 return structure.hits < structure.hitsMax && filterRam && filterWall
             })

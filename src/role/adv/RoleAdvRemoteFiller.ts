@@ -6,7 +6,6 @@ export default (data: CreepData): ICreepConfig => ({
         return true
     },
     prepare(creep) {
-        if (creep.room.name == 'E41N8') return creep.goBoost()
         return true
     },
     source(creep) {

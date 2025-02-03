@@ -56,8 +56,6 @@ function releaseBaseCreepConfig(): void {
             addCreepConfig(room, roleAdvEnum.MANAGER, room.name + '_MANAGER', {})
         }
 
-        if (roomName == 'E41N7') continue
-
         if (roles[roleAdvEnum.PROCESSER]({}).isNeed(room, '')) {
             addCreepConfig(room, roleAdvEnum.PROCESSER, room.name + '_PROCESSER', {})
         }
@@ -369,6 +367,11 @@ function releaseWarCreepConfig(): void {
         const damageThreshold = enemyList.length > 0 && enemyList.map(enemy => BattleCalc.calcCreepDamage(enemy)).reduce((a, b) => a + b, 0) > 1000
         if (room.controller != undefined && !room.controller.safeMode && enemyList.length > 0 && damageThreshold) {
             const enemyGroup = analyzeEnemyGroups(enemyList)
+
+            const pcList = enemyList.filter(enemy => enemy['powers'] != undefined)
+            if (pcList.length > 0 && Game.time % 5 == 0) {
+                pcList[0].pos.createFlag(roomName + '_T2ATT_0')
+            }
 
             for (let i = 0; i < enemyGroup.length; i++) {
                 let enemyAttackCount: number = 0

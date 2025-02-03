@@ -41,6 +41,8 @@ export default (data: CreepData): ICreepConfig => ({
                 enemyTarget = creep.room.enemies[Math.floor(Math.random() * creep.room.enemies.length)]
             }
 
+            if (enemyTarget == undefined) return true
+
             const closestRamOrWall = getClosestLineTarget(enemyTarget.pos, [...creep.room.ramparts, ...creep.room.walls])
             if (closestRamOrWall != undefined) {
                 const result = creep.moveTo(closestRamOrWall.pos.x, closestRamOrWall.pos.y, {

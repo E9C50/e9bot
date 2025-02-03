@@ -88,7 +88,7 @@ export const getLineDistance = function (pos1: RoomPosition, pos2: RoomPosition)
 }
 
 /**
- * 寻找最近的目标
+ * 寻找最近的目标（切比雪夫距离）
  * @param source
  * @param targetList
  * @returns
@@ -109,7 +109,7 @@ export const getClosestTarget = function <T extends Creep | Structure | Construc
 }
 
 /**
- * 寻找最近的目标
+ * 寻找最近的目标（欧几里得距离）
  * @param source
  * @param targetList
  * @returns

@@ -146,7 +146,7 @@ const carryBodyConfigs = [
 export const roleBoostConfig: { [role in CreepRoleConstant]?: BoostTypeConstant[] } = {
     // upgrader: [boostTypeEnum.BoostTypeUpgrade],
     // builder: [boostTypeEnum.BoostTypeBuild],
-    // repairer: [boostTypeEnum.BoostTypeBuild],
+    repairer: [boostTypeEnum.BoostTypeBuild],
 
     // rBuilder: [boostTypeEnum.BoostTypeUpgrade, boostTypeEnum.BoostTypeMove],
     // rFiller: [boostTypeEnum.BoostTypeCarry, boostTypeEnum.BoostTypeMove],
@@ -177,9 +177,9 @@ export const bodyConfigs: { [role in CreepRoleConstant]: BodySet[] } = {
     miner: workerBodyConfigs,
     filler: carryBodyConfigs,
 
-    // rBuilder: workerBodyConfigs,
+    rBuilder: workerBodyConfigs,
     // rFiller: carryBodyConfigs,
-    rBuilder: Array.from({ length: 8 }, () => ({ [WORK]: 39, [CARRY]: 1, [MOVE]: 10 })),
+    // rBuilder: Array.from({ length: 8 }, () => ({ [WORK]: 39, [CARRY]: 1, [MOVE]: 10 })),
     rFiller: Array.from({ length: 8 }, () => ({ [CARRY]: 40, [MOVE]: 10 })),
 
     processer: carryBodyConfigs,
@@ -187,11 +187,11 @@ export const bodyConfigs: { [role in CreepRoleConstant]: BodySet[] } = {
     claimer: Array.from({ length: 8 }, () => ({ [CLAIM]: 1, [MOVE]: 1 })),
     cAttacker: Array.from({ length: 8 }, () => ({ [CLAIM]: 19, [MOVE]: 19 })),
 
-    attacker: Array.from({ length: 8 }, () => ({ [TOUGH]: 2, [ATTACK]: 38, [MOVE]: 10 })),
+    attacker: Array.from({ length: 8 }, () => ({ [TOUGH]: 4, [ATTACK]: 36, [MOVE]: 10 })),
     healer: Array.from({ length: 8 }, () => ({ [TOUGH]: 12, [MOVE]: 10, [HEAL]: 28 })),
 
-    // dismantler: Array.from({ length: 8 }, () => ({ [TOUGH]: 12, [WORK]: 28, [MOVE]: 10 })),
-    dismantler: Array.from({ length: 8 }, () => ({ [WORK]: 40, [MOVE]: 10 })),
+    dismantler: Array.from({ length: 8 }, () => ({ [TOUGH]: 12, [WORK]: 28, [MOVE]: 10 })),
+    // dismantler: Array.from({ length: 8 }, () => ({ [WORK]: 40, [MOVE]: 10 })),
 
     manager: [
         { [CARRY]: 5, [MOVE]: 1 },
@@ -338,6 +338,10 @@ export const defaultAutoResource = {
     [RESOURCE_CATALYZED_ZYNTHIUM_ALKALIDE]: 10000,  // +300% fatigue(疲劳值) 减低速度
     [RESOURCE_ZYNTHIUM_ALKALIDE]: 10000,            // +200% fatigue(疲劳值) 减低速度
     [RESOURCE_ZYNTHIUM_OXIDE]: 10000,               // +100% fatigue(疲劳值) 减低速度
+
+    [RESOURCE_CATALYZED_ZYNTHIUM_ACID]: 10000,      // +300% dismantle 效率
+    [RESOURCE_ZYNTHIUM_ACID]: 10000,                // +200% dismantle 效率
+    [RESOURCE_ZYNTHIUM_HYDRIDE]: 10000,             // +100% dismantle 效率
 
     [RESOURCE_CATALYZED_GHODIUM_ALKALIDE]: 10000,   // 70% 伤害减免
     [RESOURCE_GHODIUM_ALKALIDE]: 10000,             // 50% 伤害减免

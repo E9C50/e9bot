@@ -69,7 +69,7 @@ export default (data: CreepData): ICreepConfig => ({
 
         // 如果附近有生命值低于5000的Rampart，就优先修理
         const repairTargets: Structure[] = creep.room.ramparts.filter(
-            rampart => rampart.hits < 5000 && getDistance(rampart.pos, creep.pos) < 5
+            rampart => rampart.hits < 5000 && getDistance(rampart.pos, creep.pos) < 3
         )
         if (repairTargets.length > 0) {
             creep.repair(repairTargets[0])

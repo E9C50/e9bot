@@ -60,7 +60,7 @@ export default (data: CreepData): ICreepConfig => ({
         // 升级
         const distanceController = getDistance(creep.pos, creep.room.controller.pos)
         if (distanceController > 3) {
-            if (creep.room.terminal != undefined && getDistance(creep.room.terminal.pos, creep.room.controller.pos) < 5) {
+            if (creep.room.terminal != undefined && getDistance(creep.room.terminal.pos, creep.room.controller.pos) < 3) {
                 creep.moveTo(creep.room.terminal)
             } else {
                 creep.moveTo(creep.room.controller)

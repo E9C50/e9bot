@@ -75,8 +75,8 @@ export default (data: TeamConfig): ITeamConfig => ({
 
         const needRun = (creep1 != undefined && (creep1.hits < creep1.hitsMax * 0.6)) || (creep2 != undefined && (creep2.hits < creep2.hitsMax * 0.6))
 
-        const rangeEnemies = creep1.room.enemies.filter(enemy => enemy.pos.inRangeTo(creep1, 5))
-        let targetPos: RoomPosition = rangeEnemies.length > 0 && !needRun ? rangeEnemies[0].pos : Game.flags[data.teamFlag]?.pos
+        const rangeEnemies = creep1.room.enemies.filter(enemy => enemy.pos.inRangeTo(creep1, 3))
+        let targetPos: RoomPosition = rangeEnemies.length > 0 && !needRun && Game.flags[data.teamFlag].color == COLOR_WHITE ? rangeEnemies[0].pos : Game.flags[data.teamFlag]?.pos
         if (targetPos == undefined) return false
 
         data.healTarget = creep1.id
