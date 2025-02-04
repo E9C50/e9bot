@@ -121,7 +121,6 @@ function releaseBaseCreepConfig(): void {
                 if (room.controller && room.controller.level < 6) repairerCount = 1;
 
                 repairerCount = Math.min(repairerCount, 1)
-                if (room.name == 'E41N7') repairerCount = 4
 
                 for (let i = 0; i < repairerCount; i++) {
                     const creepRepairerName = room.name + '_REPAIRER_STORAGE' + i

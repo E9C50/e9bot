@@ -384,13 +384,13 @@ export const reactionConfig = {
     [RESOURCE_UTRIUM_LEMERGITE]: 10000,
     [RESOURCE_GHODIUM]: 10000,                      // Nuker    !!!
 
-    [RESOURCE_CATALYZED_ZYNTHIUM_ACID]: 10000,      // +300% dismantle 效率
-    [RESOURCE_ZYNTHIUM_ACID]: 10000,                // +200% dismantle 效率
-    [RESOURCE_ZYNTHIUM_HYDRIDE]: 10000,             // +100% dismantle 效率
-
     [RESOURCE_CATALYZED_LEMERGIUM_ACID]: 10000,     // +100% repair 和 build 效率但不增加其能量消耗
     [RESOURCE_LEMERGIUM_ACID]: 10000,               // +80% repair 和 build 效率但不增加其能量消耗
     [RESOURCE_LEMERGIUM_HYDRIDE]: 10000,            // +50% repair 和 build 效率但不增加其能量消耗
+
+    [RESOURCE_CATALYZED_ZYNTHIUM_ACID]: 10000,      // +300% dismantle 效率
+    [RESOURCE_ZYNTHIUM_ACID]: 10000,                // +200% dismantle 效率
+    [RESOURCE_ZYNTHIUM_HYDRIDE]: 10000,             // +100% dismantle 效率
 
     [RESOURCE_CATALYZED_ZYNTHIUM_ALKALIDE]: 10000,  // +300% fatigue(疲劳值) 减低速度
     [RESOURCE_ZYNTHIUM_ALKALIDE]: 10000,            // +200% fatigue(疲劳值) 减低速度

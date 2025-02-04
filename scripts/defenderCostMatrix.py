@@ -114,15 +114,16 @@ def process_room(room_name):
 
 
 if __name__ == "__main__":
-    # USER = data["main"]["email"]
-    # PASSWORD = data["main"]["password"]
-    # api = screepsapi.API(USER, PASSWORD, host="screeps.com", secure=True)
-    # process_room("E35N1")
-    # process_room("E35N3")
-    # process_room("E34N3")
-    # process_room("E36N2")
-    # process_room("E37N7")
-    # process_room("E41N8")
+    USER = data["main"]["email"]
+    PASSWORD = data["main"]["password"]
+    api = screepsapi.API(USER, PASSWORD, host="screeps.com", secure=True)
+    process_room("E35N1")
+    process_room("E35N3")
+    process_room("E34N3")
+    process_room("E36N2")
+    process_room("E37N7")
+    process_room("E41N8")
+    process_room("E41N7")
 
     USER = data["pserver"]["email"]
     PASSWORD = data["pserver"]["password"]

@@ -277,7 +277,9 @@ export default class CreepExtension extends Creep {
             if (boostList.includes(boostConfig[labId].boostType)) {
                 const boostLab: StructureLab = Game.getObjectById(labId) as StructureLab
                 if (boostLab.mineralType == undefined || boostLab.store[boostLab.mineralType] < 100) {
-                    this.moveTo(this.room.spawns[0])
+                    if (!this.pos.isNearTo(this.room.spawns[0])) {
+                        this.moveTo(this.room.spawns[0])
+                    }
                     return false
                 }
 
