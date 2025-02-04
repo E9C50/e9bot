@@ -48,7 +48,7 @@ export default (data: CreepData): ICreepConfig => ({
         var repairTarget = Game.getObjectById<Structure>(creepData.repairTarget || '');
         if (repairTarget == undefined || repairTarget.hits == repairTarget.hitsMax) {
             let repairTargets = creep.room.wallsNeedRepair
-            if (!Memory.warMode[creep.room.name]) repairTargets = repairTargets.concat(creep.room.structuresNeedRepair)
+            // if (!Memory.warMode[creep.room.name]) repairTargets = repairTargets.concat(creep.room.structuresNeedRepair)
             repairTargets = repairTargets.sort((a, b) => a.hits - b.hits)
             if (repairTargets.length > 0) creepData.repairTarget = repairTargets[0].id
         }

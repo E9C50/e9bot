@@ -27,8 +27,8 @@ function updateLabReactionConfig(room: Room): void {
         const labReactionSource = reactionSource[labReactionConfig]
         const source1Amount = room.getResource(labReactionSource[0], true, false, true, true)
         const source2Amount = room.getResource(labReactionSource[1], true, false, true, true)
-        const targetEnough = room.getResource(labReactionConfig) < reactionConfig[labReactionConfig]
-        if (targetEnough && source1Amount > 1000 && source2Amount > 1000) return
+        const targetNotEnough = room.getResource(labReactionConfig) < reactionConfig[labReactionConfig]
+        if (targetNotEnough && source1Amount > 1000 && source2Amount > 1000) return
     }
 
     // 不够就更新合成配方
