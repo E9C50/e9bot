@@ -225,15 +225,4 @@ export default class ConsoleExtension {
         })
         return true
     }
-
-    /**
-     * 清除寻路缓存
-     */
-    public clearCostMatrix(): boolean {
-        Object.values(Game.rooms).forEach(room => {
-            if (!room.my) return
-            room.memory.defenderCostMatrix = ''
-        })
-        return true
-    }
 }

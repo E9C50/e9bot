@@ -1,40 +1,49 @@
 import { creepWhiteList, roleAdvEnum, STRUCTURE_MEMORYKEY_PERFIX, STRUCTURE_PRIVATEKEY_PERFIX } from "settings";
+import { generateCostMatrix } from "utils/CostMatrix";
 import { getDistance } from "utils";
 
 export default class RoomExtension extends Room {
 
     private getStructure<T extends Structure>(structureType: string, privateKey: string, memoryKey: string): T | undefined {
         if (this[privateKey] != undefined) return (this[privateKey])
+        const cacheId = global[this.name].structureIdList[memoryKey]
 
-        const structure: T = Game.getObjectById(this.memory.structureIdList[memoryKey]) as T;
-        if (structure != undefined) {
-            this[privateKey] = structure;
-            return structure
+        if (cacheId != undefined) {
+            this[privateKey] = Game.getObjectById(cacheId) as T;
+            if (this[privateKey] == undefined) {
+                global[this.name].structureIdList[memoryKey] = undefined
+            }
         } else {
             const filterd = this.structures.filter(structure => structure.structureType == structureType)
             if (filterd.length == 0) return undefined
             const structure: T = filterd[0] as T
-            this.memory.structureIdList[memoryKey] = structure.id
-            return structure
+
+            this[privateKey] = structure
+            global[this.name].structureIdList[memoryKey] = structure.id
         }
+        return this[privateKey]
     }
 
     private getStructures<T extends Structure>(structureType: string, privateKey: string, memoryKey: string): T[] {
         if (this[privateKey] != undefined) return (this[privateKey])
+        const cacheIdList = global[this.name].structureIdList[memoryKey]
 
-        const structures: T[] = this.memory.structureIdList[memoryKey] == undefined ? [] :
-            this.memory.structureIdList[memoryKey].map(structureId => Game.getObjectById(structureId) as T)
-
-        if (structures.length > 0) {
-            this[privateKey] = structures;
-            return structures
+        if (cacheIdList != undefined) {
+            this[privateKey] = cacheIdList.map(structureId => Game.getObjectById(structureId));
+            const filterd = this[privateKey].filter(strcuture => strcuture != undefined)
+            if (filterd.length < this[privateKey].length) {
+                this[privateKey] = filterd
+                global[this.name].structureIdList[memoryKey] = filterd.map(structure => structure.id)
+            }
         } else {
             const structures: T[] = this.structures
                 .filter(structure => structure.structureType == structureType)
                 .map(structure => structure as T)
-            this.memory.structureIdList[memoryKey] = structures.map(structure => structure.id)
-            return structures
+
+            this[privateKey] = structures
+            global[this.name].structureIdList[memoryKey] = structures.map(structure => structure.id)
         }
+        return this[privateKey]
     }
 
     // Room基础属性
@@ -52,8 +61,8 @@ export default class RoomExtension extends Room {
         const memoryKey = STRUCTURE_MEMORYKEY_PERFIX + 'SOURCES'
         if (this[privateKey]) return this[privateKey]
 
-        const sources: Source[] = this.memory.structureIdList[memoryKey] == undefined ? [] :
-            this.memory.structureIdList[memoryKey]
+        const sources: Source[] = global[this.name].structureIdList[memoryKey] == undefined ? [] :
+            global[this.name].structureIdList[memoryKey]
                 .map(sourceId => Game.getObjectById(sourceId))
                 .filter(source => source != undefined)
         if (sources.length > 0) {
@@ -61,7 +70,7 @@ export default class RoomExtension extends Room {
             return sources
         } else {
             const sources: Source[] = this.find(FIND_SOURCES)
-            this.memory.structureIdList[memoryKey] = sources.map(source => source.id)
+            global[this.name].structureIdList[memoryKey] = sources.map(source => source.id)
             return sources
         }
     }
@@ -70,14 +79,14 @@ export default class RoomExtension extends Room {
         const memoryKey = STRUCTURE_MEMORYKEY_PERFIX + 'MINERAL'
         if (this[privateKey]) return this[privateKey]
 
-        const mineral: Mineral = Game.getObjectById(this.memory.structureIdList[memoryKey]) as Mineral
+        const mineral: Mineral = Game.getObjectById(global[this.name].structureIdList[memoryKey]) as Mineral
         if (mineral != undefined) {
             this[privateKey] = mineral;
             return mineral
         } else {
             const minerals: Mineral[] = this.find(FIND_MINERALS)
             if (minerals.length == 0) return undefined
-            this.memory.structureIdList[memoryKey] = minerals[0].id
+            global[this.name].structureIdList[memoryKey] = minerals[0].id
             return minerals[0]
         }
     }
@@ -135,28 +144,21 @@ export default class RoomExtension extends Room {
         const memoryKey = STRUCTURE_MEMORYKEY_PERFIX + 'WALLS_NEED_REPAIR'
         if (this[privateKey]) return this[privateKey]
 
-        const walls: Structure[] = this.memory.structureIdList[memoryKey] == undefined ? [] :
-            this.memory.structureIdList[memoryKey].map(structureId => Game.getObjectById(structureId))
-                .filter(structure => structure != undefined)
-        if (walls.length > 0) {
-            this[privateKey] = walls;
-            return walls
-        } else {
-            const walls: Structure[] = [...this.ramparts, ...this.walls].filter(structure => {
-                var filterRam = true;
-                var filterWall = true;
-                if (structure.structureType == STRUCTURE_RAMPART) {
-                    filterRam = structure.hits < 300000000 || structure.pos.lookFor(LOOK_STRUCTURES).filter(stru =>
-                        stru.structureType != STRUCTURE_ROAD && stru.structureType != STRUCTURE_RAMPART
-                    ).length == 0
-                } else {
-                    filterWall = structure.hits < 300000000
-                }
-                return structure.hits < structure.hitsMax && filterRam && filterWall
-            })
-            this.memory.structureIdList[memoryKey] = walls.map(source => source.id)
-            return walls
-        }
+        const walls: Structure[] = [...this.ramparts, ...this.walls].filter(structure => {
+            var filterRam = true;
+            var filterWall = true;
+            if (structure.structureType == STRUCTURE_RAMPART) {
+                filterRam = structure.hits < 300000000 || structure.pos.lookFor(LOOK_STRUCTURES).filter(stru =>
+                    stru.structureType != STRUCTURE_ROAD && stru.structureType != STRUCTURE_RAMPART
+                ).length == 0
+            } else {
+                filterWall = structure.hits < 300000000
+            }
+            return structure.hits < structure.hitsMax && filterRam && filterWall
+        })
+
+        this[privateKey] = walls
+        return walls
     }
 
     // 需要维修的建筑缓存
@@ -165,9 +167,22 @@ export default class RoomExtension extends Room {
         const memoryKey = STRUCTURE_MEMORYKEY_PERFIX + 'STRUCTURES_NEED_REPAIR'
         if (this[privateKey]) return this[privateKey]
 
-        const structures: Structure[] = this.structures.filter(structure => structure.hits < structure.hitsMax &&
-            structure.structureType != STRUCTURE_WALL && structure.structureType != STRUCTURE_RAMPART
+        let structures: Structure[] = [
+            ...this.roads, ...this.extensions, ...this.spawns, ...this.towers,
+            ...this.labs, ...this.containers, ...this.links
+        ]
+        if (this.nuker != undefined) structures.push(this.nuker)
+        if (this.storage != undefined) structures.push(this.storage)
+        if (this.factory != undefined) structures.push(this.factory)
+        if (this.terminal != undefined) structures.push(this.terminal)
+        if (this.observer != undefined) structures.push(this.observer)
+        if (this.extractor != undefined) structures.push(this.extractor)
+        if (this.powerSpawn != undefined) structures.push(this.powerSpawn)
+
+        structures = structures.filter(structure =>
+            structure.hits < structure.hitsMax
         )
+
         this[privateKey] = structures
         return structures
     }
@@ -178,24 +193,9 @@ export default class RoomExtension extends Room {
         const memoryKey = STRUCTURE_MEMORYKEY_PERFIX + 'STRUCTURE'
         if (this[privateKey]) return this[privateKey]
 
-        var structures: Structure[] = this.memory.structureIdList[memoryKey] == undefined ? [] :
-            this.memory.structureIdList[memoryKey].map(structureId => Game.getObjectById(structureId))
-
-        const totalAmount = structures.length
-        structures = structures.filter(structure => structure != undefined)
-
-        if (structures.length < totalAmount) {
-            this.memory.needUpdateCache = true
-        }
-
-        if (structures.length > 0) {
-            this[privateKey] = structures;
-            return structures
-        } else {
-            const structures: Structure[] = this.find(FIND_STRUCTURES)
-            this.memory.structureIdList[memoryKey] = structures.map(structure => structure.id)
-            return structures
-        }
+        const structures: Structure[] = this.find(FIND_STRUCTURES)
+        this[privateKey] = structures
+        return structures
     }
 
     public constructionSitesGetter(): ConstructionSite[] {
@@ -203,17 +203,20 @@ export default class RoomExtension extends Room {
         const memoryKey = STRUCTURE_MEMORYKEY_PERFIX + 'CONSTRUCTION_SITE'
         if (this[privateKey]) return this[privateKey]
 
-        const constructionSites: ConstructionSite[] = this.memory.structureIdList[memoryKey] == undefined ? [] :
-            this.memory.structureIdList[memoryKey].map(structureId => Game.getObjectById(structureId))
-                .filter(structure => structure != undefined)
-        if (constructionSites.length > 0) {
-            this[privateKey] = constructionSites;
-            return constructionSites
+        const cacheIdList = global[this.name].structureIdList[memoryKey]
+        if (cacheIdList != undefined) {
+            this[privateKey] = cacheIdList.map(structureId => Game.getObjectById(structureId));
+            const filterd = this[privateKey].filter(strcuture => strcuture != undefined)
+            if (filterd.length < this[privateKey].length) {
+                this[privateKey] = filterd
+                global[this.name].structureIdList[memoryKey] = filterd.map(constructionSite => constructionSite.id)
+            }
         } else {
             const constructionSites: ConstructionSite[] = this.find(FIND_CONSTRUCTION_SITES)
-            this.memory.structureIdList[memoryKey] = constructionSites.map(source => source.id)
-            return constructionSites
+            global[this.name].structureIdList[memoryKey] = constructionSites.map(constructionSite => constructionSite.id)
         }
+
+        return this[privateKey] || []
     }
 
     public centerLinkGetter(): StructureLink | undefined {
@@ -221,13 +224,13 @@ export default class RoomExtension extends Room {
         const memoryKey = STRUCTURE_MEMORYKEY_PERFIX + 'STRUCTURE_CENTER_LINK'
         if (this[privateKey]) return this[privateKey]
 
-        const link: StructureLink = Game.getObjectById(this.memory.structureIdList[memoryKey]) as StructureLink
+        const link: StructureLink = Game.getObjectById(global[this.name].structureIdList[memoryKey]) as StructureLink
         if (link != undefined) {
             this[privateKey] = link;
             return link
         } else {
             const link = this.links.filter(link => this.storage && getDistance(this.storage.pos, link.pos) <= 2)[0]
-            this.memory.structureIdList[memoryKey] = link?.id
+            global[this.name].structureIdList[memoryKey] = link?.id
             this[privateKey] = link;
             return link
         }
@@ -238,13 +241,13 @@ export default class RoomExtension extends Room {
         const memoryKey = STRUCTURE_MEMORYKEY_PERFIX + 'STRUCTURE_CONTROLLER_LINK'
         if (this[privateKey]) return this[privateKey]
 
-        const link: StructureLink = Game.getObjectById(this.memory.structureIdList[memoryKey]) as StructureLink
+        const link: StructureLink = Game.getObjectById(global[this.name].structureIdList[memoryKey]) as StructureLink
         if (link != undefined) {
             this[privateKey] = link;
             return link
         } else {
             const link = this.links.filter(link => this.controller && getDistance(this.controller.pos, link.pos) <= 2)[0]
-            this.memory.structureIdList[memoryKey] = link?.id
+            global[this.name].structureIdList[memoryKey] = link?.id
             this[privateKey] = link;
             return link
         }
@@ -401,18 +404,12 @@ export default class RoomExtension extends Room {
     /**
      * 获取并转换CostMatrix
      */
-    public getDefenderCostMatrix(): number[] {
-        if (this['defenderCostMatrix']) return this['defenderCostMatrix']
-
-        const defenderCostMatrixArray: number[] = []
-        for (let i = 0; i < this.memory.defenderCostMatrix.length; i++) {
-            const str = this.memory.defenderCostMatrix[i]
-            if (str == '9') defenderCostMatrixArray.push(254)
-            else if (str == '8') defenderCostMatrixArray.push(10)
-            else defenderCostMatrixArray.push(parseInt(str))
+    public getDefenderCostMatrix(): CostMatrix {
+        if (global[this.name].defenderCostMatrix == undefined || Game.time % 10 == 0) {
+            if (Game.cpu.bucket < 100) return new PathFinder.CostMatrix();
+            global[this.name].defenderCostMatrix = generateCostMatrix(this.name)
         }
-        this['defenderCostMatrix'] = defenderCostMatrixArray
-        return defenderCostMatrixArray
+        return global[this.name].defenderCostMatrix
     }
 
     /**

@@ -72,10 +72,10 @@ export default class LabExtension extends StructureLab {
                 if (amount > 0 && !this.labInJobExists()) this.room.memory.roomFillJob.labInMineral.push({ labId: this.id, resourceType: thisLabConfig.resourceType })
             }
         } else {
-            // 如果不是boost模式，并且不是sourceLab，那么超过2000，或者与当前配方不一致就取出
+            // 如果不是boost模式，并且不是sourceLab，那么超过1000，或者与当前配方不一致就取出
             if (this.id != labConfig.sourceLab1 && this.id != labConfig.sourceLab2
                 && this.mineralType != undefined && labConfig.labReactionConfig != undefined
-                && (this.store[this.mineralType] > 2000 || this.mineralType != labConfig.labReactionConfig)) {
+                && (this.store[this.mineralType] > 1000 || this.mineralType != labConfig.labReactionConfig)) {
                 this.room.memory.roomFillJob.labOut.push(this.id)
             }
 

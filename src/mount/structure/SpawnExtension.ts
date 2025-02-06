@@ -13,7 +13,7 @@ export default class SpawnExtension extends StructureSpawn {
         const creepSpawnQueue = this.room.memory.creepSpawnQueue
 
         // 如果队列中有creep，则进行孵化
-        if (creepSpawnQueue.length > 0) {
+        if (creepSpawnQueue != undefined && creepSpawnQueue.length > 0) {
             const creepName = creepSpawnQueue[0]
             const creepMemory = this.room.memory.creepConfig[creepName]
             let bodyConfig = bodyConfigs[creepMemory.role];

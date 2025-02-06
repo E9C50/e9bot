@@ -305,7 +305,7 @@ function processTerminalResource(room: Room) {
             const jobExists = Object.values(Game.rooms[centerStorage].memory.terminalSendJob)
                 .filter(job => job.resourceType == resType && job.targetRoom == room.name).length > 0
             const needAmount = defaultAutoResource[resType] - room.getResource(resourceType, true, true)
-            const centerHaveRes = Game.rooms[centerStorage].getResource(resourceType, true, true) > needAmount
+            const centerHaveRes = Game.rooms[centerStorage].getResource(resourceType, true, true) > (needAmount + defaultAutoResource[resType])
 
             if (centerHaveRes && !jobExists) {
                 Game.rooms[centerStorage].sendResource(room.name, resourceType, needAmount)
@@ -336,10 +336,11 @@ function updateRoomSign(room: Room) {
 }
 
 function repairStructure(room: Room) {
-    if (!Memory.warMode[room.name] && room.memory.roomStructure.towerAllowRepair != undefined && room.structuresNeedRepair.length > 0) {
-        const tower = Game.getObjectById<StructureTower>(room.memory.roomStructure.towerAllowRepair)
-        if (tower) tower.repair(room.structuresNeedRepair[0])
-    }
+    if (room.towers.length == 0) return
+    if (Memory.warMode[room.name]) return
+    if (room.structuresNeedRepair.length == 0) return
+
+    room.towers[0].repair(room.structuresNeedRepair[0])
 }
 
 function autoEnableSafeMode(room: Room) {
@@ -367,6 +368,46 @@ function autoEnableSafeMode(room: Room) {
     }
 }
 
+function processFlagPos(flagName: string, memoryKey: string): void {
+    if (Game.flags[flagName] != undefined) {
+        const roomName = Game.flags[flagName].pos.roomName;
+        Game.rooms[roomName].memory.roomPosition[memoryKey] = Game.flags[flagName].pos;
+        Game.flags[flagName].remove();
+    }
+
+    // if (Game.time % 100 == 0) {
+    //     for (let roomName in Game.rooms) {
+    //         if (!Game.rooms[roomName].my) return
+    //         if (Game.flags[flagName] == undefined && Game.rooms[roomName].memory.roomPosition[memoryKey] == undefined) {
+    //             console.log(`房间 [${roomName}] 请放置旗帜 ${flagName} 用于设置 ${memoryKey} 位置`)
+    //         }
+    //     }
+    // }
+}
+
+function processFlagStructure(): void {
+    processFlagPos('managerPos', 'managerPos')
+    processFlagPos('centerPos', 'centerPos')
+
+    if (Game.flags['repairTower'] != undefined) {
+        const roomName = Game.flags['repairTower'].pos.roomName;
+        Game.rooms[roomName].memory.roomStructure['towerAllowRepair'] = Game.flags['repairTower'].pos.lookFor(LOOK_STRUCTURES)[0].id;
+        Game.flags['repairTower'].remove();
+    }
+
+    if (Game.flags['lab1'] != undefined) {
+        const roomName = Game.flags['lab1'].pos.roomName;
+        Game.rooms[roomName].memory.roomLabConfig.sourceLab1 = Game.flags['lab1'].pos.lookFor(LOOK_STRUCTURES)[0].id;
+        Game.flags['lab1'].remove();
+    }
+
+    if (Game.flags['lab2'] != undefined) {
+        const roomName = Game.flags['lab2'].pos.roomName;
+        Game.rooms[roomName].memory.roomLabConfig.sourceLab2 = Game.flags['lab2'].pos.lookFor(LOOK_STRUCTURES)[0].id;
+        Game.flags['lab2'].remove();
+    }
+}
+
 export const roomController = function (): void {
     // for (const roomName in Memory.rooms) {
     //     const room: Room = Game.rooms[roomName];
@@ -387,15 +428,17 @@ export const roomController = function (): void {
         // 更新缓存
         if (room.memory.needUpdateCache) {
             global.BetterMove.deletePathInRoom(room.name)
-            room.memory.structureIdList = {}
+            global[room.name].structureIdList = {}
             room.memory.needUpdateCache = false
             console.log('更新建筑缓存', roomName)
         }
 
+        if (global[room.name] == undefined) global[room.name] = {}
+        if (global[room.name].structureIdList == undefined) global[room.name].structureIdList = {}
+
         if (Memory.warMode == undefined) Memory.warMode = {}
         if (room.memory.roomLabConfig == undefined) room.memory.roomLabConfig = { singleLabConfig: {} }
 
-        if (room.memory.structureIdList == undefined) room.memory.structureIdList = {}
         if (room.memory.terminalSendJob == undefined) room.memory.terminalSendJob = {}
         if (room.memory.terminalAmount == undefined) room.memory.terminalAmount = {}
         if (room.memory.roomStructure == undefined) room.memory.roomStructure = {}
@@ -415,6 +458,12 @@ export const roomController = function (): void {
         autoEnableSafeMode(room)
 
         if (debug && (Game.cpu.getUsed() - cpu) > 1) console.log(`自动开启安全模式 CPU 使用量：${(Game.cpu.getUsed() - cpu).toFixed(2)}`)
+        cpu = Game.cpu.getUsed()
+
+        // 处理房间内建筑相关旗子
+        processFlagStructure()
+
+        if (debug && (Game.cpu.getUsed() - cpu) > 1) console.log(`处理房间内建筑相关旗子 CPU 使用量：${(Game.cpu.getUsed() - cpu).toFixed(2)}`)
         cpu = Game.cpu.getUsed()
 
         // 自动计算RoomCenter
@@ -469,5 +518,7 @@ export const roomController = function (): void {
         updateRoomSign(room)
 
         if (debug && (Game.cpu.getUsed() - cpu) > 1) console.log(`更新房间签名 CPU 使用量：${(Game.cpu.getUsed() - cpu).toFixed(2)}`)
+
+        if (Game.time % 1000 == 0) room.getDefenderCostMatrix()
     }
 }

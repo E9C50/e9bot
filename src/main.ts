@@ -2,7 +2,6 @@ import './utils/BetterMove'
 import './utils/RoomResource'
 
 import { mountWork } from "mount"
-import { profile } from './utils/CodeProfiler'
 import { ErrorMapper } from "./utils/ErrorMapper"
 import { exportStats } from "./utils/ExportStats"
 import { roomController } from './module/RoomController'
@@ -12,85 +11,61 @@ import { structureWorkController } from "./module/StructureController"
 import { creepNumberController, creepWorkController, teamWorkController } from "./module/CreepController"
 import { powerSpawnController } from 'role/pc/PowerCreep'
 
-profile.profileEnable();
+// 挂载原型
+mountWork()
 
 export const loop = ErrorMapper.wrapLoop(() => {
-  profile.profileWrap(function () {
-    const debug = false && Game.shard.name == 'shard3'
-    const cpuInit = Game.cpu.getUsed()
-    var cpu = Game.cpu.getUsed()
-    // 挂载原型
-    mountWork()
+  // 房间自动化配置
+  roomController()
 
-    if (debug) console.log(`挂载原型 CPU 使用量：${(Game.cpu.getUsed() - cpu).toFixed(2)}`)
-    cpu = Game.cpu.getUsed()
+  // Creep 数量控制
+  creepNumberController()
 
-    // 房间自动化配置
-    roomController()
+  // Creep 工作控制
+  creepWorkController()
 
-    if (debug) console.log(`房间自动化配置 CPU 使用量：${(Game.cpu.getUsed() - cpu).toFixed(2)}`)
-    cpu = Game.cpu.getUsed()
+  // PowerCreep工作控制
+  powerSpawnController()
 
-    // Creep 数量控制
-    creepNumberController()
+  // 小队工作控制
+  teamWorkController()
 
-    if (debug) console.log(`Creep 数量控制 CPU 使用量：${(Game.cpu.getUsed() - cpu).toFixed(2)}`)
-    cpu = Game.cpu.getUsed()
+  // 建筑工作控制
+  structureWorkController()
 
-    // Creep 工作控制
-    creepWorkController()
+  // 扫描指定房间
+  obScannerController()
 
-    if (debug) console.log(`Creep 工作控制 CPU 使用量：${(Game.cpu.getUsed() - cpu).toFixed(2)}`)
-    cpu = Game.cpu.getUsed()
+  // 可视化信息
+  visualController()
 
-    // PowerCreep工作控制
-    powerSpawnController()
+  // 导出统计数据
+  exportStats()
 
-    if (debug) console.log(`PowerCreep工作控制 CPU 使用量：${(Game.cpu.getUsed() - cpu).toFixed(2)}`)
-    cpu = Game.cpu.getUsed()
+  // 利用空闲CPU生成Pixel
+  if (Game.cpu.bucket >= 10000 && typeof Game.cpu.generatePixel === 'function') Game.cpu.generatePixel()
 
-    // 小队工作控制
-    teamWorkController()
-
-    if (debug) console.log(`小队工作控制 CPU 使用量：${(Game.cpu.getUsed() - cpu).toFixed(2)}`)
-    cpu = Game.cpu.getUsed()
-
-    // 建筑工作控制
-    structureWorkController()
-
-    if (debug) console.log(`建筑工作控制 CPU 使用量：${(Game.cpu.getUsed() - cpu).toFixed(2)}`)
-    cpu = Game.cpu.getUsed()
-
-    // 扫描指定房间
-    obScannerController()
-
-    if (debug) console.log(`扫描指定房间 CPU 使用量：${(Game.cpu.getUsed() - cpu).toFixed(2)}`)
-    cpu = Game.cpu.getUsed()
-
-    // 可视化信息
-    visualController()
-
-    if (debug) console.log(`可视化信息 CPU 使用量：${(Game.cpu.getUsed() - cpu).toFixed(2)}`)
-    cpu = Game.cpu.getUsed()
-
-    // 导出统计数据
-    exportStats()
-
-    if (debug) console.log(`导出统计数据 CPU 使用量：${(Game.cpu.getUsed() - cpu).toFixed(2)}`)
-    cpu = Game.cpu.getUsed()
-
-    // 利用空闲CPU生成Pixel
-    if (Game.cpu.bucket >= 10000 && typeof Game.cpu.generatePixel === 'function') {
-      Game.cpu.generatePixel();
-    }
-
-    if (debug) console.log(`搓Pixel CPU 使用量：${(Game.cpu.getUsed() - cpu).toFixed(2)}`)
-    cpu = Game.cpu.getUsed()
-
-    if (debug) console.log(`Creeps 数量：${Object.keys(Game.creeps).length}`)
-    if (debug) console.log(`总 CPU 使用量：${(Game.cpu.getUsed() - cpuInit).toFixed(2)}`)
-    if (debug) console.log('------------------------------------------------')
-  });
+  // 私服买能量
+  privateServerWork()
 })
+
+
+function privateServerWork() {
+  if (Game.shard.name == 'shard0' && Game.time % 100 == 0) {
+    Object.values(Game.rooms).forEach(room => {
+      if (!room.my) return
+      if (!room.storage || !room.terminal) return
+      let needEnergy = 500000 - room.storage.store[RESOURCE_ENERGY] + room.terminal.store[RESOURCE_ENERGY]
+      if (needEnergy > 0) {
+        const allOrder = Game.market.getAllOrders({ type: ORDER_SELL, resourceType: RESOURCE_ENERGY });
+        allOrder.sort((a, b) => a.price - b.price).forEach(order => {
+          if (needEnergy <= 0) return
+          Game.market.deal(order.id, order.amount, room.name)
+          needEnergy -= order.amount
+        })
+      }
+    })
+  }
+}
 
 console.log(`脚本初始化... Tick[${Game.time}] CPU[${Game.cpu.getUsed().toFixed(4)}] Bucket[${Game.cpu.bucket}]`)

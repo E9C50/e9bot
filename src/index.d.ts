@@ -108,7 +108,7 @@ interface Room {
     controllerLink?: StructureLink
 
     lunchNuker(): boolean
-    getDefenderCostMatrix(): number[]
+    getDefenderCostMatrix(): CostMatrix
     getResource(resType: ResourceConstant, storage?: boolean, terminal?: boolean, lab?: boolean, processer?: boolean)
     sendResource(targetRoom: string, resourceType: ResourceConstant, amount: number): boolean
 }
@@ -259,9 +259,6 @@ interface TeamConfig {
 }
 
 interface RoomMemory {
-    structureIdList: {}
-    defenderCostMatrix: string
-
     creepConfig: { [creepName: string]: CreepMemory }
     teamConfig: { [teamId: string]: TeamConfig }
 

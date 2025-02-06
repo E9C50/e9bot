@@ -50,7 +50,7 @@ export const powerSpawnController = function (): void {
 
         // Extension填充技能
         if (pc.isPowerAvailable(PWR_OPERATE_EXTENSION)) {
-            if (pc.room.energyAvailable < (pc.room.energyCapacityAvailable * 0.8)) {
+            if (pc.room.energyAvailable < (pc.room.energyCapacityAvailable * 0.6)) {
                 if (pc.room.storage != undefined) {
                     if (getDistance(pc.pos, pc.room.storage.pos) >= 3) {
                         pc.moveTo(pc.room.storage)
@@ -95,7 +95,7 @@ export const powerSpawnController = function (): void {
         }
 
         // Spawn加速技能
-        if (pc.isPowerAvailable(PWR_OPERATE_SPAWN)) {
+        if (Game.flags[pc.room.name + '_OPSPAWN'] && pc.isPowerAvailable(PWR_OPERATE_SPAWN)) {
             for (let index in pc.room.spawns) {
                 if (pc.room.spawns[index].effects == undefined || pc.room.spawns[index].effects.length == 0) {
                     if (getDistance(pc.pos, pc.room.spawns[index].pos) >= 3) {
@@ -122,8 +122,11 @@ export const powerSpawnController = function (): void {
             }
         }
 
+        // 有敌人不出去点矿和source
+        const warMode = pc.room.memory.npcTarget != undefined && Game.getObjectById(pc.room.memory.npcTarget) != undefined && Memory.warMode[pc.room.name]
+
         // 元素矿重生技能
-        if (pc.isPowerAvailable(PWR_REGEN_MINERAL) && !Memory.warMode[pc.room.name]) {
+        if (pc.isPowerAvailable(PWR_REGEN_MINERAL) && !warMode) {
             if (pc.room.mineral != undefined && pc.room.mineral.mineralAmount > 0) {
                 if (getDistance(pc.pos, pc.room.mineral.pos) >= 3) {
                     pc.moveTo(pc.room.mineral)
@@ -135,7 +138,7 @@ export const powerSpawnController = function (): void {
         }
 
         // Source重生技能
-        if (pc.isPowerAvailable(PWR_REGEN_SOURCE) && !Memory.warMode[pc.room.name]) {
+        if (pc.isPowerAvailable(PWR_REGEN_SOURCE) && !warMode) {
             for (let index in pc.room.sources) {
                 if ((pc.room.sources[index].effects == undefined || pc.room.sources[index].effects.length == 0) && pc.room.sources[index].energy > 0) {
                     if (getDistance(pc.pos, pc.room.sources[index].pos) >= 3) {

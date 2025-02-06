@@ -6,7 +6,7 @@ export default (data: CreepData): ICreepConfig => ({
         return true
     },
     prepare(creep) {
-        return true
+        return creep.goBoost()
     },
     source(creep) {
         // 如果没有空余容量了，就开始工作
@@ -23,25 +23,25 @@ export default (data: CreepData): ICreepConfig => ({
 
         if (sourcePos == undefined) return true
 
+        // if (creep.pickupDroppedResource(true, 50)) return true
+
         // 如果不在目标房间，则去往目标房间
         if (creep.room.name != sourcePos.roomName) {
             creep.moveTo(sourcePos)
             return true
         }
 
-        if (creep.pickupDroppedResource(true, 50)) return true
-
         if (creep.room.my && creep.hits < creep.hitsMax && creep.room.towers.length > 0) creep.room.towers[0].heal(creep)
 
         // 如果身上不止有能量，则搬运到Storage
-        if (creep.room.storage != undefined && Object.keys(creep.store).filter(key => key != RESOURCE_ENERGY).length > 0) {
-            if (getDistance(creep.pos, creep.room.storage.pos) > 1) {
-                creep.moveTo(creep.room.storage)
-                return true
-            }
-            creep.transfer(creep.room.storage, Object.keys(creep.store)[0] as ResourceConstant)
-            return true
-        }
+        // if (creep.room.storage != undefined && Object.keys(creep.store).filter(key => key != RESOURCE_ENERGY).length > 0) {
+        //     if (getDistance(creep.pos, creep.room.storage.pos) > 1) {
+        //         creep.moveTo(creep.room.storage)
+        //         return true
+        //     }
+        //     creep.transfer(creep.room.storage, Object.keys(creep.store)[0] as ResourceConstant)
+        //     return true
+        // }
 
         var withdrawTarget: Structure | undefined = undefined
         var withdrawResource: ResourceConstant | undefined = undefined
@@ -52,7 +52,7 @@ export default (data: CreepData): ICreepConfig => ({
             withdrawResource = Object.keys(withdrawTarget['store'])[0] as ResourceConstant
         }
 
-        if (creep.room.my) {
+        if (creep.room.my && creep.room.level == 8) {
             withdrawTarget = creep.room.terminal || creep.room.storage
             withdrawResource = RESOURCE_ENERGY
         }
@@ -69,6 +69,14 @@ export default (data: CreepData): ICreepConfig => ({
             && creep.room.terminal != undefined && creep.room.terminal.store.getUsedCapacity() > 0) {
             const firstResourceType = Object.keys(creep.room.terminal.store)[0] as ResourceConstant
             withdrawTarget = creep.room.terminal
+            withdrawResource = firstResourceType
+        }
+
+        // 如果有Factory并且有资源就去捡
+        if ((withdrawTarget == undefined || withdrawResource == undefined)
+            && creep.room.factory != undefined && creep.room.factory.store.getUsedCapacity() > 0) {
+            const firstResourceType = Object.keys(creep.room.factory.store)[0] as ResourceConstant
+            withdrawTarget = creep.room.factory
             withdrawResource = firstResourceType
         }
 

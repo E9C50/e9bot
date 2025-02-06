@@ -47,18 +47,18 @@ export default (data: CreepData): ICreepConfig => ({
         // 占领
         creep.claimController(creep.room.controller)
 
-        // 设置新签名
-        if (creep.room.memory.roomSignText != undefined && creep.room.controller.sign?.text != creep.room.memory.roomSignText) {
-            const existsSigns = Object.values(Game.rooms).map(item => item.memory.roomSignText)
-            const unusedSigns = roomSignTextList.filter(item => !existsSigns.includes(item));
-            const randomIndex = Math.floor(Math.random() * unusedSigns.length);
-            creep.room.memory.roomSignText = unusedSigns[randomIndex]
-        }
+        // // 设置新签名
+        // if (creep.room.memory.roomSignText != undefined && creep.room.controller.sign?.text != creep.room.memory.roomSignText) {
+        //     const existsSigns = Object.values(Game.rooms).map(item => item.memory.roomSignText)
+        //     const unusedSigns = roomSignTextList.filter(item => !existsSigns.includes(item));
+        //     const randomIndex = Math.floor(Math.random() * unusedSigns.length);
+        //     creep.room.memory.roomSignText = unusedSigns[randomIndex]
+        // }
 
-        // 签名不一致就签名
-        if (creep.room.memory.roomSignText != undefined && creep.room.controller.sign?.text != creep.room.memory.roomSignText) {
-            creep.signController(creep.room.controller, creep.room.memory.roomSignText)
-        }
+        // // 签名不一致就签名
+        // if (creep.room.memory.roomSignText != undefined && creep.room.controller.sign?.text != creep.room.memory.roomSignText) {
+        //     creep.signController(creep.room.controller, creep.room.memory.roomSignText)
+        // }
         return true
     },
 })

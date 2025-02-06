@@ -52,27 +52,32 @@ function showCreepCountInfo(room: Room): void {
             index++;
         }
     }
-
 }
 
 function showCostMatrix(room: Room) {
     const flag = Game.flags['SCM']
     if (flag == undefined) return
+    if (flag.pos.roomName != room.name) return
 
     const costMatrix = room.getDefenderCostMatrix()
-    if (flag.pos.roomName == room.name && costMatrix != undefined) {
-        for (let i = 0; i < 2500 - 1; i++) {
-            const x = i % 50
-            const y = Math.floor(i / 50)
-            const cost = costMatrix[i]
+    // 遍历整个房间坐标
+    for (let x = 0; x < 50; x++) {
+        for (let y = 0; y < 50; y++) {
+            const cost = costMatrix.get(x, y);
+
+            // 根据不同的成本值绘制不同颜色
             if (cost > 250) {
-                room.visual.circle(x, y, { fill: 'red', opacity: 0.2, radius: 0.55, stroke: 'red' });
-            } else if (cost == 0) {
-                room.visual.circle(x, y, { fill: 'green', opacity: 0.2, radius: 0.55, stroke: 'green' });
-            } else if (cost == 2) {
-                room.visual.circle(x, y, { fill: 'blue', opacity: 0.2, radius: 0.55, stroke: 'blue' });
-            } else if (cost == 10) {
-                room.visual.circle(x, y, { fill: 'yellow', opacity: 0.2, radius: 0.55, stroke: 'yellow' });
+                // 红色：不可通行区域（建筑/外部区域）
+                room.visual.circle(x, y, { fill: 'red', opacity: 0.25, radius: 0.55, stroke: 'red' });
+            } else if (cost === 10) {
+                // 黄色：rampart 内侧缓冲区
+                room.visual.circle(x, y, { fill: 'yellow', opacity: 0.25, radius: 0.55, stroke: 'yellow' });
+            } else if (cost === 1) {
+                // 蓝色：特殊路径（示例保留）
+                room.visual.circle(x, y, { fill: 'blue', opacity: 0.25, radius: 0.55, stroke: 'blue' });
+            } else if (cost === 0) {
+                // 绿色：默认可通行区域
+                room.visual.circle(x, y, { fill: 'green', opacity: 0.25, radius: 0.55, stroke: 'green' });
             }
         }
     }

@@ -1,5 +1,3 @@
-import { getClosestTarget } from "utils"
-
 export default (data: CreepData): ICreepConfig => ({
     isNeed: (room: Room, creepName: string) => {
         const creepData: AttackerData = data as AttackerData
@@ -14,40 +12,27 @@ export default (data: CreepData): ICreepConfig => ({
     },
     target(creep) {
         const creepData: AttackerData = data as AttackerData
+        const targetFlag = Game.flags[creepData.targetFlag]
 
-        let targetPos: RoomPosition = Game.flags[creepData.targetFlag]?.pos
-        if (targetPos == undefined) {
-            const dismStrus: Structure[] = [...creep.room.spawns, ...creep.room.extensions, ...creep.room.towers, ...creep.room.labs]
-            if (creep.room.storage != undefined) dismStrus.push(creep.room.storage)
-            targetPos = getClosestTarget(creep.pos, dismStrus).pos
-        }
-
-        if (Game.flags[creep.name] != undefined && !creep.pos.isEqualTo(Game.flags[creep.name])) {
+        if (Game.flags[creep.name] != undefined && !creep.pos.isNearTo(Game.flags[creep.name])) {
             creep.moveTo(Game.flags[creep.name])
             return true
-        } else if (!creep.pos.isNearTo(targetPos)) {
-            creep.moveTo(targetPos)
-            return true
         }
 
-        const struList = targetPos.lookFor(LOOK_STRUCTURES).filter(stru => stru.structureType != STRUCTURE_TERMINAL)
+        let targetPos: RoomPosition = targetFlag.pos
+        let struList = targetPos.lookFor(LOOK_STRUCTURES)
+        if (targetFlag.color != COLOR_RED) {
+            struList = struList.filter(stru => stru.structureType == STRUCTURE_WALL || stru.structureType == STRUCTURE_RAMPART)
+        }
+
         let structure = creep.room.name == targetPos.roomName ? struList[0] : undefined
-
-        if (structure == undefined) {
-            const dismStrus: Structure[] = [...creep.room.spawns, ...creep.room.extensions, ...creep.room.towers, ...creep.room.labs]
-            if (creep.room.storage != undefined) dismStrus.push(creep.room.storage)
-            structure = getClosestTarget(creep.pos, dismStrus)
-        }
+        if (structure == undefined) return true
 
         if (!creep.pos.isNearTo(structure)) {
             creep.moveTo(structure)
-        }
-
-        if (structure != undefined && structure.structureType != STRUCTURE_TERMINAL) {
+        } else {
             creep.dismantle(structure)
-            return true
         }
-
         return true
     },
 })

@@ -149,7 +149,7 @@ export const roleBoostConfig: { [role in CreepRoleConstant]?: BoostTypeConstant[
     repairer: [boostTypeEnum.BoostTypeBuild],
 
     // rBuilder: [boostTypeEnum.BoostTypeUpgrade, boostTypeEnum.BoostTypeMove],
-    // rFiller: [boostTypeEnum.BoostTypeCarry, boostTypeEnum.BoostTypeMove],
+    rFiller: [boostTypeEnum.BoostTypeCarry, boostTypeEnum.BoostTypeMove],
 
     defender: [boostTypeEnum.BoostTypeAttack, boostTypeEnum.BoostTypeMove],
     rdefender: [boostTypeEnum.BoostTypeRangedAttack, boostTypeEnum.BoostTypeMove],
@@ -331,7 +331,7 @@ export const baseLayout: { [level: number]: {} } = {
 }
 
 export const defaultAutoResource = {
-    [RESOURCE_CATALYZED_LEMERGIUM_ACID]: 10000,     // +100% repair 和 build 效率但不增加其能量消耗
+    [RESOURCE_CATALYZED_LEMERGIUM_ACID]: 30000,     // +100% repair 和 build 效率但不增加其能量消耗
     [RESOURCE_LEMERGIUM_ACID]: 10000,               // +80% repair 和 build 效率但不增加其能量消耗
     [RESOURCE_LEMERGIUM_HYDRIDE]: 10000,            // +50% repair 和 build 效率但不增加其能量消耗
 
@@ -384,7 +384,7 @@ export const reactionConfig = {
     [RESOURCE_UTRIUM_LEMERGITE]: 10000,
     [RESOURCE_GHODIUM]: 10000,                      // Nuker    !!!
 
-    [RESOURCE_CATALYZED_LEMERGIUM_ACID]: 10000,     // +100% repair 和 build 效率但不增加其能量消耗
+    [RESOURCE_CATALYZED_LEMERGIUM_ACID]: 30000,     // +100% repair 和 build 效率但不增加其能量消耗
     [RESOURCE_LEMERGIUM_ACID]: 10000,               // +80% repair 和 build 效率但不增加其能量消耗
     [RESOURCE_LEMERGIUM_HYDRIDE]: 10000,            // +50% repair 和 build 效率但不增加其能量消耗
 
