@@ -1,4 +1,4 @@
-import { reactionSource } from "settings";
+import { reactionSource } from "settings/labs"
 
 export default class LabExtension extends StructureLab {
     private labReactionWork(): void {

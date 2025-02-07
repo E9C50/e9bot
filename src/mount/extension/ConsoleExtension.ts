@@ -1,5 +1,4 @@
-import { reactionSource } from "settings";
-import { Extension } from "typescript";
+import { reactionSource } from "settings/labs";
 
 export default class ConsoleExtension {
     public help(): string {

@@ -1,6 +1,7 @@
-import { creepWhiteList, roleAdvEnum, STRUCTURE_MEMORYKEY_PERFIX, STRUCTURE_PRIVATEKEY_PERFIX } from "settings";
+import { creepWhiteList, STRUCTURE_MEMORYKEY_PERFIX, STRUCTURE_PRIVATEKEY_PERFIX } from "settings/settings";
 import { generateCostMatrix } from "utils/CostMatrix";
 import { getDistance } from "utils";
+import { roleAdvEnum } from "settings/creep";
 
 export default class RoomExtension extends Room {
 

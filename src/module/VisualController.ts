@@ -1,4 +1,4 @@
-import { reactionSource } from "settings";
+import { reactionSource } from "settings/labs";
 
 function showCreepCountInfo(room: Room): void {
     //  统计当前数量

@@ -74,7 +74,7 @@ require('超级移动优化').deletePathInRoom(roomName);
 5.在控制台输入require('超级移动优化').print()获取性能信息，鼓励发给作者用于优化
 */
 
-import { findPathAvoidRooms, observersFindPathIdList } from "settings";
+import { findPathAvoidRooms, observersFindPathIdList } from "settings/settings";
 
 /***************************************
  *  模块参数

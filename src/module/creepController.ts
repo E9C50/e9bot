@@ -1,7 +1,7 @@
 import roles from 'role'
 import squard from 'squard'
 import { sha1String } from "utils";
-import { roleAdvEnum, roleBaseEnum, roleWarEnum, spawnPriority, warModeRole } from "settings";
+import { roleAdvEnum, roleBaseEnum, roleWarEnum, spawnPriority, warModeRole } from "settings/creep";
 import BattleCalc from 'utils/BattleCalc';
 
 /**

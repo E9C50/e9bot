@@ -1,5 +1,6 @@
-import { boostBodyPart, boostTypeEnum, findPathAvoidRooms, roleBaseEnum, roleBoostConfig } from "settings";
-import { getDistance, getOppositeDirection, getOppositePosition, serializeMovePath } from "utils";
+import { boostBodyPart, roleBoostConfig } from "settings/boost";
+import { findPathAvoidRooms } from "settings/settings";
+import { getDistance, getOppositeDirection, serializeMovePath } from "utils";
 
 export default class CreepExtension extends Creep {
 

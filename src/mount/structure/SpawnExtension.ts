@@ -1,4 +1,4 @@
-import { bodyConfigs, roleAdvEnum, roleBaseEnum } from "settings"
+import { bodyConfigs, roleAdvEnum, roleBaseEnum } from "settings/creep"
 import { getBodyConfig } from "utils"
 
 export default class SpawnExtension extends StructureSpawn {

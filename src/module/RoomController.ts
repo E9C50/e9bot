@@ -1,4 +1,7 @@
-import { baseLayout, boostConfig, defaultAutoResource, reactionConfig, reactionSource, roleAdvEnum, roleBoostConfig, roomSignTextList } from "settings"
+import { boostConfig, roleBoostConfig } from "settings/boost"
+import { reactionConfig, reactionSource } from "settings/labs"
+import { baseLayout } from "settings/layout"
+import { defaultAutoResource, roomSignTextList } from "settings/room"
 
 /**
  * 自动更新反应配置

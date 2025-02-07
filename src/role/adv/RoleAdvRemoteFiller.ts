@@ -1,4 +1,4 @@
-import { roleAdvEnum, roleBaseEnum } from "settings"
+import { roleAdvEnum, roleBaseEnum } from "settings/creep"
 import { getClosestLineTarget, getClosestTarget, getDistance } from "utils"
 
 export default (data: CreepData): ICreepConfig => ({

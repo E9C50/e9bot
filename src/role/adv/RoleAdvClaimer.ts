@@ -1,4 +1,4 @@
-import { roomSignTextList } from "settings"
+import { roomSignTextList } from "settings/room"
 import { getDistance } from "utils"
 
 export default (data: CreepData): ICreepConfig => ({
@@ -47,18 +47,20 @@ export default (data: CreepData): ICreepConfig => ({
         // 占领
         creep.claimController(creep.room.controller)
 
-        // // 设置新签名
-        // if (creep.room.memory.roomSignText != undefined && creep.room.controller.sign?.text != creep.room.memory.roomSignText) {
-        //     const existsSigns = Object.values(Game.rooms).map(item => item.memory.roomSignText)
-        //     const unusedSigns = roomSignTextList.filter(item => !existsSigns.includes(item));
-        //     const randomIndex = Math.floor(Math.random() * unusedSigns.length);
-        //     creep.room.memory.roomSignText = unusedSigns[randomIndex]
-        // }
+        if (targetFlag.color != COLOR_PURPLE) return true
 
-        // // 签名不一致就签名
-        // if (creep.room.memory.roomSignText != undefined && creep.room.controller.sign?.text != creep.room.memory.roomSignText) {
-        //     creep.signController(creep.room.controller, creep.room.memory.roomSignText)
-        // }
+        // 设置新签名
+        if (creep.room.memory.roomSignText != undefined && creep.room.controller.sign?.text != creep.room.memory.roomSignText) {
+            const existsSigns = Object.values(Game.rooms).map(item => item.memory.roomSignText)
+            const unusedSigns = roomSignTextList.filter(item => !existsSigns.includes(item));
+            const randomIndex = Math.floor(Math.random() * unusedSigns.length);
+            creep.room.memory.roomSignText = unusedSigns[randomIndex]
+        }
+
+        // 签名不一致就签名
+        if (creep.room.memory.roomSignText != undefined && creep.room.controller.sign?.text != creep.room.memory.roomSignText) {
+            creep.signController(creep.room.controller, creep.room.memory.roomSignText)
+        }
         return true
     },
 })

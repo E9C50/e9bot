@@ -1,4 +1,4 @@
-import { defaultReserverSign } from "settings"
+import { defaultReserverSign } from "settings/room"
 import { getDistance } from "utils"
 
 export default (data: CreepData): ICreepConfig => ({
