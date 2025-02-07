@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
-    "module": "esnext",
-    "lib": ["es2018"],
-    "target": "es2018",
+    "module": "ESNext",
+    "lib": ["ES2018"],
+    "target": "ES2018",
     "moduleResolution": "Node",
     "outDir": "dist",
     "baseUrl": "src/",
@@ -13,7 +13,8 @@
     "noImplicitReturns": true,
     "allowSyntheticDefaultImports": true,
     "allowUnreachableCode": false,
-    "noImplicitAny": false
+    "noImplicitAny": false,
+    "resolveJsonModule": true
   },
   "exclude": ["node_modules"]
 }
