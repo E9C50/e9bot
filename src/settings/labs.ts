@@ -2,7 +2,7 @@
 export const reactionConfig = {
     [RESOURCE_HYDROXIDE]: 10000,
 
-    [RESOURCE_ZYNTHIUM_KEANITE]: 10000,
+    [RESOURCE_ZYNTHIUM_KEANITE]: 30000,
     [RESOURCE_UTRIUM_LEMERGITE]: 10000,
     [RESOURCE_GHODIUM]: 10000,                      // Nuker    !!!
 
@@ -10,39 +10,39 @@ export const reactionConfig = {
     [RESOURCE_LEMERGIUM_ACID]: 10000,               // +80% repair 和 build 效率但不增加其能量消耗
     [RESOURCE_LEMERGIUM_HYDRIDE]: 10000,            // +50% repair 和 build 效率但不增加其能量消耗
 
-    [RESOURCE_CATALYZED_ZYNTHIUM_ACID]: 10000,      // +300% dismantle 效率
+    [RESOURCE_CATALYZED_ZYNTHIUM_ACID]: 30000,      // +300% dismantle 效率
     [RESOURCE_ZYNTHIUM_ACID]: 10000,                // +200% dismantle 效率
     [RESOURCE_ZYNTHIUM_HYDRIDE]: 10000,             // +100% dismantle 效率
 
-    [RESOURCE_CATALYZED_ZYNTHIUM_ALKALIDE]: 10000,  // +300% fatigue(疲劳值) 减低速度
+    [RESOURCE_CATALYZED_ZYNTHIUM_ALKALIDE]: 30000,  // +300% fatigue(疲劳值) 减低速度
     [RESOURCE_ZYNTHIUM_ALKALIDE]: 10000,            // +200% fatigue(疲劳值) 减低速度
     [RESOURCE_ZYNTHIUM_OXIDE]: 10000,               // +100% fatigue(疲劳值) 减低速度
 
-    [RESOURCE_CATALYZED_GHODIUM_ACID]: 10000,       // +100% upgradeController 效率但不增加其能量消耗
+    [RESOURCE_CATALYZED_GHODIUM_ACID]: 30000,       // +100% upgradeController 效率但不增加其能量消耗
     [RESOURCE_GHODIUM_ACID]: 10000,                 // +80% upgradeController 效率但不增加其能量消耗
     [RESOURCE_GHODIUM_HYDRIDE]: 10000,              // +50% upgradeController 效率但不增加其能量消耗
 
-    [RESOURCE_CATALYZED_GHODIUM_ALKALIDE]: 10000,   // 70% 伤害减免
+    [RESOURCE_CATALYZED_GHODIUM_ALKALIDE]: 30000,   // 70% 伤害减免
     [RESOURCE_GHODIUM_ALKALIDE]: 10000,             // 50% 伤害减免
     [RESOURCE_GHODIUM_OXIDE]: 10000,                // 30% 伤害减免
 
-    [RESOURCE_CATALYZED_LEMERGIUM_ALKALIDE]: 10000, // +300% heal and rangedHeal 效率
+    [RESOURCE_CATALYZED_LEMERGIUM_ALKALIDE]: 30000, // +300% heal and rangedHeal 效率
     [RESOURCE_LEMERGIUM_ALKALIDE]: 10000,           // +200% heal 和 rangedHeal 效率
     [RESOURCE_LEMERGIUM_OXIDE]: 10000,              // +100% heal 和 rangedHeal 效率
 
-    [RESOURCE_CATALYZED_KEANIUM_ACID]: 10000,       // +150 容量
+    [RESOURCE_CATALYZED_KEANIUM_ACID]: 30000,       // +150 容量
     [RESOURCE_KEANIUM_ACID]: 10000,                 // +100 容量
     [RESOURCE_KEANIUM_HYDRIDE]: 10000,              // +50 容量
 
-    [RESOURCE_CATALYZED_KEANIUM_ALKALIDE]: 10000,   // +300% rangedAttack 和 rangedMassAttack 效率
+    [RESOURCE_CATALYZED_KEANIUM_ALKALIDE]: 30000,   // +300% rangedAttack 和 rangedMassAttack 效率
     [RESOURCE_KEANIUM_ALKALIDE]: 10000,             // +200% rangedAttack 和 rangedMassAttack 效率
     [RESOURCE_KEANIUM_OXIDE]: 10000,                // +100% rangedAttack 和 rangedMassAttack 效率
 
-    [RESOURCE_CATALYZED_UTRIUM_ACID]: 10000,        // +300% attack 效率
+    [RESOURCE_CATALYZED_UTRIUM_ACID]: 30000,        // +300% attack 效率
     [RESOURCE_UTRIUM_ACID]: 10000,                  // +200% attack 效率
     [RESOURCE_UTRIUM_HYDRIDE]: 10000,               // +100% attack 效率
 
-    [RESOURCE_CATALYZED_UTRIUM_ALKALIDE]: 10000,    // +600% harvest 效率
+    [RESOURCE_CATALYZED_UTRIUM_ALKALIDE]: 30000,    // +600% harvest 效率
     [RESOURCE_UTRIUM_ALKALIDE]: 10000,              // +400% harvest 效率
     [RESOURCE_UTRIUM_OXIDE]: 10000,                 // +200% harvest 效率
 }

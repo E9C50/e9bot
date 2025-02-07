@@ -1,4 +1,4 @@
-import { boostConfig, roleBoostConfig } from "settings/boost"
+import { boostBodyPart, boostConfig, roleBoostConfig } from "settings/boost"
 import { reactionConfig, reactionSource } from "settings/labs"
 import { baseLayout } from "settings/layout"
 import { defaultAutoResource, roomSignTextList } from "settings/room"
@@ -53,37 +53,50 @@ function updateLabBoostConfig(room: Room): void {
     if (Game.time % 10 != 0) return
     if (room.labs.length == 0) return
     const labConfig = room.memory.roomLabConfig
-    labConfig.singleLabConfig = {}
 
     // 根据当前creep需求配置，获取需要boost的资源
-    const creepRoleList = Object.values(room.memory.creepConfig).map(config => config.role)
-    let needBoostTypeList = creepRoleList.reduce<BoostTypeConstant[]>((acc, role) => acc.concat(roleBoostConfig[role] || []), []);
+    Object.values(Game.creeps).forEach(creep => {
+        if (creep.room.name != room.name) return
+        let boostList = roleBoostConfig[creep.memory.role]
+        if (boostList == undefined) return
+        boostList = boostList.filter(boostType =>
+            creep.body.filter(body => body.type == boostBodyPart[boostType] && !body.boost).length > 0
+        )
 
-    if (needBoostTypeList == undefined) return
+        boostList.forEach(boostType => {
+            const boostRes = boostConfig[boostType][2]
+            if (!room.memory.boostNeed[boostRes]) {
+                room.memory.boostNeed[boostRes] = 0
+            }
+            const needBoostPartCount = creep.body.filter(body => !body.boost && body.type == boostBodyPart[boostType]).length
+            room.memory.boostNeed[boostRes] += needBoostPartCount * 30
+        })
+    });
 
-    needBoostTypeList = [...new Set(needBoostTypeList)]
-    needBoostTypeList.forEach(boostType => {
-        if (boostConfig[boostType].length > 0) {
-            const emptyLabId = room.labs.filter(lab => lab.id != labConfig.sourceLab1 && lab.id != labConfig.sourceLab2 && (labConfig.singleLabConfig[lab.id] == undefined || !labConfig.singleLabConfig[lab.id].boostMode))[0]?.id
+    // 分配给lab
+    Object.keys(room.memory.boostNeed).forEach(boostResourceType => {
+        const resourceType = boostResourceType as ResourceConstant
+        const boostType = Object.keys(boostConfig).filter(config => boostConfig[config].includes(resourceType))[0] as BoostTypeConstant
+        if (Object.values(labConfig.singleLabConfig).filter(config => config.boostType == boostType).length > 0) return
 
+        if (room.getResource(resourceType) > 0) {
+            const emptyLabId = room.labs.filter(lab =>
+                lab.id != labConfig.sourceLab1 && lab.id != labConfig.sourceLab2 &&
+                (labConfig.singleLabConfig[lab.id] == undefined || !labConfig.singleLabConfig[lab.id].boostMode)
+            )[0]?.id
             if (emptyLabId == undefined) return
-            const resourceTypeT3 = boostConfig[boostType][2]
-            if (room.getResource(resourceTypeT3, true, false, true, true) > 0) {
-                labConfig.singleLabConfig[emptyLabId] = { resourceType: resourceTypeT3, boostMode: true, boostType: boostType }
-                return
-            }
-            const resourceTypeT2 = boostConfig[boostType][1]
-            if (room.getResource(resourceTypeT2, true, false, true, true) > 0) {
-                labConfig.singleLabConfig[emptyLabId] = { resourceType: resourceTypeT2, boostMode: true, boostType: boostType }
-                return
-            }
-            const resourceTypeT1 = boostConfig[boostType][0]
-            if (room.getResource(resourceTypeT1, true, false, true, true) > 0) {
-                labConfig.singleLabConfig[emptyLabId] = { resourceType: resourceTypeT1, boostMode: true, boostType: boostType }
-                return
-            }
+
+            labConfig.singleLabConfig[emptyLabId] = { resourceType: resourceType, boostMode: true, boostType: boostType }
         }
     });
+
+    Object.keys(labConfig.singleLabConfig).forEach(keys => {
+        const config = labConfig.singleLabConfig[keys]
+        const boostType = Object.keys(room.memory.boostNeed).map(resType => Object.keys(boostConfig).filter(config => boostConfig[config].includes(resType))[0])
+        if (!boostType.includes(config.boostType)) {
+            delete labConfig.singleLabConfig[keys]
+        }
+    })
 }
 
 /**
@@ -443,6 +456,8 @@ export const roomController = function (): void {
         if (room.memory.teamConfig == undefined) room.memory.teamConfig = {}
 
         if (room.memory.roomFillJob.labInMineral == undefined) room.memory.roomFillJob.labInMineral = []
+
+        room.memory.boostNeed = {}
 
         // 更新缓存
         if (room.memory.needUpdateCache) {

@@ -62,6 +62,8 @@ interface RoomMemory {
     creepConfig: { [creepName: string]: CreepMemory }
     teamConfig: { [teamId: string]: TeamConfig }
 
+    boostNeed: { [resourceType: string]: number }
+
     resourceAmount: { [resourceType: string]: number }
     terminalAmount: { [resourceType: string]: number }
     terminalSendJob: {

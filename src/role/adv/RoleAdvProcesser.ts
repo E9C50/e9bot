@@ -32,7 +32,13 @@ export default (data: CreepData): ICreepConfig => ({
         if (fillJobs.labInMineral != undefined && fillJobs.labInMineral.length > 0) {
             const resourceType = fillJobs.labInMineral[0].resourceType
             if (creep.room.storage != undefined && creep.room.storage.store[resourceType] > 0) {
-                if (creep.takeFromTarget(creep.room.storage, resourceType)) {
+                let takeAmount = 0
+                const targetLab = Game.getObjectById(fillJobs.labInMineral[0].labId) as StructureLab
+                const singleLabConfig = creep.room.memory.roomLabConfig.singleLabConfig[fillJobs.labInMineral[0].labId]
+                if (singleLabConfig != undefined && singleLabConfig.boostMode) {
+                    takeAmount = creep.room.memory.boostNeed[resourceType] - targetLab.store[resourceType]
+                }
+                if (creep.takeFromTarget(creep.room.storage, resourceType, takeAmount)) {
                     creep.memory.working = true
                 }
                 return true

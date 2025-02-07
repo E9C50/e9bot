@@ -1,4 +1,4 @@
-import { boostBodyPart, roleBoostConfig } from "settings/boost";
+import { boostBodyPart, boostConfig, roleBoostConfig } from "settings/boost";
 import { findPathAvoidRooms } from "settings/settings";
 import { getDistance, getOppositeDirection, serializeMovePath } from "utils";
 
@@ -259,23 +259,20 @@ export default class CreepExtension extends Creep {
      * @param boostList
      */
     public goBoost(): boolean {
-        let boostList = roleBoostConfig[this.memory.role]
-
-        if (boostList == undefined || boostList.length == 0) return true
-        const boostConfig = this.room.memory.roomLabConfig.singleLabConfig
         if (this.spawning) return false
 
-        boostList = boostList.filter(boostType =>
-            this.body.filter(body => body.type == boostBodyPart[boostType] && !body.boost).length > 0
-        )
+        let boostList = roleBoostConfig[this.memory.role]
+        if (boostList == undefined || boostList.length == 0) return true
+        boostList = boostList.filter(boostType => this.body.filter(body => body.type == boostBodyPart[boostType] && !body.boost).length > 0)
 
         if (boostList.length == 0) {
             this.memory.ready = true
             return true
         }
 
-        for (let labId in boostConfig) {
-            if (boostList.includes(boostConfig[labId].boostType)) {
+        const singleLabConfig = this.room.memory.roomLabConfig.singleLabConfig
+        for (let labId in singleLabConfig) {
+            if (boostList.includes(singleLabConfig[labId].boostType)) {
                 const boostLab: StructureLab = Game.getObjectById(labId) as StructureLab
                 if (boostLab.mineralType == undefined || boostLab.store[boostLab.mineralType] < 100) {
                     if (!this.pos.isNearTo(this.room.spawns[0])) {
