@@ -146,7 +146,7 @@ const carryBodyConfigs = [
 export const roleBoostConfig: { [role in CreepRoleConstant]?: BoostTypeConstant[] } = {
     // upgrader: [boostTypeEnum.BoostTypeUpgrade],
     // builder: [boostTypeEnum.BoostTypeBuild],
-    repairer: [boostTypeEnum.BoostTypeBuild],
+    repairer: [boostTypeEnum.BoostTypeBuild, boostTypeEnum.BoostTypeCarry],
 
     // rBuilder: [boostTypeEnum.BoostTypeUpgrade, boostTypeEnum.BoostTypeMove],
     rFiller: [boostTypeEnum.BoostTypeCarry, boostTypeEnum.BoostTypeMove],

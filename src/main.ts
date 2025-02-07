@@ -51,17 +51,19 @@ export const loop = ErrorMapper.wrapLoop(() => {
 
 
 function privateServerWork() {
-  if (Game.shard.name == 'shard0' && Game.time % 100 == 0) {
+  if (Game.shard.name == 'b7b7cfd29cac' && Game.time % 10 == 0) {
     Object.values(Game.rooms).forEach(room => {
       if (!room.my) return
       if (!room.storage || !room.terminal) return
       let needEnergy = 500000 - room.storage.store[RESOURCE_ENERGY] + room.terminal.store[RESOURCE_ENERGY]
+
       if (needEnergy > 0) {
         const allOrder = Game.market.getAllOrders({ type: ORDER_SELL, resourceType: RESOURCE_ENERGY });
         allOrder.sort((a, b) => a.price - b.price).forEach(order => {
           if (needEnergy <= 0) return
-          Game.market.deal(order.id, order.amount, room.name)
-          needEnergy -= order.amount
+          const buyAmount = Math.min(order.amount, 100000)
+          Game.market.deal(order.id, buyAmount, room.name)
+          needEnergy -= buyAmount
         })
       }
     })

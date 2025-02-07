@@ -425,14 +425,6 @@ export const roomController = function (): void {
             updateFlag.remove()
         }
 
-        // 更新缓存
-        if (room.memory.needUpdateCache) {
-            global.BetterMove.deletePathInRoom(room.name)
-            global[room.name].structureIdList = {}
-            room.memory.needUpdateCache = false
-            console.log('更新建筑缓存', roomName)
-        }
-
         if (global[room.name] == undefined) global[room.name] = {}
         if (global[room.name].structureIdList == undefined) global[room.name].structureIdList = {}
 
@@ -448,6 +440,14 @@ export const roomController = function (): void {
         if (room.memory.teamConfig == undefined) room.memory.teamConfig = {}
 
         if (room.memory.roomFillJob.labInMineral == undefined) room.memory.roomFillJob.labInMineral = []
+
+        // 更新缓存
+        if (room.memory.needUpdateCache) {
+            global.BetterMove.deletePathInRoom(room.name)
+            global[room.name].structureIdList = {}
+            room.memory.needUpdateCache = false
+            console.log('更新建筑缓存', roomName)
+        }
 
         if (!room.my) continue
 

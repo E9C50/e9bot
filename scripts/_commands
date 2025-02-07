@@ -34,12 +34,12 @@ Game.rooms['E35N3'].sendResource('E45N9', 'G', 5000)
 Game.market.cancelOrder('677904f7a59e02004ad0d76c');
 Game.market.extendOrder('6787f55505132b00125c385c', 500000);
 Game.market.changeOrderPrice('67964701dc8bab0012a008dd', 1100);
-Game.market.deal('677e616f05132b0012d8d084', 1, "E35N3");
+Game.market.deal('67a573af00118dcda6db0e46', 1, "E35N3");
 
 Game.rooms['E5S1'].ramparts.forEach(wall => { if (wall.pos.y == 2) wall.destroy() })
 
-Game.market.createOrder({ type: ORDER_BUY, resourceType: 'energy', price: 33, totalAmount: 300000, roomName: "E35N3" });
-Game.market.createOrder({ type: ORDER_SELL, resourceType: 'L', price: 200, totalAmount: 100000, roomName: "E35N1" });
+Game.market.createOrder({ type: ORDER_BUY, resourceType: 'XLH2O', price: 1000, totalAmount: 100000, roomName: "E35N3" });
+Game.market.createOrder({ type: ORDER_SELL, resourceType: 'XLH2O', price: 1000, totalAmount: 100000, roomName: "E35N3" });
 
 
 [
