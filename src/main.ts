@@ -1,5 +1,15 @@
-export const loop = function () {
-  console.log(Game.time)
-}
+import './utils/BetterMove'
+import './utils/RoomResource'
+import './utils/StructureCache'
 
-console.log(`脚本初始化... Tick[${Game.time}] CPU[${Game.cpu.getUsed().toFixed(4)}] Bucket[${Game.cpu.bucket}]`)
+import { mountPrototype } from "prototype";
+import { ErrorMapper } from "utils/ErrorMapper";
+
+export const loop = ErrorMapper.wrapLoop(() => {
+
+    mountPrototype()
+
+    Object.values(Game.rooms).forEach(room => room.exec())
+    Object.values(Game.creeps).forEach(creep => creep.exec())
+    Object.values(Game.powerCreeps).forEach(powerCreep => powerCreep.exec())
+})
