@@ -39,7 +39,7 @@ export function generateCostMatrix(roomName: string) {
 
     // source旁边的rampart
     const rampartIds = room.sources.reduce<Structure[]>((acc, source) =>
-        [...acc, ...ramparts.filter(rampart => rampart.pos.inRangeTo(source.pos, 3))], []
+        [...acc, ...ramparts.filter(rampart => rampart.pos.inRangeTo(source.pos, 2))], []
     ).map(rampart => rampart.id);
 
     ramparts.forEach(r => {
