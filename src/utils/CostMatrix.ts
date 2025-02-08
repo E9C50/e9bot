@@ -36,8 +36,15 @@ export function generateCostMatrix(roomName: string) {
     const ramparts = room.find(FIND_STRUCTURES, {
         filter: s => s.structureType === STRUCTURE_RAMPART
     });
+
+    // source旁边的rampart
+    const rampartIds = room.sources.reduce<Structure[]>((acc, source) =>
+        [...acc, ...ramparts.filter(rampart => rampart.pos.inRangeTo(source.pos, 3))], []
+    ).map(rampart => rampart.id);
+
     ramparts.forEach(r => {
         if (costs.get(r.pos.x, r.pos.y) === 0) costs.set(r.pos.x, r.pos.y, 1);
+        if (rampartIds.includes(r.id)) costs.set(r.pos.x, r.pos.y, 255);
     });
 
     if (debug) console.log('- 建筑标记开销:', Game.cpu.getUsed() - CPU_start);

@@ -97,9 +97,9 @@ export const bodyConfigs: { [role in CreepRoleConstant]: BodySet[] } = {
     filler: carryBodyConfigs,
 
     rBuilder: workerBodyConfigs,
-    // rFiller: carryBodyConfigs,
+    rFiller: carryBodyConfigs,
     // rBuilder: Array.from({ length: 8 }, () => ({ [WORK]: 39, [CARRY]: 1, [MOVE]: 10 })),
-    rFiller: Array.from({ length: 8 }, () => ({ [CARRY]: 40, [MOVE]: 10 })),
+    // rFiller: Array.from({ length: 8 }, () => ({ [CARRY]: 40, [MOVE]: 10 })),
 
     processer: carryBodyConfigs,
     scout: Array.from({ length: 8 }, () => ({ [MOVE]: 1 })),

@@ -120,7 +120,7 @@ function releaseBaseCreepConfig(): void {
                 var repairerCount = Math.floor(room.storage.store[RESOURCE_ENERGY] / 100000) + 1;
                 if (room.controller && room.controller.level < 6) repairerCount = 1;
 
-                repairerCount = Math.min(repairerCount, 4)
+                repairerCount = Math.min(repairerCount, 2)
 
                 for (let i = 0; i < repairerCount; i++) {
                     const creepRepairerName = room.name + '_REPAIRER_STORAGE' + i
@@ -548,6 +548,13 @@ export const creepNumberController = function (): void {
     orderCreepSpawnQueue()
 }
 
+function callTower(target: Creep) {
+    if (target.my && target.hits < target.hitsMax) {
+        target.room.towers[0].heal(target)
+        return
+    }
+}
+
 /**
  * Creep 的工作控制器
  */
@@ -564,6 +571,10 @@ export const creepWorkController = function (): void {
         const prepared = roles[creep.memory.role](creep.memory.data).prepare(creep)
         workCpu.push([creep.name + ' prepare', (Game.cpu.getUsed() - cpu)])
         if (!prepared) return
+
+        if (creep.hits < creep.hitsMax) {
+            callTower(creep)
+        }
 
         if (creep.memory.working) {
             const cpu = Game.cpu.getUsed()
