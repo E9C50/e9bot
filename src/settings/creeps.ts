@@ -24,3 +24,72 @@ export const CreepRoleConfig: CreepRole = {
     rdefender: { roleCode: "", warMode: false, priority: 0, bodyPart: [], boostMap: undefined },
     cAttacker: { roleCode: "", warMode: false, priority: 0, bodyPart: [], boostMap: undefined },
 }
+
+export const CreepSpawnCheck: CreepCheck = {
+    harvester: function (creep: Creep): boolean {
+        throw new Error("Function not implemented.")
+    },
+    filler: function (creep: Creep): boolean {
+        throw new Error("Function not implemented.")
+    },
+    upgrader: function (creep: Creep): boolean {
+        throw new Error("Function not implemented.")
+    },
+    builder: function (creep: Creep): boolean {
+        throw new Error("Function not implemented.")
+    },
+    repairer: function (creep: Creep): boolean {
+        throw new Error("Function not implemented.")
+    },
+    miner: function (creep: Creep): boolean {
+        throw new Error("Function not implemented.")
+    },
+    scout: function (creep: Creep): boolean {
+        throw new Error("Function not implemented.")
+    },
+    manager: function (creep: Creep): boolean {
+        throw new Error("Function not implemented.")
+    },
+    processer: function (creep: Creep): boolean {
+        throw new Error("Function not implemented.")
+    },
+    claimer: function (creep: Creep): boolean {
+        throw new Error("Function not implemented.")
+    },
+    reserver: function (creep: Creep): boolean {
+        throw new Error("Function not implemented.")
+    },
+    rBuilder: function (creep: Creep): boolean {
+        throw new Error("Function not implemented.")
+    },
+    rFiller: function (creep: Creep): boolean {
+        throw new Error("Function not implemented.")
+    },
+    rHarvester: function (creep: Creep): boolean {
+        throw new Error("Function not implemented.")
+    },
+    attacker: function (creep: Creep): boolean {
+        throw new Error("Function not implemented.")
+    },
+    healer: function (creep: Creep): boolean {
+        throw new Error("Function not implemented.")
+    },
+    rAttacker: function (creep: Creep): boolean {
+        throw new Error("Function not implemented.")
+    },
+    dismantler: function (creep: Creep): boolean {
+        throw new Error("Function not implemented.")
+    },
+    integrate: function (creep: Creep): boolean {
+        throw new Error("Function not implemented.")
+    },
+    defender: function (creep: Creep): boolean {
+        throw new Error("Function not implemented.")
+    },
+    rdefender: function (creep: Creep): boolean {
+        throw new Error("Function not implemented.")
+    },
+    cAttacker: function (creep: Creep): boolean {
+        throw new Error("Function not implemented.")
+    }
+}

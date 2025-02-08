@@ -12,9 +12,11 @@ type AdvancedRoleManager = 'manager'
 type AdvancedRoleProcesser = 'processer'
 type AdvancedRoleClaimer = 'claimer'
 type AdvancedRoleReserver = 'reserver'
-type AdvancedRoleRemoteHarvester = 'rHarvester'
-type AdvancedRoleRemoteFiller = 'rFiller'
-type AdvancedRoleRemoteBuilder = 'rBuilder'
+
+// 远程房间角色
+type RemoteRoleHarvester = 'rHarvester'
+type RemoteRoleFiller = 'rFiller'
+type RemoteRoleBuilder = 'rBuilder'
 
 // 战争角色
 type WarRoleAttacker = 'attacker'
@@ -28,13 +30,13 @@ type WarRoleControllerAttacker = 'cAttacker'
 
 // 所有的 creep 角色
 type CreepRoleBaseConstant = BaseRoleHarvester | BaseRoleFiller | BaseRoleUpgrader | BaseRoleBuilder | BaseRoleRepairer | BaseRoleMiner | BaseRoleScout
-type CreepRoleAdvConstant = AdvancedRoleManager | AdvancedRoleProcesser | AdvancedRoleClaimer | AdvancedRoleReserver | AdvancedRoleRemoteHarvester | AdvancedRoleRemoteFiller | AdvancedRoleRemoteBuilder
+type CreepRoleAdvConstant = AdvancedRoleManager | AdvancedRoleProcesser | AdvancedRoleClaimer | AdvancedRoleReserver
+type CreepRoleRemoteConstant = RemoteRoleBuilder | RemoteRoleFiller | RemoteRoleHarvester
 type CreepRoleWarConstant = WarRoleAttacker | WarRoleHealer | WarRoleRangedAttacker | WarRoleDismantler | WarRoleIntegrate | WarRoleDefender | WarRoleRangedDefender | WarRoleControllerAttacker
-type CreepRoleConstant = CreepRoleBaseConstant | CreepRoleAdvConstant | CreepRoleWarConstant
+type CreepRoleConstant = CreepRoleBaseConstant | CreepRoleAdvConstant | CreepRoleRemoteConstant | CreepRoleWarConstant
 
 type CreepWork = { [role in CreepRoleConstant]: ICreepConfig }
-
-interface ICreepConfig { exec: (creep: Creep) => boolean }
+type CreepCheck = { [roleName in CreepRoleConstant]: (creep: Creep) => boolean }
 
 type CreepRole = {
     [roleName in CreepRoleConstant]: {
@@ -45,6 +47,8 @@ type CreepRole = {
         boostMap?: { [bodyType in BodyPartConstant]: ResourceConstant },    // 是否必须boost, 以及boost配置
     }
 }
+
+interface ICreepConfig { exec: (creep: Creep) => void }
 
 interface Creep {
     init(): void;

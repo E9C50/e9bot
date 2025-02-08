@@ -1,5 +1,9 @@
 export default {
-    exec(creep) {
-        return true
+    exec(creep: Creep): void {
+        if (!prepare(creep)) return
     }
+}
+
+function prepare(creep: Creep): boolean {
+    return true
 }
