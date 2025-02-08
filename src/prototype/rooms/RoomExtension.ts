@@ -3,6 +3,7 @@ export default class RoomExtension extends Room {
     }
 
     public exec(): void {
+        this.releaseCreep()
     }
 
     private releaseCreep(): void {
