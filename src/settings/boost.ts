@@ -46,7 +46,7 @@ export const boostConfig: BoostResourceConfig = {
 export const roleBoostConfig: { [role in CreepRoleConstant]?: BoostTypeConstant[] } = {
     // upgrader: [boostTypeEnum.BoostTypeUpgrade],
     // builder: [boostTypeEnum.BoostTypeBuild],
-    repairer: [boostTypeEnum.BoostTypeBuild, boostTypeEnum.BoostTypeCarry],
+    // repairer: [boostTypeEnum.BoostTypeBuild, boostTypeEnum.BoostTypeCarry],
 
     // rBuilder: [boostTypeEnum.BoostTypeUpgrade, boostTypeEnum.BoostTypeMove],
     rFiller: [boostTypeEnum.BoostTypeCarry, boostTypeEnum.BoostTypeMove],
