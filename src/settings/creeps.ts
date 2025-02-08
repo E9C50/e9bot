@@ -1,0 +1,26 @@
+const bodyList = (bodyType: BodyPartConstant, bodyCount: number) => Array.from({ length: bodyCount }, () => bodyType)
+export const CreepRoleConfig: CreepRole = {
+    /* 基本房间运营 */
+    harvester: { roleCode: 'H', warMode: false, priority: 3, bodyPart: [...bodyList(MOVE, 2), ...bodyList(WORK, 2)] },
+    filler: { roleCode: "", warMode: false, priority: 0, bodyPart: [], boostMap: undefined },
+    upgrader: { roleCode: "", warMode: false, priority: 0, bodyPart: [], boostMap: undefined },
+    builder: { roleCode: "", warMode: false, priority: 0, bodyPart: [], boostMap: undefined },
+    repairer: { roleCode: "", warMode: false, priority: 0, bodyPart: [], boostMap: undefined },
+    miner: { roleCode: "", warMode: false, priority: 0, bodyPart: [], boostMap: undefined },
+    scout: { roleCode: "", warMode: false, priority: 0, bodyPart: [], boostMap: undefined },
+    manager: { roleCode: "", warMode: false, priority: 0, bodyPart: [], boostMap: undefined },
+    processer: { roleCode: "", warMode: false, priority: 0, bodyPart: [], boostMap: undefined },
+    claimer: { roleCode: "", warMode: false, priority: 0, bodyPart: [], boostMap: undefined },
+    reserver: { roleCode: "", warMode: false, priority: 0, bodyPart: [], boostMap: undefined },
+    rHarvester: { roleCode: "", warMode: false, priority: 0, bodyPart: [], boostMap: undefined },
+    rFiller: { roleCode: "", warMode: false, priority: 0, bodyPart: [], boostMap: undefined },
+    rBuilder: { roleCode: "", warMode: false, priority: 0, bodyPart: [], boostMap: undefined },
+    attacker: { roleCode: "", warMode: false, priority: 0, bodyPart: [], boostMap: undefined },
+    healer: { roleCode: "", warMode: false, priority: 0, bodyPart: [], boostMap: undefined },
+    rAttacker: { roleCode: "", warMode: false, priority: 0, bodyPart: [], boostMap: undefined },
+    dismantler: { roleCode: "", warMode: false, priority: 0, bodyPart: [], boostMap: undefined },
+    integrate: { roleCode: "", warMode: false, priority: 0, bodyPart: [], boostMap: undefined },
+    defender: { roleCode: "", warMode: false, priority: 0, bodyPart: [], boostMap: undefined },
+    rdefender: { roleCode: "", warMode: false, priority: 0, bodyPart: [], boostMap: undefined },
+    cAttacker: { roleCode: "", warMode: false, priority: 0, bodyPart: [], boostMap: undefined },
+}
