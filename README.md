@@ -38,20 +38,24 @@ This is a bot project for the game **Screeps**, a massively multiplayer online g
 ### Installation
 
 1. **Clone the Repository**:
-   `bash
-git clone https://github.com/your-username/screeps-bot.git
-`
+   ```bash
+    git clone https://github.com/your-username/screeps-bot.git
+   ```
 2. **Install Dependencies**:
-   `bash
-npm install
-`
+
+   ```bash
+   npm install
+   ```
+
 3. **Configure the Bot**:
 
-- Update the `screeps.sample.json` file with your Screeps credentials and other settings.
+   Copy `screeps.sample.json` to `screeps.json`, then fill in your Screeps credentials.
 
 4. **Deploy the Bot**:
 
-- Use the Screeps CLI or upload the code directly to the Screeps server.
+   ```bash
+   npm run push-main
+   ```
 
 ### Usage
 
@@ -111,20 +115,24 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 ### 安装
 
 1. **克隆仓库**：
-   `bash
-git clone https://github.com/your-username/screeps-bot.git
-`
+   ```bash
+    git clone https://github.com/your-username/screeps-bot.git
+   ```
 2. **安装依赖**：
-   `bash
-npm install
-`
+
+   ```bash
+   npm install
+   ```
+
 3. **配置机器人**：
 
-- 更新 `screeps.sample.json` 文件，填写你的 Screeps 凭据和其他设置。
+   复制 `screeps.sample.json` 为 `screeps.json`，然后填写你的 Screeps 凭据。
 
 4. **部署机器人**：
 
-- 使用 Screeps CLI 或直接将代码上传到 Screeps 服务器。
+   ```bash
+   npm run push-main
+   ```
 
 ### 使用
 
