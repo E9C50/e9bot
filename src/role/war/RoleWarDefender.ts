@@ -35,11 +35,13 @@ export default (data: CreepData): ICreepConfig => ({
 
             if (enemyTarget == undefined) return true
 
+            const defenderCostMatrix = creep.room.getDefenderCostMatrix()
+
             const closestRamOrWall = getClosestLineTarget(enemyTarget.pos, [...creep.room.ramparts, ...creep.room.walls])
-            if (closestRamOrWall != undefined) {
+            if (closestRamOrWall != undefined && defenderCostMatrix.get(closestRamOrWall.pos.x, closestRamOrWall.pos.y) != 255) {
                 const result = creep.moveTo(closestRamOrWall.pos.x, closestRamOrWall.pos.y, {
                     costCallback: function (roomName, costMatrix) {
-                        costMatrix = creep.room.getDefenderCostMatrix()
+                        costMatrix = defenderCostMatrix
                         const managerPos = creep.room.memory.roomPosition.managerPos
                         if (managerPos != undefined) {
                             costMatrix.set(managerPos.x, managerPos.y, 255)

@@ -21,6 +21,10 @@ export const defaultAutoResource = {
     [RESOURCE_LEMERGIUM_ACID]: 10000,               // +80% repair 和 build 效率但不增加其能量消耗
     [RESOURCE_LEMERGIUM_HYDRIDE]: 10000,            // +50% repair 和 build 效率但不增加其能量消耗
 
+    [RESOURCE_CATALYZED_GHODIUM_ACID]: 10000,       // +100% upgradeController 效率但不增加其能量消耗
+    [RESOURCE_GHODIUM_ACID]: 10000,                 // +80% upgradeController 效率但不增加其能量消耗
+    [RESOURCE_GHODIUM_HYDRIDE]: 10000,              // +50% upgradeController 效率但不增加其能量消耗
+
     [RESOURCE_CATALYZED_ZYNTHIUM_ALKALIDE]: 10000,  // +300% fatigue(疲劳值) 减低速度
     [RESOURCE_ZYNTHIUM_ALKALIDE]: 10000,            // +200% fatigue(疲劳值) 减低速度
     [RESOURCE_ZYNTHIUM_OXIDE]: 10000,               // +100% fatigue(疲劳值) 减低速度

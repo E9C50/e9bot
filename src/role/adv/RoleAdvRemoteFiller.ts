@@ -23,7 +23,7 @@ export default (data: CreepData): ICreepConfig => ({
 
         if (sourcePos == undefined) return true
 
-        // if (creep.pickupDroppedResource(true, 50)) return true
+        if (creep.pickupDroppedResource(true, 50)) return true
 
         // 如果不在目标房间，则去往目标房间
         if (creep.room.name != sourcePos.roomName) {

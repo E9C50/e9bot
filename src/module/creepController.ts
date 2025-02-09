@@ -364,13 +364,22 @@ function releaseWarCreepConfig(): void {
 
         // 守卫者，根据敌人情况发布不同的守卫
         const enemyList = room.enemies.filter(enemy => enemy.owner.username != 'Invader' && enemy.owner.username != 'Source Keeper')
-        const damageThreshold = enemyList.length > 0 && enemyList.map(enemy => BattleCalc.calcCreepDamage(enemy)).reduce((a, b) => a + b, 0) > 1000
-        if (room.controller != undefined && !room.controller.safeMode && enemyList.length > 0 && damageThreshold) {
+        const damage = enemyList.map(enemy => BattleCalc.calcCreepDamage(enemy)).reduce((a, b) => a + b, 0)
+        if (room.controller != undefined && !room.controller.safeMode && enemyList.length > 0 && damage > 1000) {
             const enemyGroup = analyzeEnemyGroups(enemyList)
 
+            const flagName = roomName + '_T2ATT_0'
             const pcList = enemyList.filter(enemy => enemy['powers'] != undefined)
             if (pcList.length > 0 && Game.time % 5 == 0) {
-                pcList[0].pos.createFlag(roomName + '_T2ATT_0')
+                pcList[0].pos.createFlag(flagName)
+            }
+            if (damage > 7000 && Game.time % 5 == 0) {
+                enemyList[0].pos.createFlag(flagName)
+            }
+
+            if (Game.flags[flagName]) {
+                if (pcList.length > 0) Game.flags[flagName].setPosition(pcList[0].pos)
+                else if (enemyList.length > 0) Game.flags[flagName].setPosition(enemyList[0].pos)
             }
 
             for (let i = 0; i < enemyGroup.length; i++) {
@@ -389,7 +398,7 @@ function releaseWarCreepConfig(): void {
                 })
 
                 // 有红球或者黄球，则每个分组出一个红球
-                if (enemyWorkCount > 0) {
+                if (enemyWorkCount > 0 || enemyAttackCount > 0 || enemyRangeCount > 0) {
                     const memory: DefenderData = { targetEnemy: enemyGroup[i][0].id }
                     const dCreepName = room.name + '_DEFENDER_' + i
                     const creepNameHash = addCreepConfig(room, roleWarEnum.DEFENDER, dCreepName, memory);
@@ -399,14 +408,14 @@ function releaseWarCreepConfig(): void {
                 }
 
                 // 有蓝球就出一个蓝球
-                if (enemyRangeCount > 0) {
-                    const memory: DefenderData = { targetEnemy: enemyGroup[i][0].id }
-                    const rCreepName = room.name + '_RDEFENDER_' + i
-                    const creepNameHash = addCreepConfig(room, roleWarEnum.RDEFENDER, rCreepName, memory);
-                    if (Game.creeps[creepNameHash] != undefined && Game.creeps[Game.creeps[creepNameHash].memory.data['targetEnemy']] == undefined) {
-                        Game.creeps[creepNameHash].memory.data['targetEnemy'] = enemyGroup[i][0].id
-                    }
-                }
+                // if (enemyRangeCount > 0) {
+                //     const memory: DefenderData = { targetEnemy: enemyGroup[i][0].id }
+                //     const rCreepName = room.name + '_RDEFENDER_' + i
+                //     const creepNameHash = addCreepConfig(room, roleWarEnum.RDEFENDER, rCreepName, memory);
+                //     if (Game.creeps[creepNameHash] != undefined && Game.creeps[Game.creeps[creepNameHash].memory.data['targetEnemy']] == undefined) {
+                //         Game.creeps[creepNameHash].memory.data['targetEnemy'] = enemyGroup[i][0].id
+                //     }
+                // }
             }
         }
 

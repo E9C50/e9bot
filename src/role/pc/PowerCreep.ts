@@ -95,7 +95,8 @@ export const powerSpawnController = function (): void {
         }
 
         // Spawn加速技能
-        if (Game.flags[pc.room.name + '_OPSPAWN'] && pc.isPowerAvailable(PWR_OPERATE_SPAWN)) {
+        const opSpawnFlag = Game.flags[pc.room.name + '_OPSPAWN']
+        if (opSpawnFlag && opSpawnFlag.color == COLOR_GREEN && pc.isPowerAvailable(PWR_OPERATE_SPAWN)) {
             for (let index in pc.room.spawns) {
                 if (pc.room.spawns[index].effects == undefined || pc.room.spawns[index].effects.length == 0) {
                     if (getDistance(pc.pos, pc.room.spawns[index].pos) >= 3) {
@@ -152,18 +153,18 @@ export const powerSpawnController = function (): void {
         }
 
         // Tower加成技能
-        if (pc.isPowerAvailable(PWR_OPERATE_TOWER)) {
-            for (let index in pc.room.towers) {
-                if (Memory.warMode[pc.room.name] && (pc.room.towers[index].effects == undefined || pc.room.towers[index].effects.length == 0)) {
-                    if (getDistance(pc.pos, pc.room.towers[index].pos) >= 3) {
-                        pc.moveTo(pc.room.towers[index])
-                        return
-                    }
-                    pc.usePower(PWR_OPERATE_TOWER, pc.room.towers[index])
-                    return
-                }
-            }
-        }
+        // if (pc.isPowerAvailable(PWR_OPERATE_TOWER)) {
+        //     for (let index in pc.room.towers) {
+        //         if (Memory.warMode[pc.room.name] && (pc.room.towers[index].effects == undefined || pc.room.towers[index].effects.length == 0)) {
+        //             if (getDistance(pc.pos, pc.room.towers[index].pos) >= 3) {
+        //                 pc.moveTo(pc.room.towers[index])
+        //                 return
+        //             }
+        //             pc.usePower(PWR_OPERATE_TOWER, pc.room.towers[index])
+        //             return
+        //         }
+        //     }
+        // }
 
         // 如果旗子位置是controller，就开启power
         if (pc.room.controller != undefined && getDistance(pc.pos, pc.room.controller.pos) == 1) {

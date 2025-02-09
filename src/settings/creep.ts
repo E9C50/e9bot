@@ -96,8 +96,9 @@ export const bodyConfigs: { [role in CreepRoleConstant]: BodySet[] } = {
     miner: workerBodyConfigs,
     filler: carryBodyConfigs,
 
-    rBuilder: workerBodyConfigs,
+    // rBuilder: workerBodyConfigs,
     rFiller: carryBodyConfigs,
+    rBuilder: Array.from({ length: 8 }, () => ({ [WORK]: 32, [CARRY]: 1, [MOVE]: 17 })),
     // rBuilder: Array.from({ length: 8 }, () => ({ [WORK]: 39, [CARRY]: 1, [MOVE]: 10 })),
     // rFiller: Array.from({ length: 8 }, () => ({ [CARRY]: 40, [MOVE]: 10 })),
 
@@ -106,7 +107,7 @@ export const bodyConfigs: { [role in CreepRoleConstant]: BodySet[] } = {
     claimer: Array.from({ length: 8 }, () => ({ [CLAIM]: 1, [MOVE]: 1 })),
     cAttacker: Array.from({ length: 8 }, () => ({ [CLAIM]: 19, [MOVE]: 19 })),
 
-    attacker: Array.from({ length: 8 }, () => ({ [TOUGH]: 4, [ATTACK]: 36, [MOVE]: 10 })),
+    attacker: Array.from({ length: 8 }, () => ({ [TOUGH]: 10, [ATTACK]: 30, [MOVE]: 10 })),
     healer: Array.from({ length: 8 }, () => ({ [TOUGH]: 12, [MOVE]: 10, [HEAL]: 28 })),
 
     dismantler: Array.from({ length: 8 }, () => ({ [TOUGH]: 12, [WORK]: 28, [MOVE]: 10 })),
