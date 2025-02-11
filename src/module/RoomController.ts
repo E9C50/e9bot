@@ -256,7 +256,7 @@ function findTowerEnemy(room: Room): void {
     }
 
     // 获取入侵者
-    const npcList = room.enemies.filter(enemy => enemy.owner.username == 'Invader')
+    const npcList = room.enemies.filter(enemy => enemy.owner.username == 'Invader' || enemy.body.length == 1)
     if (npcList.length > 0) room.memory.npcTarget = npcList[0].id
 }
 
@@ -268,9 +268,6 @@ function processTerminalResource(room: Room) {
     // 终端默认留存资源
     room.memory.terminalAmount = {}
     room.memory.terminalAmount['energy'] = 50000
-
-    if (room.name == 'E35N3') room.memory.terminalAmount['K'] = 2000
-    if (room.name == 'E35N1') room.memory.terminalAmount['L'] = 5000
 
     // 终端发送任务
     for (let jobId in room.memory.terminalSendJob) {
@@ -304,6 +301,7 @@ function processTerminalResource(room: Room) {
     if (room.level < 8) return
     if (Game.time % 100 != 0) return
     if (room.name == centerStorage) return
+    if (room.name == 'E39N6') return
 
     // 把房间产的矿发到中央仓库
     const mineralAmount = room.getResource(room.mineral.mineralType, true, true)

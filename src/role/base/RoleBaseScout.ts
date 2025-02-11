@@ -1,3 +1,5 @@
+import { defaultReserverSign } from "settings/room"
+
 export default (data: CreepData): ICreepConfig => ({
     isNeed: (room: Room, creepName: string) => {
         return true
@@ -17,6 +19,11 @@ export default (data: CreepData): ICreepConfig => ({
 
         if (targetFlag != undefined && !creep.pos.isEqualTo(targetFlag.pos)) {
             creep.moveTo(targetFlag)
+
+            if (creep.room.controller && targetFlag.pos.isEqualTo(creep.room.controller)
+                && creep.pos.isNearTo(creep.room.controller) && creep.room.controller.sign?.username != creep.owner.username) {
+                creep.signController(creep.room.controller, defaultReserverSign)
+            }
             return true
         }
 
