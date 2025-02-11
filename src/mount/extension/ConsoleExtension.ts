@@ -89,7 +89,7 @@ export default class ConsoleExtension {
                 if (room.name == Memory.centerStorage) {
                     if (resourceAmount < 10000) {
                         color = 'red';
-                    } else if (resourceAmount >= 50000) {
+                    } else if (resourceAmount >= 100000) {
                         color = 'green';
                     }
                 } else if (resourceType == RESOURCE_OPS || resourceType == RESOURCE_POWER) {
@@ -101,7 +101,7 @@ export default class ConsoleExtension {
                 } else {
                     if (resourceAmount < 5000) {
                         color = 'red'; // 小于3000显示红色
-                    } else if (resourceAmount >= 10000) {
+                    } else if (resourceAmount >= 20000) {
                         color = 'green'; // 大于5000显示绿色
                     }
                 }
