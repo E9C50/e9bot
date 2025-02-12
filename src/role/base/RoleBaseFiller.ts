@@ -118,15 +118,6 @@ export default (data: CreepData): ICreepConfig => ({
             return true
         }
 
-        // 给控制器旁边的container填充
-        if (creep.room.name == 'E7S1') {
-            const controllerContainers = creep.room.containers.filter(container => creep.room.controller != undefined && container.pos.inRangeTo(creep.room.controller, 3))
-            if (controllerContainers.length > 0) {
-                creep.transferToTarget(controllerContainers[0], RESOURCE_ENERGY)
-                return true
-            }
-        }
-
         // 如果不是从storage搬运，那就放到storage
         if (creep.room.storage != undefined && creepData.sourceId != creep.room.storage.id) {
             creep.transferToTarget(creep.room.storage, RESOURCE_ENERGY)

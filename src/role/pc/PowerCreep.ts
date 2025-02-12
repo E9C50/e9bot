@@ -14,6 +14,11 @@ export const powerSpawnController = function (): void {
             pc.spawn(pcFlagTargetRoom.powerSpawn)
         }
 
+        // 搓Ops
+        if (pc.isPowerAvailable(PWR_GENERATE_OPS)) {
+            pc.usePower(PWR_GENERATE_OPS)
+        }
+
         if (pc.room == undefined) return
 
         // 快死了就续命
@@ -41,11 +46,6 @@ export const powerSpawnController = function (): void {
         if (pc.store[RESOURCE_OPS] <= 200 && pc.isRoomHaveOps()) {
             pc.takeOps()
             return
-        }
-
-        // 搓Ops
-        if (pc.isPowerAvailable(PWR_GENERATE_OPS)) {
-            pc.usePower(PWR_GENERATE_OPS)
         }
 
         // Extension填充技能

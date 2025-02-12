@@ -87,6 +87,8 @@ function releaseBaseCreepConfig(): void {
                 if (room.controller && room.controller.level == 8) upgradeCount = 1;
                 upgradeCount = Math.min(upgradeCount, 8);
 
+                upgradeCount = Math.min(upgradeCount, 4);
+
                 for (let i = 0; i < upgradeCount; i++) {
                     const creepMemory: UpgraderData = { sourceId: room.storage.id }
                     const creepName: string = room.name + '_UPGRADER_STORAGE_' + i

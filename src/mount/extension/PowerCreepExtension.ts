@@ -33,7 +33,6 @@ export default class PowerCreepExtension extends PowerCreep {
     public isPowerAvailable(power: PowerConstant): boolean {
         return this.room != undefined && this.room.controller != undefined && this.room.controller.isPowerEnabled
             && this.powers[power] != undefined && this.powers[power].level > 0 && this.powers[power].cooldown == 0
-            && this.store[RESOURCE_OPS] > 0
     }
 
     /**
