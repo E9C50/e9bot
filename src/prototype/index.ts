@@ -1,7 +1,9 @@
+import CreepBaseWorkExtension from "./creeps/CreepBaseWorkExtension"
 import CreepExtension from "./creeps/CreepExtension"
 import PowerExtension from "./powers/PowerExtension"
 import PositionExtension from "./rooms/PositionExtension"
 import RoomExtension from "./rooms/RoomExtension"
+import SpawnExtension from "./structures/SpawnExtension"
 
 /**
  * 挂载到全局
@@ -38,11 +40,14 @@ function assignPrototype(obj1: { [key: string]: any }, obj2: { [key: string]: an
 }
 
 /** 原型拓展 */
-export const mountPrototype = function () {
+export const MountPrototype = function () {
     // 挂载全部拓展
     assignPrototype(Room, RoomExtension)
     assignPrototype(Creep, CreepExtension)
+    assignPrototype(Creep, CreepBaseWorkExtension)
     assignPrototype(PowerCreep, PowerExtension)
     assignPrototype(RoomPosition, PositionExtension)
+
+    assignPrototype(StructureSpawn, SpawnExtension)
 }
 

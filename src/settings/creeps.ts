@@ -1,95 +1,26 @@
 const bodyList = (bodyType: BodyPartConstant, bodyCount: number) => Array.from({ length: bodyCount }, () => bodyType)
 export const CreepRoleConfig: CreepRole = {
     /* 基本房间运营 */
-    harvester: { roleCode: 'H', warMode: false, priority: 3, bodyPart: [...bodyList(MOVE, 2), ...bodyList(WORK, 2)] },
-    filler: { roleCode: "", warMode: false, priority: 0, bodyPart: [], boostMap: undefined },
-    upgrader: { roleCode: "", warMode: false, priority: 0, bodyPart: [], boostMap: undefined },
-    builder: { roleCode: "", warMode: false, priority: 0, bodyPart: [], boostMap: undefined },
-    repairer: { roleCode: "", warMode: false, priority: 0, bodyPart: [], boostMap: undefined },
-    miner: { roleCode: "", warMode: false, priority: 0, bodyPart: [], boostMap: undefined },
-    scout: { roleCode: "", warMode: false, priority: 0, bodyPart: [], boostMap: undefined },
-    manager: { roleCode: "", warMode: false, priority: 0, bodyPart: [], boostMap: undefined },
-    processer: { roleCode: "", warMode: false, priority: 0, bodyPart: [], boostMap: undefined },
-    claimer: { roleCode: "", warMode: false, priority: 0, bodyPart: [], boostMap: undefined },
-    reserver: { roleCode: "", warMode: false, priority: 0, bodyPart: [], boostMap: undefined },
-    rHarvester: { roleCode: "", warMode: false, priority: 0, bodyPart: [], boostMap: undefined },
-    rFiller: { roleCode: "", warMode: false, priority: 0, bodyPart: [], boostMap: undefined },
-    rBuilder: { roleCode: "", warMode: false, priority: 0, bodyPart: [], boostMap: undefined },
-    attacker: { roleCode: "", warMode: false, priority: 0, bodyPart: [], boostMap: undefined },
-    healer: { roleCode: "", warMode: false, priority: 0, bodyPart: [], boostMap: undefined },
-    rAttacker: { roleCode: "", warMode: false, priority: 0, bodyPart: [], boostMap: undefined },
-    dismantler: { roleCode: "", warMode: false, priority: 0, bodyPart: [], boostMap: undefined },
-    integrate: { roleCode: "", warMode: false, priority: 0, bodyPart: [], boostMap: undefined },
-    defender: { roleCode: "", warMode: false, priority: 0, bodyPart: [], boostMap: undefined },
-    rdefender: { roleCode: "", warMode: false, priority: 0, bodyPart: [], boostMap: undefined },
-    cAttacker: { roleCode: "", warMode: false, priority: 0, bodyPart: [], boostMap: undefined },
-}
-
-export const CreepSpawnCheck: CreepCheck = {
-    harvester: function (creep: Creep): boolean {
-        throw new Error("Function not implemented.")
-    },
-    filler: function (creep: Creep): boolean {
-        throw new Error("Function not implemented.")
-    },
-    upgrader: function (creep: Creep): boolean {
-        throw new Error("Function not implemented.")
-    },
-    builder: function (creep: Creep): boolean {
-        throw new Error("Function not implemented.")
-    },
-    repairer: function (creep: Creep): boolean {
-        throw new Error("Function not implemented.")
-    },
-    miner: function (creep: Creep): boolean {
-        throw new Error("Function not implemented.")
-    },
-    scout: function (creep: Creep): boolean {
-        throw new Error("Function not implemented.")
-    },
-    manager: function (creep: Creep): boolean {
-        throw new Error("Function not implemented.")
-    },
-    processer: function (creep: Creep): boolean {
-        throw new Error("Function not implemented.")
-    },
-    claimer: function (creep: Creep): boolean {
-        throw new Error("Function not implemented.")
-    },
-    reserver: function (creep: Creep): boolean {
-        throw new Error("Function not implemented.")
-    },
-    rBuilder: function (creep: Creep): boolean {
-        throw new Error("Function not implemented.")
-    },
-    rFiller: function (creep: Creep): boolean {
-        throw new Error("Function not implemented.")
-    },
-    rHarvester: function (creep: Creep): boolean {
-        throw new Error("Function not implemented.")
-    },
-    attacker: function (creep: Creep): boolean {
-        throw new Error("Function not implemented.")
-    },
-    healer: function (creep: Creep): boolean {
-        throw new Error("Function not implemented.")
-    },
-    rAttacker: function (creep: Creep): boolean {
-        throw new Error("Function not implemented.")
-    },
-    dismantler: function (creep: Creep): boolean {
-        throw new Error("Function not implemented.")
-    },
-    integrate: function (creep: Creep): boolean {
-        throw new Error("Function not implemented.")
-    },
-    defender: function (creep: Creep): boolean {
-        throw new Error("Function not implemented.")
-    },
-    rdefender: function (creep: Creep): boolean {
-        throw new Error("Function not implemented.")
-    },
-    cAttacker: function (creep: Creep): boolean {
-        throw new Error("Function not implemented.")
-    }
+    harvester: { roleCode: 'H', warMode: false, priority: 1 },
+    upgrader: { roleCode: "U", warMode: false, priority: 3 },
+    builder: { roleCode: "B", warMode: false, priority: 2 },
+    repairer: { roleCode: "R", warMode: false, priority: 4 },
+    filler: { roleCode: "F", warMode: false, priority: 2 },
+    miner: { roleCode: "M", warMode: false, priority: 0 },
+    scout: { roleCode: "S", warMode: false, priority: 0 },
+    manager: { roleCode: "C", warMode: false, priority: 0 },
+    processer: { roleCode: "P", warMode: false, priority: 0 },
+    claimer: { roleCode: "CL", warMode: false, priority: 0 },
+    reserver: { roleCode: "RE", warMode: false, priority: 0 },
+    rHarvester: { roleCode: "RH", warMode: false, priority: 0 },
+    rFiller: { roleCode: "RF", warMode: false, priority: 0 },
+    rBuilder: { roleCode: "RB", warMode: false, priority: 0 },
+    attacker: { roleCode: "ATT", warMode: false, priority: 0 },
+    healer: { roleCode: "HEA", warMode: false, priority: 0 },
+    rAttacker: { roleCode: "", warMode: false, priority: 0 },
+    dismantler: { roleCode: "", warMode: false, priority: 0 },
+    integrate: { roleCode: "", warMode: false, priority: 0 },
+    defender: { roleCode: "", warMode: false, priority: 0 },
+    rdefender: { roleCode: "", warMode: false, priority: 0 },
+    cAttacker: { roleCode: "", warMode: false, priority: 0 },
 }

@@ -43,4 +43,67 @@ export default class PositionExtension extends RoomPosition {
         if (targetX < 0 || targetY > 49 || targetX > 49 || targetY < 0) return undefined
         else return new RoomPosition(targetX, targetY, this.roomName)
     }
+
+    /**
+     * 获取到target的距离（切比雪夫距离）
+     * @param pos1
+     * @param pos2
+     * @returns
+     */
+    public getDistance<T extends Creep | Structure | ConstructionSite>(target: T): number {
+        return Math.max(Math.abs(this.x - target.pos.x), Math.abs(this.y - target.pos.y))
+    }
+
+    /**
+     * 获取到target的距离（欧几里得距离）
+     * @param target 
+     * @returns 
+     */
+    public getLineDistance<T extends Creep | Structure | ConstructionSite>(target: T): number {
+        const dx = this.x - target.pos.x; // x 方向差值
+        const dy = this.y - target.pos.y; // y 方向差值
+        return Math.sqrt(dx * dx + dy * dy); // 欧几里得距离
+    }
+
+    /**
+     * 寻找最近的目标（切比雪夫距离）
+     * @param source
+     * @param targetList
+     * @returns
+     */
+    public getClosestTarget<T extends Creep | Structure | ConstructionSite>(targetList: T[]): T {
+        let closest: T = targetList[0]
+        let minRange: number = Infinity
+
+        for (let index in targetList) {
+            let targetRange = this.getDistance(targetList[index])
+            if (targetRange < minRange) {
+                minRange = targetRange
+                closest = targetList[index]
+            }
+        }
+
+        return closest
+    }
+
+    /**
+     * 寻找最近的目标（欧几里得距离）
+     * @param source
+     * @param targetList
+     * @returns
+     */
+    public getClosestLineTarget<T extends Creep | Structure | ConstructionSite>(targetList: T[]): T {
+        let closest: T = targetList[0]
+        let minRange: number = Infinity
+
+        for (let index in targetList) {
+            let targetRange = this.getLineDistance(targetList[index])
+            if (targetRange < minRange) {
+                minRange = targetRange
+                closest = targetList[index]
+            }
+        }
+
+        return closest
+    }
 }

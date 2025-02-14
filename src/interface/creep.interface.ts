@@ -35,26 +35,45 @@ type CreepRoleRemoteConstant = RemoteRoleBuilder | RemoteRoleFiller | RemoteRole
 type CreepRoleWarConstant = WarRoleAttacker | WarRoleHealer | WarRoleRangedAttacker | WarRoleDismantler | WarRoleIntegrate | WarRoleDefender | WarRoleRangedDefender | WarRoleControllerAttacker
 type CreepRoleConstant = CreepRoleBaseConstant | CreepRoleAdvConstant | CreepRoleRemoteConstant | CreepRoleWarConstant
 
-type CreepWork = { [role in CreepRoleConstant]: ICreepConfig }
-type CreepCheck = { [roleName in CreepRoleConstant]: (creep: Creep) => boolean }
+type CreepData = EmptyData | HarvesterData | FillerData
+type CreepWork = { [role in CreepRoleConstant]: (role: CreepRoleConstant, data: CreepData) => ICreepConfig }
 
 type CreepRole = {
     [roleName in CreepRoleConstant]: {
         roleCode: string,                                                   // 短代号, 用于Creep名称
         warMode: boolean,                                                   // 是否无论战争还是和平都得孵化
         priority: number,                                                   // 孵化优先级, 越小越优先
-        bodyPart: BodyPartConstant[],                                       // body配置
-        boostMap?: { [bodyType in BodyPartConstant]: ResourceConstant },    // 是否必须boost, 以及boost配置
     }
 }
 
-interface ICreepConfig { exec: (creep: Creep) => void }
+interface ICreepConfig {
+    exec: (creep: Creep) => void
+    spawnCheck: (room: Room, creepCount: number) => CreepSpawnData | undefined
+}
+
+interface CreepSpawnData {
+    creepData: CreepData
+    creepRole: CreepRoleConstant
+    bodyPart: BodyPartConstant[]
+}
 
 interface Creep {
     init(): void;
     exec(): void;
+
+    takeEnergy(): void
+    doBuildWork(): void
+    doUpdateWork(): void
 }
 
 interface CreepMemory {
     role: string;
+    data?: CreepData
+    ready?: boolean;
+    working?: boolean;
+    spawnRoom: string
 }
+
+interface EmptyData { }
+interface HarvesterData { sourceId: string, targetId?: string }
+interface FillerData { sourceId: string, targetId: string }

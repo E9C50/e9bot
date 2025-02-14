@@ -17,6 +17,6 @@ export default class CreepExtension extends Creep {
             return
         }
 
-        roles[this.memory.role].exec()
+        roles[this.memory.role](this.memory.data).exec(this)
     }
 }

@@ -276,6 +276,21 @@ Object.defineProperty(Room.prototype, 'mass_stores', {
     configurable: true
 })
 
+Object.defineProperty(Room.prototype, 'constructionSite', {
+    get: function () {
+        if ('_constructionSite' in this) {
+            return this._constructionSite;
+        } else {
+            this._constructionSite = Game.rooms[this.name].find(FIND_CONSTRUCTION_SITES);
+            return this._constructionSite;
+        }
+    },
+    set: function () {
+    },
+    enumerable: false,
+    configurable: true
+})
+
 Object.defineProperty(Room.prototype, 'my', {
     get: function () {
         return this.controller && this.controller.my;

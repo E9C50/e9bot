@@ -8,14 +8,18 @@ utils.addNPCTerminals(interval = 10)
 
 // 私服数据修改
 
+{name: {$in: ['']}}
+{username: {$in: ['E9C50', 'Avarice']}}
+{room: 'E15N9', type: {$in: ['ruin', 'tombstone']}}
+
 storage.db['rooms.objects'].find({ '_id': 'e420131ed149cdd' })
 storage.db['rooms.objects'].update({ _id: 'e420131ed149cdd' }, { $set: { hits: 1 } })
 
-storage.db['rooms.objects'].update({ _id: '677f56b49170f300b2944c44' }, { $set: { level: 8 } })
-storage.db['rooms.objects'].update({ _id: '679f6ec5661d06003cfcd750' }, { $set: { store: { energy: 500000 } } })
+storage.db['rooms.objects'].update({ _id: '677f56b59170f300b2944dd4' }, { $set: { level: 8 } })
+storage.db['rooms.objects'].update({ _id: '67ae44b474368200b2106086' }, { $set: { store: { energy: 300 } } })
 storage.db['rooms.objects'].update({ _id: '678733422e22d4003e4cc53d' }, { $set: { store: { XLHO2: 3000 } } })
 
-storage.db['rooms.objects'].find({ type: 'constructionSite', room: { $in: ['E15N8'] } }).then(resp => resp.map(cs => storage.db['rooms.objects'].findOne({ _id: cs._id }).then(csDetail => storage.db['rooms.objects'].update({ _id: cs._id }, { $set: { progress: csDetail.progressTotal - 1 } }))))
+storage.db['rooms.objects'].find({ type: 'constructionSite', room: { $in: ['E15N9'] } }).then(resp => resp.map(cs => storage.db['rooms.objects'].findOne({ _id: cs._id }).then(csDetail => storage.db['rooms.objects'].update({ _id: cs._id }, { $set: { progress: csDetail.progressTotal - 1 } }))))
 storage.db['rooms.objects'].find({ type: { $in: ['constructedWall', 'rampart'] }, room: { $in: ['E15N8'] } }).then(resp => resp.map(cs => storage.db['rooms.objects'].findOne({ _id: cs._id }).then(csDetail => storage.db['rooms.objects'].update({ _id: cs._id }, { $set: { hits: 10000000 } }))))
 storage.db['rooms.objects'].find({ type: { $in: ['spawn', 'extension', 'tower', 'link'] }, room: { $in: ['E13N8'] } }).then(resp => resp.map(cs => storage.db['rooms.objects'].findOne({ _id: cs._id }).then(csDetail => storage.db['rooms.objects'].update({ _id: cs._id }, { $set: { store: { "energy": 300 } } }))))
 storage.db['rooms.objects'].find({ type: { $in: ['tower'] }, room: { $in: ['E12N6'] } }).then(resp => resp.map(cs => storage.db['rooms.objects'].findOne({ _id: cs._id }).then(csDetail => storage.db['rooms.objects'].update({ _id: cs._id }, { $set: { store: { "energy": 1000 } } }))))

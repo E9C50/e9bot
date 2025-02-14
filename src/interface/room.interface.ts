@@ -1,4 +1,5 @@
 interface Room {
+    //------------------------- 建筑房间缓存 -------------------------//
     level: number;  /** 房间等级 */
     my: boolean;    /** 房间是否为自己所有 */
 
@@ -9,6 +10,8 @@ interface Room {
 
     rampart: StructureRampart[];        /** 房间中的rampart数组 */
     constructedWall: StructureWall[];   /** 房间中的wall数组 */
+
+    constructionSite: ConstructionSite[]/** 房间中的ConstructionSite数组 */
 
     extension: StructureExtension[];    /** 房间中的extension数组 */
     container: StructureContainer[];    /** 房间中的container数组 */
@@ -26,6 +29,10 @@ interface Room {
     /** 得到包括此房间所有（按此顺序：）storage、terminal、factory、container的数组 */
     mass_stores: (StructureStorage | StructureTerminal | StructureFactory | StructureContainer)[];
 
+    //------------------------- 建筑房间缓存 -------------------------//
+
+    creepCounts: { [roleName in CreepRoleConstant]: number }
+
     init(): void;
     exec(): void;
 
@@ -33,5 +40,5 @@ interface Room {
 }
 
 interface RoomMemory {
-
+    harvestConfig: { [sourceId: string]: string[] }
 }

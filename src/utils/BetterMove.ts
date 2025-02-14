@@ -1659,17 +1659,17 @@ if (!Creep.prototype.$harvest) {
         this.memory.dontPullMe = true;
         const result = this.$harvest(...e);
 
-        // 统计采集信息
-        const source = e[0];
-        const roomName = this.memory.room || source.room.name;
-        const workLength = this.body.filter(body => body.type == WORK).length;
-        if (source && source.energyCapacity && result == OK && Memory.stats.rooms[roomName]) {
-            const lastNum = Memory.stats.rooms[roomName].energyHarvested;
-            if (!lastNum) {
-                Memory.stats.rooms[roomName].energyHarvested = 0;
-            }
-            Memory.stats.rooms[roomName].energyHarvested = lastNum + workLength * 2;
-        }
+        // // 统计采集信息
+        // const source = e[0];
+        // const roomName = this.memory.room || source.room.name;
+        // const workLength = this.body.filter(body => body.type == WORK).length;
+        // if (source && source.energyCapacity && result == OK && Memory.stats.rooms[roomName]) {
+        //     const lastNum = Memory.stats.rooms[roomName].energyHarvested;
+        //     if (!lastNum) {
+        //         Memory.stats.rooms[roomName].energyHarvested = 0;
+        //     }
+        //     Memory.stats.rooms[roomName].energyHarvested = lastNum + workLength * 2;
+        // }
         return result
     };
 }
