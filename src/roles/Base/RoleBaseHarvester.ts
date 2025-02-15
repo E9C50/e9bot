@@ -1,17 +1,9 @@
+import { workerBodyConfigs } from "settings/creeps"
+
 export default (role: CreepRoleConstant, data: CreepData): ICreepConfig => ({
     spawnCheck: function (room: Room, creepCount: number): CreepSpawnData | undefined {
         if (creepCount < room.source.length) {
-            const workerBodyConfigs = {
-                1: { [WORK]: 1, [CARRY]: 1, [MOVE]: 1 },
-                2: { [WORK]: 2, [CARRY]: 2, [MOVE]: 2 },
-                3: { [WORK]: 3, [CARRY]: 3, [MOVE]: 3 },
-                4: { [WORK]: 4, [CARRY]: 4, [MOVE]: 4 },
-                5: { [WORK]: 6, [CARRY]: 6, [MOVE]: 6 },
-                6: { [WORK]: 7, [CARRY]: 7, [MOVE]: 7 },
-                7: { [WORK]: 12, [CARRY]: 6, [MOVE]: 9 },
-                8: { [WORK]: 20, [CARRY]: 10, [MOVE]: 20 }
-            }
-            return { creepRole: role, creepData: {}, bodyPart: workerBodyConfigs[room.level] }
+            return { creepRole: role, creepData: {}, bodyPart: [WORK, CARRY, MOVE, MOVE] }
         }
         return undefined
     },
@@ -34,6 +26,7 @@ export default (role: CreepRoleConstant, data: CreepData): ICreepConfig => ({
                     creep.pos.createConstructionSite(STRUCTURE_CONTAINER)
                 } else if (constructionSites.length > 0) {
                     creep.build(constructionSites[0])
+                    return
                 } else if (links.length > 0) {
                     creepData.targetId = links[0].id
                 } else if (containers.length > 0) {
@@ -43,7 +36,13 @@ export default (role: CreepRoleConstant, data: CreepData): ICreepConfig => ({
 
             if (creepData.targetId == undefined) return
             const target = Game.getObjectById<AnyStoreStructure>(creepData.targetId)
-            if (target != undefined) creep.transfer(target, RESOURCE_ENERGY)
+            if (target != undefined) {
+                if (target.hits < target.hitsMax) {
+                    creep.repair(target)
+                } else {
+                    creep.transfer(target, RESOURCE_ENERGY)
+                }
+            }
         } else {
             if (creep.store.getFreeCapacity() == 0) {
                 creep.memory.working = true

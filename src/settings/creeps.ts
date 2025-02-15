@@ -24,3 +24,25 @@ export const CreepRoleConfig: CreepRole = {
     rdefender: { roleCode: "", warMode: false, priority: 0 },
     cAttacker: { roleCode: "", warMode: false, priority: 0 },
 }
+
+export const workerBodyConfigs = {
+    1: { [WORK]: 1, [CARRY]: 1, [MOVE]: 1 },
+    2: { [WORK]: 2, [CARRY]: 2, [MOVE]: 2 },
+    3: { [WORK]: 3, [CARRY]: 3, [MOVE]: 3 },
+    4: { [WORK]: 4, [CARRY]: 4, [MOVE]: 4 },
+    5: { [WORK]: 6, [CARRY]: 6, [MOVE]: 6 },
+    6: { [WORK]: 7, [CARRY]: 7, [MOVE]: 7 },
+    7: { [WORK]: 12, [CARRY]: 6, [MOVE]: 9 },
+    8: { [WORK]: 20, [CARRY]: 10, [MOVE]: 20 }
+}
+
+export const carryBodyConfigs = {
+    1: { [CARRY]: 2, [MOVE]: 2 },
+    2: { [CARRY]: 3, [MOVE]: 3 },
+    3: { [CARRY]: 4, [MOVE]: 2 },
+    4: { [CARRY]: 5, [MOVE]: 3 },
+    5: { [CARRY]: 8, [MOVE]: 4 },
+    6: { [CARRY]: 14, [MOVE]: 7 },
+    7: { [CARRY]: 20, [MOVE]: 10 },
+    8: { [CARRY]: 33, [MOVE]: 17 }
+}
