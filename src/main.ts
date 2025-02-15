@@ -14,6 +14,8 @@ import { creepNumberController, creepWorkController, teamWorkController } from '
 // 挂载原型
 mountWork()
 
+const getAverage = (array) => array.reduce((sum, currentValue) => sum + currentValue, 0) / array.length;
+
 export const loop = ErrorMapper.wrapLoop(() => {
     // 房间自动化配置
     roomController()
@@ -47,6 +49,13 @@ export const loop = ErrorMapper.wrapLoop(() => {
 
     // 私服买能量
     privateServerWork()
+
+    if (Game.shard.name == 'shard3') {
+        if (global['cpuList'] == undefined) global['cpuList'] = []
+        global['cpuList'].push(Game.cpu.getUsed())
+        if (global['cpuList'].length > 100) global['cpuList'].shift()
+        console.log(global['cpuList'].length, getAverage(global['cpuList']), Game.cpu.bucket)
+    }
 })
 
 

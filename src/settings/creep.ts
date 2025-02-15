@@ -96,11 +96,11 @@ export const bodyConfigs: { [role in CreepRoleConstant]: BodySet[] } = {
     miner: workerBodyConfigs,
     filler: carryBodyConfigs,
 
-    // rBuilder: workerBodyConfigs,
+    rBuilder: workerBodyConfigs,
     // rFiller: carryBodyConfigs,
     // rBuilder: Array.from({ length: 8 }, () => ({ [WORK]: 32, [CARRY]: 1, [MOVE]: 17 })),
-    rBuilder: Array.from({ length: 8 }, () => ({ [WORK]: 46, [CARRY]: 1, [MOVE]: 3 })),
-    rFiller: Array.from({ length: 8 }, () => ({ [CARRY]: 44, [MOVE]: 6 })),
+    // rBuilder: Array.from({ length: 8 }, () => ({ [WORK]: 46, [CARRY]: 1, [MOVE]: 3 })),
+    rFiller: Array.from({ length: 8 }, () => ({ [CARRY]: 40, [MOVE]: 10 })),
 
     processer: carryBodyConfigs,
     scout: Array.from({ length: 8 }, () => ({ [MOVE]: 1 })),
