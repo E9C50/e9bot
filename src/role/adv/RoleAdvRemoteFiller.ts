@@ -190,10 +190,10 @@ export default (data: CreepData): ICreepConfig => ({
         }
 
         if (targetStructure == undefined) {
-            targetStructure = creep.pos.findClosestByRange(FIND_MY_CREEPS, {
-                filter: creep => creep.memory.role == roleAdvEnum.RBUILDER ||
-                    creep.memory.role == roleBaseEnum.BUILDER || creep.memory.role == roleBaseEnum.UPGRADER
-            })
+            targetStructure = Object.values(Game.creeps).filter(
+                item => creep.room == item.room && item.memory.role == roleAdvEnum.RBUILDER ||
+                    item.memory.role == roleBaseEnum.BUILDER || item.memory.role == roleBaseEnum.UPGRADER
+            ).sort((a, b) => a.store.getFreeCapacity() - b.store.getFreeCapacity())
         }
 
         if (targetStructure == undefined && creep.room.sources.length > 0) {
