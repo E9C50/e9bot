@@ -301,7 +301,6 @@ function processTerminalResource(room: Room) {
     if (room.level < 8) return
     if (Game.time % 100 != 0) return
     if (room.name == centerStorage) return
-    if (room.name == 'E39N6') return
 
     // 把房间产的矿发到中央仓库
     const mineralAmount = room.getResource(room.mineral.mineralType, true, true)

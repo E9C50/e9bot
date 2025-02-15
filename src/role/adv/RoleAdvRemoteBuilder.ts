@@ -7,7 +7,7 @@ export default (data: CreepData): ICreepConfig => ({
         return true
     },
     prepare(creep) {
-        return true
+        return creep.goBoost()
     },
     source(creep) {
         // 如果没有空余容量了，就开始工作
@@ -28,7 +28,7 @@ export default (data: CreepData): ICreepConfig => ({
             return false
         }
 
-        if (creep.pickupDroppedResource(false, 40)) return true
+        // if (creep.pickupDroppedResource(false, 40)) return true
 
         // 如果房间有可搬运的能量，直接去搬
         var resourceTargets: AnyStoreStructure[] = [creep.room.storage, creep.room.terminal, ...creep.room.containers].filter(item => item != undefined) as AnyStoreStructure[]

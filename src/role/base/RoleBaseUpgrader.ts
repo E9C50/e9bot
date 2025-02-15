@@ -69,8 +69,7 @@ export default (data: CreepData): ICreepConfig => ({
             creep.upgradeController(creep.room.controller)
             if (creep.room.terminal != undefined && creep.pos.isNearTo(creep.room.terminal)) {
                 creep.withdraw(creep.room.terminal, RESOURCE_ENERGY)
-            }
-            if (creep.room.storage != undefined && creep.pos.isNearTo(creep.room.storage)) {
+            } else if (creep.room.storage != undefined && creep.pos.isNearTo(creep.room.storage)) {
                 creep.withdraw(creep.room.storage, RESOURCE_ENERGY)
             }
         }

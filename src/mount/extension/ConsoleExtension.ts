@@ -210,18 +210,53 @@ export default class ConsoleExtension {
     }
 
     /**
+     * 将指定资源资源全部收集发到指定房间
+     */
+    public collectResourceSend(resourceType: ResourceConstant, roomName: string): boolean {
+        Object.values(Game.rooms).forEach(room => {
+            if (!room.my) return
+
+            room.labs.forEach(lab => {
+                if (lab.id != room.memory.roomLabConfig.sourceLab1 && lab.id != room.memory.roomLabConfig.sourceLab2
+                    && room.memory.roomFillJob.labOut != undefined && !room.memory.roomFillJob.labOut.includes(lab.id)) {
+                    room.memory.roomFillJob.labOut.push(lab.id)
+                }
+            })
+
+            if (room.name != roomName) {
+                const resourceAmount = room.getResource(resourceType, true, true, true, true)
+                if (resourceAmount > 0) {
+                    room.sendResource(roomName, resourceType, resourceAmount)
+                    console.log(room.name, roomName, resourceAmount)
+                }
+            }
+        })
+        return true
+    }
+
+    /**
      * 将房间资源全部发往中央仓库
      */
     public collectRoomResource(roomName: string): boolean {
         const room = Game.rooms[roomName]
         if (!room.my) return true
-        if (!room.terminal) return true
 
-        Object.keys(room.terminal.store).forEach(resourceType => {
-            if (resourceType != RESOURCE_ENERGY) {
-                room.sendResource(Memory.centerStorage, resourceType as ResourceConstant, room.terminal?.store[resourceType])
-            }
-        })
+        if (room.terminal != undefined) {
+            Object.keys(room.terminal.store).forEach(resourceType => {
+                if (resourceType != RESOURCE_ENERGY) {
+                    room.sendResource(Memory.centerStorage, resourceType as ResourceConstant, room.terminal?.store[resourceType])
+                }
+            })
+        }
+
+        if (room.storage != undefined) {
+            Object.keys(room.storage.store).forEach(resourceType => {
+                if (resourceType != RESOURCE_ENERGY) {
+                    room.sendResource(Memory.centerStorage, resourceType as ResourceConstant, room.storage?.store[resourceType])
+                }
+            })
+        }
+
         return true
     }
 }

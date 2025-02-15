@@ -59,10 +59,11 @@ export default class LabExtension extends StructureLab {
         const labConfig = this.room.memory.roomLabConfig
         const thisLabConfig = labConfig.singleLabConfig[this.id]
         const boostMode = thisLabConfig != undefined && thisLabConfig.boostMode
+        const labOutJob = this.room.memory.roomFillJob.labOut
 
         if (boostMode) {
             // 如果是boost模式，且boost配置的元素和当前元素不一致，就取出
-            if (this.mineralType != undefined && thisLabConfig.resourceType != this.mineralType) {
+            if (this.mineralType != undefined && thisLabConfig.resourceType != this.mineralType && !labOutJob.includes(this.id)) {
                 this.room.memory.roomFillJob.labOut.push(this.id)
             }
 
@@ -73,13 +74,13 @@ export default class LabExtension extends StructureLab {
             }
         } else {
             // 如果不是boost模式，并且不是sourceLab，那么超过1000，或者与当前配方不一致就取出
-            if (this.id != labConfig.sourceLab1 && this.id != labConfig.sourceLab2 && this.mineralType != undefined
+            if (this.id != labConfig.sourceLab1 && this.id != labConfig.sourceLab2 && this.mineralType != undefined && !labOutJob.includes(this.id)
                 && (labConfig.labReactionConfig == undefined || this.mineralType != labConfig.labReactionConfig || this.store[this.mineralType] > 1000)) {
                 this.room.memory.roomFillJob.labOut.push(this.id)
             }
 
             // 如果不是boost模式，并且是sourceLab，并且和配置类型不一致，那就取出
-            if (labConfig.labReactionConfig != undefined && (this.id == labConfig.sourceLab1 || this.id == labConfig.sourceLab2)) {
+            if (labConfig.labReactionConfig != undefined && (this.id == labConfig.sourceLab1 || this.id == labConfig.sourceLab2) && !labOutJob.includes(this.id)) {
                 const reactionConfig = reactionSource[labConfig.labReactionConfig]
                 if ((this.id == labConfig.sourceLab1 && this.mineralType != undefined && this.mineralType != reactionConfig[0])
                     || this.id == labConfig.sourceLab2 && this.mineralType != undefined && this.mineralType != reactionConfig[1]) {
