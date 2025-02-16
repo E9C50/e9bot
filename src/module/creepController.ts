@@ -5,7 +5,7 @@ import { roleAdvEnum, roleBaseEnum, roleWarEnum, spawnPriority, warModeRole } fr
 import BattleCalc from 'utils/BattleCalc';
 
 /**
- * 添加需求配置
+ *  添加需求配置
  * @param room
  * @param creepRole
  * @param creepName
@@ -32,20 +32,6 @@ function addCreepConfig(room: Room, creepRole: CreepRoleConstant, creepName: str
 
 /**
  * 检查房间信息，发布对应Creep需求
- *
- * _MANAGER             0
- * _HARVESTER_          1
- * _MINER               7
- *
- * _FILLER_STORAGE      3
- * _UPGRADER_STORAGE_   4
- * _BUILDER_STORAGE_    5
- * _REPAIRER_STORAGE    6
- *
- * _FILLER_CONTAINER_   2
- * _UPGRADER_CONTAINER_ 3
- * _BUILDER_CONTAINER_  4
- * _REPAIRER_CONTAINER_ 5
  */
 function releaseBaseCreepConfig(): void {
     for (const roomName in Game.rooms) {
