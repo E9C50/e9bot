@@ -4,10 +4,11 @@ export default class SpawnExtension extends StructureSpawn {
     public init(): void {
 
     }
+
     public exec(): void {
         if (this.spawning) return
 
-        const creepSpawnQueue = global.SpawnQueue[this.room.name]
+        const creepSpawnQueue = this.room.spawnQueue
 
         // 如果队列中有creep，则进行孵化
         if (creepSpawnQueue != undefined && creepSpawnQueue.length > 0) {
@@ -24,7 +25,7 @@ export default class SpawnExtension extends StructureSpawn {
             const bodyPart = spawnCreep.bodyPart
 
             const spawnResult = this.spawnCreep(bodyPart, creepName, { memory: creepMemory })
-            if (spawnResult == OK) global.SpawnQueue[this.room.name].shift()
+            if (spawnResult == OK) this.room.spawnQueue.shift()
         }
     }
 }

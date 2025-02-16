@@ -1,7 +1,14 @@
 import creepWork from "roles";
 import { CreepRoleConfig } from "settings/creeps"
+import { BindRoomGlobalProperty, BindRoomMemoryProperty } from "utils/PrototypeBinds";
 
 export default class RoomExtension extends Room {
+    @BindRoomGlobalProperty
+    public spawnQueue!: CreepSpawnData[]
+
+    @BindRoomMemoryProperty
+    public harvestConfig!: { [sourceId: string]: string[] }
+
     public init(): void {
         this.initMemory()
         this.statsCreepCount()
@@ -15,10 +22,8 @@ export default class RoomExtension extends Room {
     }
 
     private initMemory() {
-        if (global.SpawnQueue == undefined) global.SpawnQueue = {}
-        if (global.SpawnQueue[this.name] == undefined) global.SpawnQueue[this.name] = []
-
-        if (this.memory.harvestConfig == undefined) this.memory.harvestConfig = {}
+        if (this.spawnQueue == undefined) this.spawnQueue = []
+        if (this.harvestConfig == undefined) this.harvestConfig = {}
 
         this.creepCounts = Object.keys(CreepRoleConfig).reduce((acc, role) => ({ ...acc, [role]: 0 }), {} as { [roleName in CreepRoleConstant]: number });
     }
@@ -29,7 +34,7 @@ export default class RoomExtension extends Room {
                 this.creepCounts[creep.memory.role] += 1
             }
         })
-        global.SpawnQueue[this.name].forEach(data => {
+        this.spawnQueue.forEach(data => {
             this.creepCounts[data.creepRole] += 1
         });
     }
@@ -38,12 +43,14 @@ export default class RoomExtension extends Room {
         Object.keys(CreepRoleConfig).forEach(creepRole => {
             const spawnData = creepWork[creepRole](creepRole, {}).spawnCheck(this, this.creepCounts[creepRole])
             if (spawnData != undefined) {
-                global.SpawnQueue[this.name].push(spawnData)
+                this.spawnQueue.push(spawnData)
             }
         })
 
-        global.SpawnQueue[this.name] = global.SpawnQueue[this.name].sort((a, b) =>
+        this.spawnQueue = this.spawnQueue.sort((a, b) =>
             CreepRoleConfig[a.creepRole].priority - CreepRoleConfig[b.creepRole].priority
         )
     }
+
+
 }

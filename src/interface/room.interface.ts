@@ -31,14 +31,18 @@ interface Room {
 
     //------------------------- 建筑房间缓存 -------------------------//
 
+    //------------------------- Global缓存 -------------------------//
+    spawnQueue: CreepSpawnData[]
+    //------------------------- Global缓存 -------------------------//
+
+    //------------------------- Memory缓存 -------------------------//
+    harvestConfig: { [sourceId: string]: string[] }
+    //------------------------- Memory缓存 -------------------------//
+
     creepCounts: { [roleName in CreepRoleConstant]: number }
 
     init(): void;
     exec(): void;
 
     update(type?: StructureConstant): void;     // 房间建筑缓存更新
-}
-
-interface RoomMemory {
-    harvestConfig: { [sourceId: string]: string[] }
 }

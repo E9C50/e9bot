@@ -60,15 +60,15 @@ function prepare(creep: Creep): boolean {
     // 绑定目标矿
     if (creepData.sourceId == undefined) {
         const needCreepSource = creep.room.source.filter(source => {
-            let sourceCreeps = creep.room.memory.harvestConfig[source.id] || []
+            let sourceCreeps = creep.room.harvestConfig[source.id] || []
             sourceCreeps = sourceCreeps.filter(creepName => Game.creeps[creepName] != undefined)
-            creep.room.memory.harvestConfig[source.id] = sourceCreeps
+            creep.room.harvestConfig[source.id] = sourceCreeps
             return sourceCreeps.length == 0
         })
 
         if (needCreepSource.length > 0) {
             creepData.sourceId = needCreepSource[0].id
-            creep.room.memory.harvestConfig[needCreepSource[0].id].push(creep.name)
+            creep.room.harvestConfig[needCreepSource[0].id].push(creep.name)
         }
     }
 

@@ -16,7 +16,7 @@ storage.db['rooms.objects'].find({ '_id': 'e420131ed149cdd' })
 storage.db['rooms.objects'].update({ _id: 'e420131ed149cdd' }, { $set: { hits: 1 } })
 
 storage.db['rooms.objects'].update({ _id: '677f56b59170f300b2944dd4' }, { $set: { level: 8 } })
-storage.db['rooms.objects'].update({ _id: '67ae44b474368200b2106086' }, { $set: { store: { energy: 300 } } })
+storage.db['rooms.objects'].update({ _id: '67b02dd074368200b210dace' }, { $set: { store: { energy: 300 } } })
 storage.db['rooms.objects'].update({ _id: '678733422e22d4003e4cc53d' }, { $set: { store: { XLHO2: 3000 } } })
 
 storage.db['rooms.objects'].find({ type: 'constructionSite', room: { $in: ['E15N9'] } }).then(resp => resp.map(cs => storage.db['rooms.objects'].findOne({ _id: cs._id }).then(csDetail => storage.db['rooms.objects'].update({ _id: cs._id }, { $set: { progress: csDetail.progressTotal - 1 } }))))

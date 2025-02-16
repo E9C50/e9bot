@@ -6,10 +6,10 @@ import './utils/StructureCache'
 import { MountPrototype } from "prototype";
 import { ErrorMapper } from "utils/ErrorMapper";
 
-export const loop = ErrorMapper.wrapLoop(() => {
+// 挂载原型
+MountPrototype()
 
-    // 挂载原型
-    MountPrototype()
+export const loop = ErrorMapper.wrapLoop(() => {
 
     // 爬初始化
     CreepController()
