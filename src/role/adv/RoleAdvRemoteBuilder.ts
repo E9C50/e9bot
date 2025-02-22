@@ -7,6 +7,15 @@ export default (data: CreepData): ICreepConfig => ({
         return true
     },
     prepare(creep) {
+        // if (Game.shard.name == 'shard3') {
+        //     const shardMemory = JSON.parse(InterShardMemory.getLocal())
+        //     shardMemory[creep.name] = creep.memory
+        //     InterShardMemory.setLocal(JSON.stringify(shardMemory))
+        // }
+        // if (Game.shard.name == 'shard2') {
+        //     const shardMemory = JSON.parse(InterShardMemory.getRemote('shard3') || '{}')
+        //     creep.memory = shardMemory[creep.name]
+        // }
         return creep.goBoost()
     },
     source(creep) {
@@ -25,6 +34,11 @@ export default (data: CreepData): ICreepConfig => ({
 
         if (creep.room.name != targetPos.room?.name) {
             creep.moveTo(targetPos, { visualizePathStyle: {} })
+            return false
+        }
+
+        if (creep.room.portals.length > 0) {
+            creep.moveTo(targetPos)
             return false
         }
 
@@ -74,7 +88,12 @@ export default (data: CreepData): ICreepConfig => ({
             return false
         }
 
-        if (creep.room.my && creep.room.constructionSites.length == 0) {
+        if (creep.room.portals.length > 0) {
+            creep.moveTo(targetPos)
+            return false
+        }
+
+        if (creep.room.my && creep.room.level < 8 && creep.room.constructionSites.length == 0) {
             return RoleBaseUpgrader(creep.memory.data).target(creep)
         }
         return RoleBaseBuilder(creep.memory.data).target(creep)

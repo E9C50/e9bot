@@ -8,7 +8,7 @@ export default class PowerSpawnExtension extends StructurePowerSpawn {
         }
     }
     public doWork(): void {
-        if (this.room.storage != undefined && this.room.storage.store[RESOURCE_ENERGY] > 100000 &&
+        if (this.room.storage != undefined && this.room.storage.store[RESOURCE_ENERGY] > 50000 &&
             this.store[RESOURCE_ENERGY] >= 50 && this.store[RESOURCE_POWER] >= 1) {
             this.processPower()
         }

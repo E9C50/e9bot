@@ -32,11 +32,14 @@ Game.profiler.profile(100)
 Game.rooms['E35N3'].sendResource('E45N9', 'G', 5000)
 
 Game.market.cancelOrder('677904f7a59e02004ad0d76c');
-Game.market.extendOrder('6787f55505132b00125c385c', 500000);
-Game.market.changeOrderPrice('67964701dc8bab0012a008dd', 1100);
-Game.market.deal('67aedba89a3d1d0012cc626b', 1, "E35N3");
+Game.market.extendOrder('67b85772485a2e0011fcabf8', 9000000000);
+Game.market.changeOrderPrice('67b85772485a2e0011fcabf8', 10000000000);
+Game.market.deal('67b62e3e265532001202e497', 4, "E35N3");
 
 Game.rooms['E5S1'].ramparts.forEach(wall => { if (wall.pos.y == 2) wall.destroy() })
+Object.values(Game.creeps).forEach(creep => {if (creep.memory.role == 'repairer') {creep.suicide()}})
+
+controller = Game.getObjectById('5bbcaf309099fc012e63a4b7');(controller.progressTotal - controller.progress) / 92 / 8 * 2.5 / 60 / 60
 
 Game.market.createOrder({ type: ORDER_BUY, resourceType: 'XLH2O', price: 1000, totalAmount: 100000, roomName: "E35N3" });
 Game.market.createOrder({ type: ORDER_SELL, resourceType: 'XLH2O', price: 1000, totalAmount: 100000, roomName: "E35N3" });

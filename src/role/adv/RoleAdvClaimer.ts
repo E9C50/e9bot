@@ -18,7 +18,7 @@ export default (data: CreepData): ICreepConfig => ({
         if (targetFlag == undefined) return true
 
         // 不在目标房间就过去
-        if (creep.room.name != targetFlag.pos.roomName) {
+        if (creep.pos != targetFlag.pos) {
             creep.moveTo(targetFlag)
             return false
         }

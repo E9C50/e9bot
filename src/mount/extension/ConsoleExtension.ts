@@ -64,17 +64,17 @@ export default class ConsoleExtension {
 
             // 设置 storagePercent 的颜色
             let storageColor = 'yellow'; // 默认黄色
-            if (parseFloat(storagePercent) > 80) {
+            if (parseFloat(storagePercent) > 90) {
                 storageColor = 'red';
-            } else if (parseFloat(storagePercent) < 50) {
+            } else if (parseFloat(storagePercent) < 80) {
                 storageColor = 'green';
             }
 
             // 设置 terminalPercent 的颜色
             let terminalColor = 'yellow'; // 默认黄色
-            if (parseFloat(terminalPercent) > 80) {
+            if (parseFloat(terminalPercent) > 90) {
                 terminalColor = 'red';
-            } else if (parseFloat(terminalPercent) < 50) {
+            } else if (parseFloat(terminalPercent) < 80) {
                 terminalColor = 'green';
             }
 

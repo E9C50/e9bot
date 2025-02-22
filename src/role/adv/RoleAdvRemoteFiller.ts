@@ -23,7 +23,7 @@ export default (data: CreepData): ICreepConfig => ({
 
         if (sourcePos == undefined) return true
 
-        if (creep.pickupDroppedResource(true, 3)) return true
+        if (creep.pickupDroppedResource(true, 10)) return true
 
         // 如果不在目标房间，则去往目标房间
         if (creep.room.name != sourcePos.roomName) {
@@ -180,7 +180,7 @@ export default (data: CreepData): ICreepConfig => ({
         }
 
         // 搬运到最近的storage、link、container
-        var targetStructure;
+        var targetStructure: Structure | Creep = creep.room.storage as Structure;
         const structureList: Structure[] = [
             creep.room.storage, ...creep.room.links, ...creep.room.containers,
             ...creep.room.towers, ...creep.room.spawns, ...creep.room.extensions
@@ -193,7 +193,7 @@ export default (data: CreepData): ICreepConfig => ({
             targetStructure = Object.values(Game.creeps).filter(
                 item => creep.room == item.room && item.memory.role == roleAdvEnum.RBUILDER ||
                     item.memory.role == roleBaseEnum.BUILDER || item.memory.role == roleBaseEnum.UPGRADER
-            ).sort((a, b) => a.store.getFreeCapacity() - b.store.getFreeCapacity())
+            ).sort((a, b) => a.store.getFreeCapacity() - b.store.getFreeCapacity())[0]
         }
 
         if (targetStructure == undefined && creep.room.sources.length > 0) {
@@ -201,7 +201,7 @@ export default (data: CreepData): ICreepConfig => ({
             return true
         }
 
-        if (getDistance(creep.pos, targetStructure.pos) > 1) {
+        if (targetStructure && getDistance(creep.pos, targetStructure.pos) > 1) {
             creep.moveTo(targetStructure)
             return true
         }

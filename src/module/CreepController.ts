@@ -42,6 +42,14 @@ function releaseBaseCreepConfig(): void {
             addCreepConfig(room, roleAdvEnum.MANAGER, room.name + '_MANAGER', {})
         }
 
+        // if (room.name == 'E38N5' && room.storage != undefined) {
+        //     // 发布一个填充者
+        //     const creepFillerMemory: FillerData = { sourceId: room.storage.id }
+        //     const creepFillerName0 = room.name + '_FILLER_STORAGE_0'
+        //     addCreepConfig(room, roleBaseEnum.FILLER, creepFillerName0, creepFillerMemory)
+        //     continue;
+        // }
+
         if (roles[roleAdvEnum.PROCESSER]({}).isNeed(room, '')) {
             addCreepConfig(room, roleAdvEnum.PROCESSER, room.name + '_PROCESSER', {})
         }
@@ -108,7 +116,7 @@ function releaseBaseCreepConfig(): void {
                 var repairerCount = Math.floor(room.storage.store[RESOURCE_ENERGY] / 100000) + 1;
                 if (room.controller && room.controller.level < 6) repairerCount = 1;
 
-                repairerCount = Math.min(repairerCount, 1)
+                repairerCount = Math.min(repairerCount, 2)
 
                 for (let i = 0; i < repairerCount; i++) {
                     const creepRepairerName = room.name + '_REPAIRER_STORAGE' + i
@@ -287,7 +295,7 @@ function releaseJobsCreepConfig(): void {
 
         // 发布新房占领
         const claimFlag = Game.flags[room.name + '_CLAIM']
-        if (claimFlag != undefined && !claimFlag.room?.my) {
+        if (claimFlag != undefined) {
             const claimerMemory: ClaimerData = { targetFlag: claimFlag.name }
             const creepName = room.name + '_CLAIMER_' + claimFlag.name
             addCreepConfig(room, roleAdvEnum.CLAIMER, creepName, claimerMemory);
@@ -564,7 +572,7 @@ export const creepWorkController = function (): void {
         if (Object.values(Memory.warMode).filter(warMode => warMode).length > 0 && !warModeRole.includes(creep.memory.role)) return
 
         const cpu = Game.cpu.getUsed()
-        if (creep.memory.role == undefined) creep.suicide()
+        if (creep.memory.role == undefined) return
         const prepared = roles[creep.memory.role](creep.memory.data).prepare(creep)
         workCpu.push([creep.name + ' prepare', (Game.cpu.getUsed() - cpu)])
         if (!prepared) return

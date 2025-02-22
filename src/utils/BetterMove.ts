@@ -591,7 +591,10 @@ function trySwap(creep, pos, bypassHostileCreeps, ignoreCreeps) {     // ERR_NOT
         }
         for (let c of obstacleCreeps) {
             if (c.my) {
-                if (c.memory.dontPullMe && (c.memory.role == 'manager' || c.memory.role == creep.memory.role)) {    // 第1种不可穿情况：挡路的creep设置了不对穿
+                // if (c.memory.dontPullMe && (c.memory.role == 'manager' || c.memory.role == creep.memory.role)) {    // 第1种不可穿情况：挡路的creep设置了不对穿
+                //     return ERR_INVALID_TARGET;
+                // }
+                if (c.memory.dontPullMe) {    // 第1种不可穿情况：挡路的creep设置了不对穿
                     return ERR_INVALID_TARGET;
                 }
                 if (creepMoveCache[c.name] != Game.time && originMove.call(c, getDirection(pos, creep.pos)) == ERR_NO_BODYPART && creep.pull) {
@@ -1637,13 +1640,13 @@ if (!Creep.prototype.$repair) {
     };
 }
 
-if (!Creep.prototype.$upgradeController) {
-    Creep.prototype.$upgradeController = Creep.prototype.upgradeController;
-    Creep.prototype.upgradeController = function (...e) {
-        this.memory.dontPullMe = true;
-        return this.$upgradeController(...e)
-    };
-}
+// if (!Creep.prototype.$upgradeController) {
+//     Creep.prototype.$upgradeController = Creep.prototype.upgradeController;
+//     Creep.prototype.upgradeController = function (...e) {
+//         this.memory.dontPullMe = true;
+//         return this.$upgradeController(...e)
+//     };
+// }
 
 if (!Creep.prototype.$dismantle) {
     Creep.prototype.$dismantle = Creep.prototype.dismantle;
