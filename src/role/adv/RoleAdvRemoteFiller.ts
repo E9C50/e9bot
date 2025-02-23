@@ -53,7 +53,7 @@ export default (data: CreepData): ICreepConfig => ({
         }
 
         if (creep.room.my && creep.room.level == 8) {
-            withdrawTarget = creep.room.terminal || creep.room.storage
+            withdrawTarget = creep.room.storage || creep.room.terminal
             withdrawResource = RESOURCE_ENERGY
         }
 

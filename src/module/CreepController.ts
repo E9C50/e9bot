@@ -42,14 +42,6 @@ function releaseBaseCreepConfig(): void {
             addCreepConfig(room, roleAdvEnum.MANAGER, room.name + '_MANAGER', {})
         }
 
-        // if (room.name == 'E38N5' && room.storage != undefined) {
-        //     // 发布一个填充者
-        //     const creepFillerMemory: FillerData = { sourceId: room.storage.id }
-        //     const creepFillerName0 = room.name + '_FILLER_STORAGE_0'
-        //     addCreepConfig(room, roleBaseEnum.FILLER, creepFillerName0, creepFillerMemory)
-        //     continue;
-        // }
-
         if (roles[roleAdvEnum.PROCESSER]({}).isNeed(room, '')) {
             addCreepConfig(room, roleAdvEnum.PROCESSER, room.name + '_PROCESSER', {})
         }

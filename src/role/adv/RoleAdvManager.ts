@@ -51,21 +51,6 @@ export default (data: CreepData): ICreepConfig => ({
             return false
         }
 
-        if (creep.room.name == 'E38N5' && creep.room.level < 6) {
-            if (creep.store.getUsedCapacity() > 0) {
-                const targetContainer1 = Game.getObjectById('67b4c7d8751f25e1bd3714a6') as StructureContainer
-                const targetContainer2 = Game.getObjectById('67b4c789113645c4e2761944') as StructureContainer
-                if (targetContainer1.store[RESOURCE_ENERGY] < targetContainer2.store[RESOURCE_ENERGY]) {
-                    creep.transfer(targetContainer1, RESOURCE_ENERGY)
-                } else {
-                    creep.transfer(targetContainer2, RESOURCE_ENERGY)
-                }
-            } else {
-                creep.withdraw(creep.room.storage, RESOURCE_ENERGY)
-            }
-            return true
-        }
-
         // if (creep.pickupDroppedResource(true, 1)) return true
 
         // 身上有东西就放到Storage
