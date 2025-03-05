@@ -260,6 +260,7 @@ export default class CreepExtension extends Creep {
      */
     public goBoost(): boolean {
         if (this.spawning) return false
+        if (this.room.labs.length == 0) return true
 
         let boostList = roleBoostConfig[this.memory.role]
         if (boostList == undefined || boostList.length == 0) return true

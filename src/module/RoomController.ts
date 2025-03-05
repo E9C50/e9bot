@@ -47,7 +47,7 @@ function updateLabReactionConfig(room: Room): void {
             return
         }
     }
-    room.memory.roomLabConfig.labReactionConfig = 'XLH2O'
+    room.memory.roomLabConfig.labReactionConfig = 'XKHO2'
 }
 
 function updateLabBoostConfig(room: Room): void {

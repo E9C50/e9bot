@@ -59,7 +59,8 @@ export default (data: CreepData): ICreepConfig => ({
 
         // 去拿Power
         if (fillJobs.powerSpawnPower && creep.room.storage != undefined && creep.room.storage.store[RESOURCE_POWER] > 0) {
-            if (creep.takeFromTarget(creep.room.storage, RESOURCE_POWER, 90)) {
+            const takeAmount = Math.min(90, creep.room.storage.store[RESOURCE_POWER])
+            if (creep.takeFromTarget(creep.room.storage, RESOURCE_POWER, takeAmount)) {
                 creep.memory.working = true
                 // fillJobs.powerSpawnPower = false
             }

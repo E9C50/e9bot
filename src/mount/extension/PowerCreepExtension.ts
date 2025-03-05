@@ -2,10 +2,7 @@ import { getDistance } from "utils";
 
 export default class PowerCreepExtension extends PowerCreep {
     /**
-     * 从指定地方取出OPS
-     * @param takeTarget
-     * @param resourceType
-     * @param amount
+     * 拿取OPS
      */
     public takeOps(): void {
         var takeTarget: AnyStoreStructure | undefined = undefined
@@ -19,9 +16,23 @@ export default class PowerCreepExtension extends PowerCreep {
 
         if (takeTarget == undefined) return
         if (getDistance(this.pos, takeTarget.pos) <= 1) {
-            this.withdraw(takeTarget, RESOURCE_OPS)
+            const amount = this.store.getFreeCapacity() * 0.5
+            this.withdraw(takeTarget, RESOURCE_OPS, amount)
         } else {
             this.moveTo(takeTarget)
+        }
+    }
+
+    /**
+     * 存放OPS
+     */
+    public saveOps(): void {
+        if (this.room == undefined || this.room.storage == undefined) return
+        if (getDistance(this.pos, this.room.storage.pos) <= 1) {
+            const amount = this.store[RESOURCE_OPS] * 0.5
+            this.transfer(this.room.storage, RESOURCE_OPS, amount)
+        } else {
+            this.moveTo(this.room.storage)
         }
     }
 

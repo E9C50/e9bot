@@ -55,10 +55,17 @@ export const defaultAutoResource = {
     [RESOURCE_UTRIUM_ACID]: 10000,                  // +200% attack 效率
     [RESOURCE_UTRIUM_HYDRIDE]: 10000,               // +100% attack 效率
 
+    [RESOURCE_CATALYZED_UTRIUM_ALKALIDE]: 20000,    // +600% harvest 效率
+    [RESOURCE_UTRIUM_ALKALIDE]: 10000,              // +400% harvest 效率
+    [RESOURCE_UTRIUM_OXIDE]: 10000,                 // +200% harvest 效率
+
     [RESOURCE_POWER]: 3000,
     [RESOURCE_OPS]: 3000,
 
     [RESOURCE_GHODIUM]: 10000,
+    [RESOURCE_HYDROXIDE]: 10000,
+    [RESOURCE_ZYNTHIUM_KEANITE]: 10000,
+    [RESOURCE_UTRIUM_LEMERGITE]: 10000,
 
     [RESOURCE_CATALYST]: 10000,
     [RESOURCE_LEMERGIUM]: 10000,

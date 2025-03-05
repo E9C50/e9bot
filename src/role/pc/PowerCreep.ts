@@ -48,49 +48,42 @@ export const powerSpawnController = function (): void {
             return
         }
 
-        // Extension填充技能
-        if (pc.isPowerAvailable(PWR_OPERATE_EXTENSION)) {
-            if (pc.room.energyAvailable < (pc.room.energyCapacityAvailable * 0.6)) {
-                if (pc.room.storage != undefined) {
-                    if (getDistance(pc.pos, pc.room.storage.pos) >= 3) {
-                        pc.moveTo(pc.room.storage)
-                        return
-                    }
-                    pc.usePower(PWR_OPERATE_EXTENSION, pc.room.storage)
-                    return
-                }
-                if (pc.room.terminal != undefined) {
-                    if (getDistance(pc.pos, pc.room.terminal.pos) >= 3) {
-                        pc.moveTo(pc.room.terminal)
-                        return
-                    }
-                    pc.usePower(PWR_OPERATE_EXTENSION, pc.room.terminal)
-                    return
-                }
-            }
+        // OPS满了就放下一部分
+        if (pc.store.getFreeCapacity() < 10 && pc.room.my) {
+            pc.saveOps()
+            return
+        }
+
+        if (pcFlag.color == COLOR_RED) {
+            if (!pc.pos.isEqualTo(pcFlag.pos)) pc.moveTo(pcFlag)
+            return
         }
 
         // Storage扩容技能
         if (pc.isPowerAvailable(PWR_OPERATE_STORAGE)) {
             if (pc.room.storage != undefined) {
-                if (getDistance(pc.pos, pc.room.storage.pos) >= 3) {
-                    pc.moveTo(pc.room.storage)
+                if (pc.room.storage.effects == undefined || pc.room.storage.effects.length == 0 || pc.room.storage.effects[0].ticksRemaining < 10) {
+                    if (getDistance(pc.pos, pc.room.storage.pos) >= 3) {
+                        pc.moveTo(pc.room.storage)
+                        return
+                    }
+                    pc.usePower(PWR_OPERATE_STORAGE, pc.room.storage)
                     return
                 }
-                pc.usePower(PWR_OPERATE_STORAGE, pc.room.storage)
-                return
             }
         }
 
-        // PowerSpawn加速技能
-        if (pc.isPowerAvailable(PWR_OPERATE_POWER)) {
-            if (pc.room.powerSpawn != undefined) {
-                if (getDistance(pc.pos, pc.room.powerSpawn.pos) >= 3) {
-                    pc.moveTo(pc.room.powerSpawn)
+        // Terminal技能
+        if (pc.isPowerAvailable(PWR_OPERATE_TERMINAL) && Object.keys(pc.room.memory.terminalSendJob).length > 0) {
+            if (pc.room.terminal != undefined) {
+                if (pc.room.terminal.effects == undefined || pc.room.terminal.effects.length == 0 || pc.room.terminal.effects[0].ticksRemaining < 10) {
+                    if (getDistance(pc.pos, pc.room.terminal.pos) >= 3) {
+                        pc.moveTo(pc.room.terminal)
+                        return
+                    }
+                    pc.usePower(PWR_OPERATE_TERMINAL, pc.room.terminal)
                     return
                 }
-                pc.usePower(PWR_OPERATE_POWER, pc.room.powerSpawn)
-                return
             }
         }
 
@@ -109,19 +102,53 @@ export const powerSpawnController = function (): void {
             }
         }
 
-        // Lab加速技能
-        if (pc.isPowerAvailable(PWR_OPERATE_LAB)) {
-            for (let index in pc.room.labs) {
-                if (pc.room.labs[index].effects == undefined || pc.room.labs[index].effects.length == 0) {
-                    if (getDistance(pc.pos, pc.room.labs[index].pos) >= 3) {
-                        pc.moveTo(pc.room.labs[index])
+        // Extension填充技能
+        if (opSpawnFlag && opSpawnFlag.color == COLOR_GREEN && pc.isPowerAvailable(PWR_OPERATE_EXTENSION)) {
+            if (pc.room.energyAvailable < (pc.room.energyCapacityAvailable * 0.6)) {
+                if (pc.room.storage != undefined && pc.room.storage.store[RESOURCE_ENERGY] > 0) {
+                    if (getDistance(pc.pos, pc.room.storage.pos) >= 3) {
+                        pc.moveTo(pc.room.storage)
                         return
                     }
-                    pc.usePower(PWR_OPERATE_LAB, pc.room.labs[index])
+                    pc.usePower(PWR_OPERATE_EXTENSION, pc.room.storage)
+                    return
+                }
+                if (pc.room.terminal != undefined && pc.room.terminal.store[RESOURCE_ENERGY] > 0) {
+                    if (getDistance(pc.pos, pc.room.terminal.pos) >= 3) {
+                        pc.moveTo(pc.room.terminal)
+                        return
+                    }
+                    pc.usePower(PWR_OPERATE_EXTENSION, pc.room.terminal)
                     return
                 }
             }
         }
+
+        // // PowerSpawn加速技能
+        // if (pc.isPowerAvailable(PWR_OPERATE_POWER)) {
+        //     if (pc.room.powerSpawn != undefined) {
+        //         if (getDistance(pc.pos, pc.room.powerSpawn.pos) >= 3) {
+        //             pc.moveTo(pc.room.powerSpawn)
+        //             return
+        //         }
+        //         pc.usePower(PWR_OPERATE_POWER, pc.room.powerSpawn)
+        //         return
+        //     }
+        // }
+
+        // // Lab加速技能
+        // if (pc.isPowerAvailable(PWR_OPERATE_LAB)) {
+        //     for (let index in pc.room.labs) {
+        //         if (pc.room.labs[index].effects == undefined || pc.room.labs[index].effects.length == 0) {
+        //             if (getDistance(pc.pos, pc.room.labs[index].pos) >= 3) {
+        //                 pc.moveTo(pc.room.labs[index])
+        //                 return
+        //             }
+        //             pc.usePower(PWR_OPERATE_LAB, pc.room.labs[index])
+        //             return
+        //         }
+        //     }
+        // }
 
         // 有敌人不出去点矿和source
         const warMode = pc.room.memory.npcTarget != undefined && Game.getObjectById(pc.room.memory.npcTarget) != undefined && Memory.warMode[pc.room.name]
