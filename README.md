@@ -1,4 +1,4 @@
-# EcBot - My Screeps AI Bot
+# E9Bot - My Screeps AI Bot
 
 ### Overview
 
